@@ -10,7 +10,7 @@
 1. Clone the repository:
 
 ```bash
-git clone https://github.com/aipartnerup/spec-forge.git
+git clone https://github.com/tercel/spec-forge.git
 ```
 
 2. Create the skills directory if it doesn't exist:
