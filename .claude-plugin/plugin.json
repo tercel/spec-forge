@@ -1,0 +1,26 @@
+{
+  "name": "spec-forge",
+  "description": "Generate professional-grade software specifications — PRD, SRS, Technical Design, and Test Plan — based on industry standards (Google, Amazon, IEEE). Works standalone or as a full traceability chain.",
+  "version": "1.1.0",
+  "author": {
+    "name": "tercelyi"
+  },
+  "homepage": "https://github.com/tercelyi/spec-forge",
+  "repository": {
+    "type": "git",
+    "url": "https://github.com/tercelyi/spec-forge.git"
+  },
+  "license": "MIT",
+  "keywords": [
+    "specifications",
+    "prd",
+    "srs",
+    "tech-design",
+    "test-plan",
+    "ieee-830",
+    "ieee-829",
+    "claude-code-plugin",
+    "documentation",
+    "requirements"
+  ]
+}
