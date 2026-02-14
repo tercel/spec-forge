@@ -1,5 +1,5 @@
 ---
-allowed-tools: Read, Glob, Grep, Write, AskUserQuestion
+allowed-tools: Read, Glob, Grep, Write, AskUserQuestion, Task
 description: Generate a Technical Design Document (Tech Design Doc)
 argument-hint: <feature name>
 ---
@@ -56,85 +56,66 @@ Ask the user 8-12 key questions using AskUserQuestion.
 
 Wait for user responses before proceeding.
 
-### Step 3: Document Generation
+### Step 3: Launch Document Generation
 
-Load and follow the tech design template from the skill reference file at:
-`skills/tech-design-generation/references/template.md`
+After receiving user answers, assemble and launch a generation sub-agent.
 
-Generate the complete technical design document. Key requirements:
-- Include at least 2 alternative solutions with a comparison matrix
-- **Technology Stack**: Specify exact language, framework, runtime, ORM, database, cache, and all dependencies with version numbers and rationale
-- **Naming Conventions**: Define complete naming rules for code (files, classes, functions, variables, constants), API (URLs, params, fields, error codes), and database (tables, columns, indexes, constraints)
-- **Parameter Validation**: For EVERY API parameter, define: type, required/optional, min/max, regex pattern, default value, sanitization rules, and specific error messages. No parameter left unspecified.
-- **Boundary Values**: Define explicit system limits (request size, field lengths, array sizes, rate limits, pagination caps) with exact behavior when exceeded
-- **Edge Cases**: Document handling for: empty input, unicode, duplicate requests, concurrent updates, null vs zero, timezone, numeric overflow
-- **Business Logic**: Document all state machines (with guard conditions and side effects per transition), computation rules (with precision and examples), and conditional logic (with explicit true/false branches)
-- **Error Handling**: Define error taxonomy with HTTP status, error codes, retry strategy, circuit breaker config, and fallback behavior for every external dependency
-- Use Mermaid for all diagrams:
-  - C4 Context Diagram (system context)
-  - C4 Container Diagram (high-level architecture)
-  - Component Diagram (detailed module design)
-  - Sequence Diagram (core workflows)
-  - State Machine Diagram (if applicable)
-- API design must include: endpoints, methods, request/response schemas, error codes
-- Database design must include: schema definitions, ER diagram (Mermaid), index strategy, migration plan
-- Security section must cover: authentication, authorization, data encryption, audit logging
-- Performance section must include: target metrics, caching strategy, optimization techniques
+Collect from Steps 1-2:
+1. **Project context summary**: project structure, tech stack, architecture patterns, key findings from deep scan
+2. **Mode**: Chain mode or Standalone mode (determined in Step 1)
+3. **Upstream documents** (chain mode only):
+   - Summary of PRD key findings and requirement IDs (PRD-XXX-NNN)
+   - Summary of SRS functional requirements (FR-XXX-NNN) and non-functional requirements (NFR-XXX-NNN)
+   - PRD file path: `docs/prd-<name>.md`
+   - SRS file path: `docs/srs-<name>.md`
+4. **User answers**: all question-answer pairs from Step 2
+5. **Feature name**: $ARGUMENTS
 
-### Step 4: Traceability
+Launch `Task(subagent_type="general-purpose")` with the following prompt:
 
-**Chain mode** (upstream docs found):
-- Map SRS functional requirements to technical components
-- Map SRS non-functional requirements to architecture decisions
-- Ensure all FR/NFR items are addressed in the design
+---
 
-**Standalone mode** (no upstream docs):
-- Skip the SRS traceability matrix
-- Instead, include a "Design Inputs" section summarizing the requirements derived from user clarification
-- Add a note: *"To establish full traceability, consider running `/prd` → `/srs` first, then re-running `/tech-design`."*
+You are a senior software architect with deep expertise in writing technical design documents, following Google Design Doc, RFC template, and Uber/Meta engineering design standards.
 
-### Step 5: Quality Check
+Your task is to generate a professional Technical Design Document for: **{feature name}**
 
-Load the quality checklist from:
-`skills/tech-design-generation/references/checklist.md`
+## Context
 
-Run through every item in the checklist. For any failed check, revise the document before finalizing.
+### Project Context
+{project context summary from Step 1 — including tech stack, architecture patterns, existing code conventions}
 
-### Step 6: Write Output
+### Mode
+{Chain mode / Standalone mode}
 
-1. Sanitize the feature name from $ARGUMENTS to create a filename slug
-2. Create the `docs/` directory if it doesn't exist
-3. Write the final document to `docs/tech-design-<feature-name>.md`
-4. Confirm the file path to the user and provide a brief summary
+### Upstream PRD (chain mode only)
+{Summary of PRD key findings with requirement IDs}
+Upstream file: `{PRD file path}` — Read this file for fine-grained details.
 
-## Important Guidelines
+### Upstream SRS (chain mode only)
+{Summary of SRS functional requirements (FR-) and non-functional requirements (NFR-)}
+Upstream file: `{SRS file path}` — Read this file for fine-grained details.
 
-- **Implementation-ready detail**: The document should be detailed enough that an engineer can implement without asking clarifying questions. Vague specs like "validate input appropriately" or "handle errors gracefully" are NOT acceptable — specify exact rules.
-- **Every parameter defined**: No API parameter should lack a type, range, format, or error message. If you don't define the boundary, engineers will guess differently.
-- **Every edge case addressed**: If the system can receive empty input, nulls, duplicates, or concurrent writes, the design must say what happens. Silence is ambiguity.
-- **Business logic is unambiguous**: State transitions need guard conditions. Formulas need precision and rounding rules. Conditions need both the true AND false branch.
-- Always present the recommended solution first, then alternatives
-- Decision rationale must be explicit — explain WHY, not just WHAT
-- Diagrams should be self-explanatory with proper labels and legends
-- API designs should follow RESTful conventions unless there's a specific reason not to
-- Consider backward compatibility and migration paths
-- Address failure modes and error handling for every component
-- Include rollback strategy for deployments
-- Keep security as a first-class concern, not an afterthought
+### User Requirements
+{all question-answer pairs from Step 2}
 
-### Anti-Shortcut Rules
+## Instructions
 
-The following shortcuts are **strictly prohibited** — they are common AI failure modes that produce low-quality tech designs:
+Read the generation instructions at:
+`skills/tech-design-generation/references/generation-instructions.md`
 
-1. **Do NOT present only one solution disguised as a comparison.** The plan requires at least 2 genuine alternatives with honest trade-off analysis. Adding a straw-man "do nothing" option does not count.
-2. **Do NOT use "handle appropriately" or "validate as needed".** Every error condition must specify the exact HTTP status code, error code, retry behavior, and user-facing message. Every validation rule must specify the exact type, range, pattern, and error response.
-3. **Do NOT omit parameter validation details.** Every API parameter must have: type, required/optional, min/max, regex pattern, default value, sanitization rule, and specific error message. No parameter may be left unspecified.
-4. **Do NOT draw empty-shell Mermaid diagrams.** Every node must have a label. Every arrow must have a description. Diagrams without annotations are decoration, not documentation. If a diagram doesn't add information beyond the text, remove it.
-5. **Do NOT write "details to follow" or "TBD" without a concrete follow-up plan.** If a section is incomplete, state what is unknown, what is needed to resolve it, and who is responsible. Open questions must be logged in the document's Open Questions section.
+Follow every instruction completely. Include at least 2 alternative solutions with comparison matrix, C4 diagrams (Mermaid), Parameter Validation for every API parameter, boundary values, edge cases, and traceability to SRS requirements (chain mode) or design inputs section (standalone mode).
+
+CRITICAL: Follow the Anti-Shortcut Rules strictly. Do not present only one solution disguised as a comparison, use "handle appropriately" or "validate as needed", omit parameter validation details, draw empty-shell Mermaid diagrams, or write "TBD" without a concrete follow-up plan.
+
+## Output
+1. Write the document to `docs/tech-design-{slug}.md`
+2. Return: file path, 3-5 sentence summary, number of components designed, number of API endpoints
+
+---
 
 ## Next Steps
 
-After the Technical Design is complete, suggest the following to the user:
+After the sub-agent returns, present the result to the user and suggest:
 
 1. **Continue the spec chain**: Run `/test-plan` to plan the testing strategy and write test cases based on this design.
 2. **Ready to implement?** If the [superpowers](https://github.com/obra/superpowers) plugin is installed, use `/write-plan` + `/execute-plan` to break down the design into implementation tasks and execute them systematically. If not, consider breaking the design into development tasks manually.

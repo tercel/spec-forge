@@ -1,5 +1,5 @@
 ---
-allowed-tools: Read, Glob, Grep, Write, AskUserQuestion
+allowed-tools: Read, Glob, Grep, Write, AskUserQuestion, Task
 description: Generate a Software Requirements Specification (SRS)
 argument-hint: <feature name>
 ---
@@ -48,67 +48,60 @@ Ask the user 5-8 key questions using AskUserQuestion.
 
 Wait for user responses before proceeding.
 
-### Step 3: Document Generation
+### Step 3: Launch Document Generation
 
-Load and follow the SRS template from the skill reference file at:
-`skills/srs-generation/references/template.md`
+After receiving user answers, assemble and launch a generation sub-agent.
 
-Generate the complete SRS following the template structure. Key requirements:
-- Functional requirement IDs: FR-<MODULE>-<NNN> (e.g., FR-AUTH-001)
-- Non-functional requirement IDs: NFR-<CATEGORY>-<NNN> (e.g., NFR-PERF-001)
-- Each functional requirement must include: description, input/output, acceptance criteria, priority
-- Each non-functional requirement must include: description, metric, target value, measurement method
-- Include a CRUD matrix for data operations
-- Include use case descriptions with actors, preconditions, main flow, alternate flows, postconditions
+Collect from Steps 1-2:
+1. **Project context summary**: project structure, tech stack, key findings from scanning
+2. **Mode**: Chain mode or Standalone mode (determined in Step 1)
+3. **Upstream documents** (chain mode only):
+   - Summary of PRD key findings and requirement IDs (PRD-XXX-NNN)
+   - PRD file path for re-read: `docs/prd-<name>.md`
+4. **User answers**: all question-answer pairs from Step 2
+5. **Feature name**: $ARGUMENTS
 
-### Step 4: Traceability Matrix
+Launch `Task(subagent_type="general-purpose")` with the following prompt:
 
-**Chain mode** (PRD found):
-- Create a requirements traceability matrix mapping PRD items → SRS requirements
-- Every PRD feature should map to at least one SRS functional requirement
-- Flag any PRD items that are not covered by the SRS
+---
 
-**Standalone mode** (no PRD):
-- Skip the PRD traceability matrix
-- Instead, include a "Requirements Source" section noting that requirements were derived from user clarification (not an upstream PRD)
-- Add a note: *"To establish full traceability, consider running `/prd` first, then re-running `/srs`."*
+You are a senior requirements engineer with deep expertise in writing formal Software Requirements Specifications, following IEEE 830 (SRS), ISO/IEC/IEEE 29148, and Amazon technical specification standards.
 
-### Step 5: Quality Check
+Your task is to generate a professional Software Requirements Specification (SRS) for: **{feature name}**
 
-Load the quality checklist from:
-`skills/srs-generation/references/checklist.md`
+## Context
 
-Run through every item in the checklist. For any failed check, revise the document before finalizing.
+### Project Context
+{project context summary from Step 1}
 
-### Step 6: Write Output
+### Mode
+{Chain mode / Standalone mode}
 
-1. Sanitize the feature name from $ARGUMENTS to create a filename slug
-2. Create the `docs/` directory if it doesn't exist
-3. Write the final document to `docs/srs-<feature-name>.md`
-4. Confirm the file path to the user and provide a brief summary
+### Upstream PRD (chain mode only)
+{Summary of PRD key findings with requirement IDs}
+Upstream file: `{PRD file path}` — Read this file for fine-grained details.
 
-## Important Guidelines
+### User Requirements
+{all question-answer pairs from Step 2}
 
-- Requirements must be unambiguous — each requirement should have exactly one interpretation
-- Requirements must be testable — each must have clear acceptance criteria
-- Requirements must be traceable — link back to PRD items where applicable
-- Use "shall" for mandatory requirements, "should" for recommended, "may" for optional
-- Avoid implementation details — describe WHAT, not HOW
-- Include boundary conditions and error scenarios for each requirement
+## Instructions
 
-### Anti-Shortcut Rules
+Read the generation instructions at:
+`skills/srs-generation/references/generation-instructions.md`
 
-The following shortcuts are **strictly prohibited** — they are common AI failure modes that produce low-quality SRS documents:
+Follow every instruction completely. Generate FR-<MODULE>-<NNN> formatted functional requirements and NFR-<CATEGORY>-<NNN> formatted non-functional requirements. Include CRUD matrix, use cases with alternate flows, and traceability matrix (chain mode) or requirements source section (standalone mode).
 
-1. **Do NOT copy-paste PRD content as requirements.** The PRD describes *what the product should be*; the SRS must specify *what the system shall do* in precise, testable terms. Simply rephrasing PRD bullets is not requirements engineering.
-2. **Do NOT skip alternative flows and exception scenarios.** Every use case has error paths, edge cases, and recovery scenarios. Writing only the happy path is incomplete. Each functional requirement must include alternative and exception flows.
-3. **Do NOT use vague verbs.** Words like "handle", "manage", "process", or "support" are ambiguous. Replace with specific behaviors: "validate", "reject with error code 422", "persist to the `orders` table", "return within 200ms".
-4. **Do NOT omit boundary conditions.** Every input field, parameter, and data entity has limits. If you don't specify min/max lengths, allowed characters, and range constraints, engineers will guess differently.
-5. **Do NOT write untestable requirements.** If a requirement cannot be verified by a concrete test case, it is not a valid requirement. Every requirement must have measurable acceptance criteria (Given/When/Then or explicit conditions).
+CRITICAL: Follow the Anti-Shortcut Rules strictly. Do not copy-paste PRD content as requirements, skip alternative flows, use vague verbs, omit boundary conditions, or write untestable requirements.
+
+## Output
+1. Write the document to `docs/srs-{slug}.md`
+2. Return: file path, 3-5 sentence summary, FR count, NFR count
+
+---
 
 ## Next Steps
 
-After the SRS is complete, suggest the following to the user:
+After the sub-agent returns, present the result to the user and suggest:
 
 1. **Continue the spec chain**: Run `/tech-design` to design the technical architecture based on these requirements.
 2. **Jump to testing**: Run `/test-plan` to go directly to test planning (standalone mode will compensate for the missing tech design).
