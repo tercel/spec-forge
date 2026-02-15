@@ -17,7 +17,7 @@
 
 ```bash
 /plugin uninstall doc-lifecycle
-/plugin install spec-forge@superpowers-marketplace
+/plugin install spec-forge@claude-code-skills
 ```
 
 ---

@@ -1,8 +1,10 @@
 ---
 allowed-tools: Read, Glob, Grep, Write, AskUserQuestion, Task
-description: Generate a Product Requirements Document (PRD)
+description: "Generate a Product Requirements Document (PRD) — alias for /spec-forge prd"
 argument-hint: <product/feature name>
 ---
+
+> This is an alias for `/spec-forge prd`. Both commands are identical.
 
 You are a senior product manager with deep expertise in writing world-class PRDs, inspired by Google PRD, Amazon Working Backwards (PR/FAQ), and Stripe Product Spec methodologies.
 
@@ -18,8 +20,9 @@ Before anything else, scan the current project to understand context:
 2. Read the project README.md if it exists
 3. Read any existing documents in the `docs/` directory
 4. Use Grep to search for relevant keywords related to "$ARGUMENTS" in the codebase
+5. Check if `ideas/$ARGUMENTS/draft.md` exists — if found, read it as additional context (the user may have brainstormed this idea already)
 
-Summarize what you learned about the project context.
+Summarize what you learned about the project context. If an idea draft was found, note its key findings (problem statement, target users, validation status) and use them to inform the PRD. Keep the summary concise (~500 words max).
 
 ### Step 2: Clarification Questions
 
@@ -44,9 +47,10 @@ Wait for user responses before proceeding.
 After receiving user answers, assemble and launch a generation sub-agent.
 
 Collect from Steps 1-2:
-1. **Project context summary**: project structure, tech stack, key findings from scanning
-2. **User answers**: all question-answer pairs from Step 2
-3. **Feature name**: $ARGUMENTS
+1. **Project context summary**: project structure, tech stack, key findings from scanning (concise, ~500 words)
+2. **Idea draft context** (if found): key findings from `ideas/$ARGUMENTS/draft.md` — problem, target users, research, validation status
+3. **User answers**: all question-answer pairs from Step 2
+4. **Feature name**: $ARGUMENTS
 
 Launch `Task(subagent_type="general-purpose")` with the following prompt:
 
@@ -60,6 +64,10 @@ Your task is to generate a professional Product Requirements Document (PRD) for:
 
 ### Project Context
 {project context summary from Step 1}
+
+### Idea Draft (if available)
+{Key findings from ideas/ draft: problem statement, target users, competitive analysis, demand validation, MVP scope. If no idea draft was found, omit this section.}
+If idea draft exists at `ideas/{feature-name}/draft.md`, read it for additional context. Also check `ideas/{feature-name}/research/` for competitive analysis and market research data.
 
 ### User Requirements
 {all question-answer pairs from Step 2}
@@ -85,4 +93,4 @@ After the sub-agent returns, present the result to the user and suggest:
 
 1. **Continue the spec chain**: Run `/srs` to transform this PRD into a formal Software Requirements Specification with detailed functional and non-functional requirements.
 2. **Jump to design**: Run `/tech-design` to go directly to technical architecture design (standalone mode will compensate for the missing SRS).
-3. **Ready to implement?** If the [superpowers](https://github.com/obra/superpowers) plugin is installed, use `/write-plan` to break down into implementation tasks. If not, consider breaking the PRD into development tasks manually.
+3. **Ready to implement?** If the [code-forge](https://github.com/tercel/code-forge) plugin is installed, use `/forge @docs/prd-{slug}.md` to break down into implementation tasks and execute them. If not, consider breaking the PRD into development tasks manually.

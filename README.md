@@ -2,23 +2,27 @@
 
 **Professional Software Specification Generator for Claude Code**
 
-Generate industry-standard specifications — PRD, SRS, Technical Design, and Test Plan — each usable standalone or as part of a full traceability chain.
+Generate industry-standard specifications — from early-stage brainstorming to PRD, SRS, Technical Design, and Test Plan — each usable standalone or as part of a full traceability chain.
 
 ## Overview
 
-Software projects need clear specifications. spec-forge generates four types of professional documents, each based on proven industry standards:
+Software projects need clear specifications. spec-forge covers the full journey from idea to implementation-ready documents:
 
-| Command | Document Type | Use Standalone | Standards |
-|---------|--------------|:-:|-----------|
-| `/prd` | Product Requirements Document | Yes | Google PRD, Amazon PR/FAQ |
-| `/srs` | Software Requirements Specification | Yes | IEEE 830, ISO/IEC/IEEE 29148 |
-| `/tech-design` | Technical Design Document | Yes | Google Design Doc, RFC Template |
-| `/test-plan` | Test Plan & Test Cases | Yes | IEEE 829, ISTQB |
+| Command | Description | Standards |
+|---------|-------------|-----------|
+| `/spec-forge idea <name>` | Interactive brainstorming — explore and refine ideas | — |
+| `/spec-forge prd <name>` | Product Requirements Document | Google PRD, Amazon PR/FAQ |
+| `/spec-forge srs <name>` | Software Requirements Specification | IEEE 830, ISO/IEC/IEEE 29148 |
+| `/spec-forge tech-design <name>` | Technical Design Document | Google Design Doc, RFC Template |
+| `/spec-forge test-plan <name>` | Test Plan & Test Cases | IEEE 829, ISTQB |
+| `/spec-forge <name>` | **Full chain** — auto-run PRD → SRS → Tech Design → Test Plan | All of the above |
 
-**Each command works independently.** Use just `/prd` for a product review, or just `/tech-design` for an architecture discussion. When upstream documents exist (e.g., a PRD before writing an SRS), spec-forge automatically detects and traces requirements across documents.
+**Aliases**: `/prd`, `/srs`, `/tech-design`, `/test-plan`, `/idea` work as shortcuts.
 
 ## Features
 
+- **Idea to Spec**: Brainstorm interactively, then graduate ideas into formal documents
+- **Full Chain Mode**: One command runs the entire specification chain automatically
 - **Standalone or Chained**: Use any command on its own, or run the full chain for bidirectional traceability
 - **Industry Standards**: Templates grounded in Google, Amazon, Stripe, IEEE, and ISTQB best practices
 - **Automatic Context Scanning**: Scans your project structure, README, and existing docs before generation
@@ -28,7 +32,34 @@ Software projects need clear specifications. spec-forge generates four types of 
 
 ## Commands
 
-### `/prd <product/feature name>`
+### `/spec-forge idea <name>` — Brainstorming
+
+Interactive, multi-session brainstorming for early-stage ideas:
+
+- **Iterative**: Explore an idea across multiple sessions, days apart
+- **Persistent**: Sessions stored in `ideas/` directory (add to `.gitignore` or commit for team use)
+- **Graduated**: When an idea is ready, it flows into the spec chain seamlessly
+
+```bash
+/spec-forge idea cool-feature       # Start or resume brainstorming
+/spec-forge idea                    # List all ideas
+```
+
+Status flow: `exploring` → `refining` → `ready` → `graduated`
+
+### `/spec-forge <name>` — Full Chain
+
+Run the complete specification chain in one command:
+
+```bash
+/spec-forge user-login              # Auto: PRD → SRS → Tech Design → Test Plan
+```
+
+- Detects existing documents and resumes from where you left off
+- PRD stage requires user interaction; subsequent stages run with minimal input (chain mode)
+- If an idea draft exists in `ideas/`, uses it as additional context
+
+### `/spec-forge prd <name>`
 
 Generates a Product Requirements Document including:
 - Problem statement and product vision
@@ -41,7 +72,7 @@ Generates a Product Requirements Document including:
 
 **Reference**: Google PRD, Amazon Working Backwards (PR/FAQ), Stripe Product Spec
 
-### `/srs <feature name>`
+### `/spec-forge srs <name>`
 
 Generates a Software Requirements Specification including:
 - Functional requirements with structured IDs (FR-XXX-NNN)
@@ -50,11 +81,11 @@ Generates a Software Requirements Specification including:
 - External interface requirements
 - Requirements traceability matrix (PRD → SRS, when PRD exists)
 
-**Standalone**: When no upstream PRD is found, asks additional questions about product goals, target users, and success criteria to compensate.
+**Standalone**: When no upstream PRD is found, asks additional questions to compensate.
 
 **Reference**: IEEE 830, ISO/IEC/IEEE 29148, Amazon Technical Specifications
 
-### `/tech-design <feature name>`
+### `/spec-forge tech-design <name>`
 
 Generates a Technical Design Document including:
 - C4 architecture diagrams (Context, Container, Component)
@@ -64,11 +95,11 @@ Generates a Technical Design Document including:
 - Security, performance, and observability design
 - Deployment and rollback strategy
 
-**Standalone**: When no upstream PRD/SRS is found, asks additional questions about requirements scope, constraints, and acceptance criteria to compensate.
+**Standalone**: When no upstream PRD/SRS is found, asks additional questions to compensate.
 
 **Reference**: Google Design Doc, RFC Template, Uber/Meta Engineering Standards
 
-### `/test-plan <feature name>`
+### `/spec-forge test-plan <name>`
 
 Generates a Test Plan & Test Cases document including:
 - Test strategy (test pyramid: Unit → Integration → E2E)
@@ -77,13 +108,23 @@ Generates a Test Plan & Test Cases document including:
 - Defect management process
 - Requirements traceability matrix (SRS → Test Cases, when SRS exists)
 
-**Standalone**: When no upstream SRS/Tech Design is found, asks additional questions about feature behavior, edge cases, and quality targets to compensate.
+**Standalone**: When no upstream SRS/Tech Design is found, asks additional questions to compensate.
 
 **Reference**: IEEE 829, ISTQB Test Standards, Google Testing Blog
 
-## Document Traceability (Chain Mode)
+## Complete Workflow
 
-When you run commands in sequence, spec-forge builds a full traceability chain:
+```
+/spec-forge idea cool-feature        # Brainstorm (iterative, multi-session)
+    ↓ (graduated)
+/spec-forge cool-feature             # Full chain: PRD → SRS → Tech Design → Test Plan
+    ↓
+/forge @docs/tech-design-*.md        # code-forge: break into tasks + execute
+```
+
+### Document Traceability (Chain Mode)
+
+When you run the full chain, spec-forge builds bidirectional traceability:
 
 ```
 PRD ──traceability──→ SRS ──design input──→ Tech Design ──test input──→ Test Plan
@@ -94,47 +135,31 @@ PRD ──traceability──→ SRS ──design input──→ Tech Design ─�
                         Traceability matrix spans all documents
 ```
 
-The recommended full-chain workflow:
-
-1. `/prd user-login` — Define the product vision and requirements
-2. `/srs user-login` — Formalize functional and non-functional requirements
-3. `/tech-design user-login` — Design the technical architecture
-4. `/test-plan user-login` — Plan testing strategy and write test cases
-
-Each subsequent command automatically reads upstream documents to maintain consistency.
-
 ## Output
 
-All documents are written to the `docs/` directory:
+All specification documents are written to the `docs/` directory:
 - `docs/prd-<feature-name>.md`
 - `docs/srs-<feature-name>.md`
 - `docs/tech-design-<feature-name>.md`
 - `docs/test-plan-<feature-name>.md`
 
+Brainstorming ideas are stored in the project's `ideas/` directory. Add `ideas/` to `.gitignore` to keep them private, or commit for team collaboration.
+
 ## Works Great With
 
-**[superpowers](https://github.com/obra/superpowers)** — spec-forge handles upstream specification (what to build and why), superpowers handles downstream execution (how to build it and ship it).
+**[code-forge](https://github.com/tercel/code-forge)** — spec-forge handles upstream specification (what to build and why), code-forge handles downstream execution (how to build it and ship it).
 
-Combined workflow:
+**spec-forge works perfectly standalone — code-forge is optional.**
 
-1. `/prd` → Define product vision (spec-forge)
-2. `/srs` → Formalize requirements (spec-forge)
-3. `/tech-design` → Design architecture (spec-forge)
-4. `/test-plan` → Plan testing strategy (spec-forge)
-5. `/write-plan` → Break into implementation tasks (superpowers)
-6. `/execute-plan` → Code with TDD + review (superpowers)
-
-**spec-forge works perfectly standalone — superpowers is optional.**
-
-If superpowers is not installed, each command's "Next Steps" section provides general guidance for moving forward with implementation.
+If code-forge is not installed, each command's "Next Steps" section provides general guidance for moving forward with implementation.
 
 ## Installation
 
 ### Claude Code (via Plugin Marketplace)
 
 ```bash
-/plugin marketplace add tercelyi/spec-forge-marketplace
-/plugin install spec-forge@spec-forge-marketplace
+/plugin marketplace add tercel/claude-code-skills
+/plugin install spec-forge@claude-code-skills
 ```
 
 ### Codex

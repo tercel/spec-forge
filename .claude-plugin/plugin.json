@@ -1,12 +1,12 @@
 {
   "name": "spec-forge",
-  "description": "Generate professional-grade software specifications — PRD, SRS, Technical Design, and Test Plan — based on industry standards (Google, Amazon, IEEE). Works standalone or as a full traceability chain.",
-  "version": "0.2.0",
+  "description": "Generate professional software specifications — from brainstorming to PRD, SRS, Technical Design, and Test Plan — based on industry standards (Google, Amazon, IEEE). Single entry point with full chain mode and demand validation.",
+  "version": "0.4.0",
   "author": {
     "name": "tercel",
     "url": "https://github.com/tercel"
   },
   "repository": "https://github.com/tercel/spec-forge",
   "license": "MIT",
-  "keywords": ["PRD", "SRS", "Technical Design", "Test Plan", "tdd", "documentation"]
+  "keywords": ["PRD", "SRS", "Technical Design", "Test Plan", "brainstorming", "specification", "documentation"]
 }
