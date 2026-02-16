@@ -10,7 +10,7 @@
 | **Reviewers**    | [Reviewer names]               |
 | **Date**         | [YYYY-MM-DD]                   |
 | **Status**       | Draft / In Review / Approved   |
-| **Related PRD**  | [Link to docs/prd-feature.md]  |
+| **Related PRD**  | [Link to docs/{feature}/prd.md]  |
 
 ## 2. Revision History
 

@@ -10,8 +10,8 @@
 | **Reviewers**       | [Reviewer 1, Reviewer 2]                      |
 | **Date**            | [YYYY-MM-DD]                                  |
 | **Status**          | Draft                                         |
-| **Related SRS**     | [docs/srs-feature-name.md, version X.X]       |
-| **Related Tech Design** | [docs/tech-design-feature-name.md, version X.X] |
+| **Related SRS**     | [docs/{feature}/srs.md, version X.X]       |
+| **Related Tech Design** | [docs/{feature}/tech-design.md, version X.X] |
 
 ## 2. Revision History
 

@@ -50,7 +50,7 @@ Run through every item in the checklist. For any failed check, revise the docume
 
 1. Sanitize the feature name to create a filename slug (lowercase, hyphens, no special chars)
 2. Create the `docs/` directory if it doesn't exist
-3. Write the final document to `docs/tech-design-<feature-name>.md`
+3. Write the final document to `docs/<feature-name>/tech-design.md`
 4. Confirm the file path and provide a brief summary
 
 ## Important Guidelines
