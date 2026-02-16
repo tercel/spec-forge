@@ -112,4 +112,4 @@ After the sub-agent returns, present the result to the user and suggest:
 
 1. **Begin implementation and testing** based on the test plan. Use the test cases as the source of truth for writing test code.
 2. **Missing upstream docs?** If you want full traceability, consider running the full spec chain: `/prd` → `/srs` → `/tech-design` → `/test-plan`.
-3. **Ready to implement?** If the [code-forge](https://github.com/tercel/code-forge) plugin is installed, use `/forge @docs/{slug}/tech-design.md` to implement features test-first, using this test plan as the guide. If not, use the test cases directly as your TDD starting point.
+3. **Ready to implement?** If the [code-forge](https://github.com/tercel/code-forge) plugin is installed, use `/code-forge:plan @docs/{slug}/tech-design.md` to implement features test-first, using this test plan as the guide. If not, use the test cases directly as your TDD starting point.

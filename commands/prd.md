@@ -93,4 +93,4 @@ After the sub-agent returns, present the result to the user and suggest:
 
 1. **Continue the spec chain**: Run `/srs` to transform this PRD into a formal Software Requirements Specification with detailed functional and non-functional requirements.
 2. **Jump to design**: Run `/tech-design` to go directly to technical architecture design (standalone mode will compensate for the missing SRS).
-3. **Ready to implement?** If the [code-forge](https://github.com/tercel/code-forge) plugin is installed, use `/forge @docs/{slug}/prd.md` to break down into implementation tasks and execute them. If not, consider breaking the PRD into development tasks manually.
+3. **Ready to implement?** If the [code-forge](https://github.com/tercel/code-forge) plugin is installed, use `/code-forge:plan @docs/{slug}/prd.md` to break down into implementation tasks and execute them. If not, consider breaking the PRD into development tasks manually.

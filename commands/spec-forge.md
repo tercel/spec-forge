@@ -1,7 +1,7 @@
 ---
 allowed-tools: Read, Glob, Grep, Write, Edit, AskUserQuestion, Task, Bash
 description: "Generate professional software specifications — run the full chain or individual documents"
-argument-hint: "[idea|decompose|prd|srs|tech-design|test-plan] <feature name>"
+argument-hint: "[idea|decompose|feature|prd|srs|tech-design|test-plan] <feature name>"
 ---
 
 You are the spec-forge orchestrator. Your job is to route subcommands or run the full specification chain.
@@ -15,6 +15,7 @@ Parse `$ARGUMENTS` into `subcommand` and `feature_name`:
 | Input Pattern | subcommand | feature_name |
 |---|---|---|
 | `idea cool-feature` | `idea` | `cool-feature` |
+| `feature cool-feature` | `feature` | `cool-feature` |
 | `prd cool-feature` | `prd` | `cool-feature` |
 | `srs cool-feature` | `srs` | `cool-feature` |
 | `tech-design cool-feature` | `tech-design` | `cool-feature` |
@@ -31,8 +32,9 @@ Display spec-forge dashboard:
 
 1. Scan `docs/` for existing spec documents (`docs/*/prd.md`, `docs/*/srs.md`, `docs/*/tech-design.md`, `docs/*/test-plan.md`)
 2. Scan `docs/` for decomposed projects (`docs/project-*.md`)
-3. Scan `ideas/` for active ideas
-4. Display:
+3. Scan `docs/features/` for lightweight feature specs (`docs/features/*.md`)
+4. Scan `ideas/` for active ideas
+5. Display:
 
 ```
 spec-forge — Professional Software Specification Generator
@@ -46,6 +48,11 @@ Projects (in docs/):
   # | Project         | Sub-Features | Manifest
   1 | my-project      | 3            | docs/project-my-project.md
 
+Feature Specs (in docs/features/):
+  # | Feature         | Source
+  1 | core-executor   | extracted from tech-design
+  2 | schema-system   | standalone
+
 Specifications (in docs/):
   Feature        | PRD | SRS | Tech Design | Test Plan
   user-login     |  +  |  +  |      +      |     +
@@ -54,6 +61,7 @@ Specifications (in docs/):
 Commands:
   /spec-forge idea <name>          Start or resume brainstorming
   /spec-forge decompose <name>     Decompose project into sub-features
+  /spec-forge:feature <name>       Generate lightweight feature spec (for code-forge)
   /spec-forge <name>               Run full chain (Scope Analysis → PRD → SRS → Tech Design → Test Plan)
   /spec-forge prd <name>           Generate PRD only
   /spec-forge srs <name>           Generate SRS only
@@ -66,6 +74,10 @@ Commands:
 ### Route B: `idea`
 
 Invoke the spec-forge:idea skill. Pass `feature_name` as the argument.
+
+### Route B2: `feature`
+
+Invoke the spec-forge:feature skill. Pass `feature_name` as the argument.
 
 ### Route C: `prd` / `srs` / `tech-design` / `test-plan` (single document)
 
@@ -132,8 +144,9 @@ Generated documents:
 Project manifest: docs/project-{feature_name}.md
 
 Next steps:
-  /forge @docs/{sub-feature-1}/tech-design.md  → Implement sub-feature-1
-  /forge @docs/{sub-feature-2}/tech-design.md  → Implement sub-feature-2
+  /spec-forge:feature {sub-feature-1}                     → Generate feature spec for code-forge
+  /code-forge:plan @docs/features/{sub-feature-1}.md      → Generate implementation plan
+  /code-forge:plan @docs/{sub-feature-1}/tech-design.md   → Or plan directly from tech-design
 ```
 
 #### D.1: Detect Existing Progress
@@ -210,7 +223,9 @@ Generated documents:
   [x] docs/{feature_name}/test-plan.md
 
 Next steps:
-  /forge @docs/{feature_name}/tech-design.md  → Break into tasks and execute (code-forge)
+  /spec-forge:feature {feature_name}                     → Generate feature spec for code-forge
+  /code-forge:plan @docs/features/{feature_name}.md      → Generate implementation plan
+  /code-forge:plan @docs/{feature_name}/tech-design.md   → Or plan directly from tech-design
 ```
 
 If an idea draft was used, update its status to `graduated`:
