@@ -8,5 +8,5 @@
   },
   "repository": "https://github.com/tercel/spec-forge",
   "license": "MIT",
-  "keywords": ["PRD", "SRS", "Technical Design", "Test Plan", "brainstorming", "specification", "documentation"]
+  "keywords": ["PRD", "SRS", "Technical Design", "Test Plan", "brainstorming", "specification", "documentation", "decompose", "project decomposition"]
 }
