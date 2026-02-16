@@ -1,7 +1,7 @@
 ---
 allowed-tools: Read, Glob, Grep, Write, Edit, AskUserQuestion, Task, Bash
 description: "Generate professional software specifications — run the full chain or individual documents"
-argument-hint: "[idea|prd|srs|tech-design|test-plan] <feature name>"
+argument-hint: "[idea|decompose|prd|srs|tech-design|test-plan] <feature name>"
 ---
 
 You are the spec-forge orchestrator. Your job is to route subcommands or run the full specification chain.
@@ -19,6 +19,7 @@ Parse `$ARGUMENTS` into `subcommand` and `feature_name`:
 | `srs cool-feature` | `srs` | `cool-feature` |
 | `tech-design cool-feature` | `tech-design` | `cool-feature` |
 | `test-plan cool-feature` | `test-plan` | `cool-feature` |
+| `decompose cool-feature` | `decompose` | `cool-feature` |
 | `cool-feature` (no known subcommand) | `chain` | `cool-feature` |
 | (empty) | `dashboard` | — |
 
@@ -28,9 +29,10 @@ Parse `$ARGUMENTS` into `subcommand` and `feature_name`:
 
 Display spec-forge dashboard:
 
-1. Scan `docs/` for existing spec documents (`prd-*.md`, `srs-*.md`, `tech-design-*.md`, `test-plan-*.md`)
-2. Scan `ideas/` for active ideas
-3. Display:
+1. Scan `docs/` for existing spec documents (`docs/*/prd.md`, `docs/*/srs.md`, `docs/*/tech-design.md`, `docs/*/test-plan.md`)
+2. Scan `docs/` for decomposed projects (`docs/project-*.md`)
+3. Scan `ideas/` for active ideas
+4. Display:
 
 ```
 spec-forge — Professional Software Specification Generator
@@ -40,6 +42,10 @@ Active Ideas (in ideas/):
   1 | cool-feature    | refining   | 3        | 2026-02-10
   2 | another-idea    | exploring  | 1        | 2026-02-14
 
+Projects (in docs/):
+  # | Project         | Sub-Features | Manifest
+  1 | my-project      | 3            | docs/project-my-project.md
+
 Specifications (in docs/):
   Feature        | PRD | SRS | Tech Design | Test Plan
   user-login     |  +  |  +  |      +      |     +
@@ -47,14 +53,15 @@ Specifications (in docs/):
 
 Commands:
   /spec-forge idea <name>          Start or resume brainstorming
-  /spec-forge <name>               Run full chain (PRD -> SRS -> Tech Design -> Test Plan)
+  /spec-forge decompose <name>     Decompose project into sub-features
+  /spec-forge <name>               Run full chain (Scope Analysis → PRD → SRS → Tech Design → Test Plan)
   /spec-forge prd <name>           Generate PRD only
   /spec-forge srs <name>           Generate SRS only
   /spec-forge tech-design <name>   Generate Tech Design only
   /spec-forge test-plan <name>     Generate Test Plan only
 ```
 
-4. Use `AskUserQuestion` to ask what to do next.
+5. Use `AskUserQuestion` to ask what to do next.
 
 ### Route B: `idea`
 
@@ -72,13 +79,70 @@ Invoke the corresponding skill:
 
 Run the full specification chain automatically for `feature_name`.
 
+#### D.0: Scope Analysis
+
+Launch `Task(subagent_type="general-purpose")`:
+- Sub-agent prompt: "Invoke the spec-forge:decompose skill for '{feature_name}'."
+- Wait for completion
+
+Check result:
+- If `docs/project-{feature_name}.md` exists → multi-split mode, go to D.0a
+- Otherwise → single feature, proceed to D.1
+
+#### D.0a: Multi-Split Chain Execution
+
+Read `docs/project-{feature_name}.md` and parse the FEATURE_MANIFEST comment block to extract sub-feature names.
+
+For each sub-feature in execution order:
+
+Launch `Task(subagent_type="general-purpose")`:
+- Sub-agent prompt: "Run the spec-forge specification chain for '{sub_feature_name}'. Generate all 4 documents sequentially:
+  1. Invoke the spec-forge:prd skill for '{sub_feature_name}'. Write to docs/{sub_feature_name}/prd.md.
+  2. Invoke the spec-forge:srs skill for '{sub_feature_name}'. Chain mode: upstream PRD at docs/{sub_feature_name}/prd.md. Minimize user questions.
+  3. Invoke the spec-forge:tech-design skill for '{sub_feature_name}'. Chain mode: upstream PRD at docs/{sub_feature_name}/prd.md, SRS at docs/{sub_feature_name}/srs.md. Minimize user questions.
+  4. Invoke the spec-forge:test-plan skill for '{sub_feature_name}'. Chain mode: upstream SRS at docs/{sub_feature_name}/srs.md, Tech Design at docs/{sub_feature_name}/tech-design.md. Minimize user questions."
+- Wait for completion → verify all 4 files exist in docs/{sub_feature_name}/
+
+After each sub-feature completes, display progress:
+
+```
+spec-forge project: {feature_name} ({N} sub-features)
+
+  {sub-feature-1}:
+    [x] PRD    [x] SRS    [x] Tech Design    [x] Test Plan
+
+  {sub-feature-2}:
+    [x] PRD    [ ] SRS    [ ] Tech Design     [ ] Test Plan
+
+  {sub-feature-3}:
+    [ ] PRD    [ ] SRS    [ ] Tech Design     [ ] Test Plan
+```
+
+After all sub-features complete, display multi-split completion:
+
+```
+spec-forge project complete: {feature_name}
+
+Generated documents:
+  {sub-feature-1}/
+    [x] prd.md  [x] srs.md  [x] tech-design.md  [x] test-plan.md
+  {sub-feature-2}/
+    [x] prd.md  [x] srs.md  [x] tech-design.md  [x] test-plan.md
+
+Project manifest: docs/project-{feature_name}.md
+
+Next steps:
+  /forge @docs/{sub-feature-1}/tech-design.md  → Implement sub-feature-1
+  /forge @docs/{sub-feature-2}/tech-design.md  → Implement sub-feature-2
+```
+
 #### D.1: Detect Existing Progress
 
 Scan `docs/` for existing documents matching `feature_name`:
-- `docs/prd-{feature_name}.md`
-- `docs/srs-{feature_name}.md`
-- `docs/tech-design-{feature_name}.md`
-- `docs/test-plan-{feature_name}.md`
+- `docs/{feature_name}/prd.md`
+- `docs/{feature_name}/srs.md`
+- `docs/{feature_name}/tech-design.md`
+- `docs/{feature_name}/test-plan.md`
 
 Determine which stages are already complete.
 
@@ -109,25 +173,25 @@ Run each stage sequentially. **Each stage is dispatched as a complete `Task` sub
 **Stage 1: PRD** — Launch `Task(subagent_type="general-purpose")`:
 - Sub-agent prompt: "Invoke the spec-forge:prd skill for '{feature_name}'. {If idea draft exists: 'Also read ideas/{feature_name}/draft.md for additional context.'}"
 - This is the only stage that requires significant user interaction
-- Wait for completion → verify `docs/prd-{feature_name}.md` exists
+- Wait for completion → verify `docs/{feature_name}/prd.md` exists
 
 **Stage 2: SRS** — Launch `Task(subagent_type="general-purpose")`:
-- Sub-agent prompt: "Invoke the spec-forge:srs skill for '{feature_name}'. Chain mode: upstream PRD exists at docs/prd-{feature_name}.md. Minimize user questions — extract answers from upstream docs where possible."
-- Wait for completion → verify `docs/srs-{feature_name}.md` exists
+- Sub-agent prompt: "Invoke the spec-forge:srs skill for '{feature_name}'. Chain mode: upstream PRD exists at docs/{feature_name}/prd.md. Minimize user questions — extract answers from upstream docs where possible."
+- Wait for completion → verify `docs/{feature_name}/srs.md` exists
 
 **Stage 3: Tech Design** — Launch `Task(subagent_type="general-purpose")`:
-- Sub-agent prompt: "Invoke the spec-forge:tech-design skill for '{feature_name}'. Chain mode: upstream PRD at docs/prd-{feature_name}.md, SRS at docs/srs-{feature_name}.md. Minimize user questions — extract answers from upstream docs where possible."
-- Wait for completion → verify `docs/tech-design-{feature_name}.md` exists
+- Sub-agent prompt: "Invoke the spec-forge:tech-design skill for '{feature_name}'. Chain mode: upstream PRD at docs/{feature_name}/prd.md, SRS at docs/{feature_name}/srs.md. Minimize user questions — extract answers from upstream docs where possible."
+- Wait for completion → verify `docs/{feature_name}/tech-design.md` exists
 
 **Stage 4: Test Plan** — Launch `Task(subagent_type="general-purpose")`:
-- Sub-agent prompt: "Invoke the spec-forge:test-plan skill for '{feature_name}'. Chain mode: upstream SRS at docs/srs-{feature_name}.md, Tech Design at docs/tech-design-{feature_name}.md. Minimize user questions — extract answers from upstream docs where possible."
-- Wait for completion → verify `docs/test-plan-{feature_name}.md` exists
+- Sub-agent prompt: "Invoke the spec-forge:test-plan skill for '{feature_name}'. Chain mode: upstream SRS at docs/{feature_name}/srs.md, Tech Design at docs/{feature_name}/tech-design.md. Minimize user questions — extract answers from upstream docs where possible."
+- Wait for completion → verify `docs/{feature_name}/test-plan.md` exists
 
 After each stage completes, display brief progress in the main context:
 ```
 spec-forge chain: {feature_name}
-  [x] PRD          docs/prd-{feature_name}.md
-  [x] SRS          docs/srs-{feature_name}.md
+  [x] PRD          docs/{feature_name}/prd.md
+  [x] SRS          docs/{feature_name}/srs.md
   [ ] Tech Design  (next)
   [ ] Test Plan
 ```
@@ -140,16 +204,26 @@ After all 4 stages complete:
 spec-forge chain complete: {feature_name}
 
 Generated documents:
-  [x] docs/prd-{feature_name}.md
-  [x] docs/srs-{feature_name}.md
-  [x] docs/tech-design-{feature_name}.md
-  [x] docs/test-plan-{feature_name}.md
+  [x] docs/{feature_name}/prd.md
+  [x] docs/{feature_name}/srs.md
+  [x] docs/{feature_name}/tech-design.md
+  [x] docs/{feature_name}/test-plan.md
 
 Next steps:
-  /forge @docs/tech-design-{feature_name}.md  → Break into tasks and execute (code-forge)
+  /forge @docs/{feature_name}/tech-design.md  → Break into tasks and execute (code-forge)
 ```
 
 If an idea draft was used, update its status to `graduated`:
 ```json
-{ "status": "graduated", "graduated_to": "docs/prd-{feature_name}.md" }
+{ "status": "graduated", "graduated_to": "docs/{feature_name}/prd.md" }
 ```
+
+### Route E: `decompose`
+
+Launch `Task(subagent_type="general-purpose")`:
+- Sub-agent prompt: "Invoke the spec-forge:decompose skill for '{feature_name}'."
+- Wait for completion
+
+After the sub-agent returns:
+- If `docs/project-{feature_name}.md` exists: display the manifest and suggest running `/spec-forge {feature_name}` to execute the full chain for all sub-features
+- If no manifest (single verdict): inform user and suggest running `/spec-forge {feature_name}` to start the spec chain
