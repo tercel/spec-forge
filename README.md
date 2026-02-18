@@ -10,13 +10,13 @@ Software projects need clear specifications. spec-forge covers the full journey 
 
 | Command | Description | Standards |
 |---------|-------------|-----------|
-| `/spec-forge idea <name>` | Interactive brainstorming — explore and refine ideas | — |
+| `/spec-forge:idea <name>` | Interactive brainstorming — explore and refine ideas | — |
 | `/spec-forge:feature <name>` | Lightweight feature spec — bridge to code-forge | — |
-| `/spec-forge prd <name>` | Product Requirements Document | Google PRD, Amazon PR/FAQ |
-| `/spec-forge srs <name>` | Software Requirements Specification | IEEE 830, ISO/IEC/IEEE 29148 |
-| `/spec-forge tech-design <name>` | Technical Design Document | Google Design Doc, RFC Template |
-| `/spec-forge test-plan <name>` | Test Plan & Test Cases | IEEE 829, ISTQB |
-| `/spec-forge decompose <name>` | Decompose project into sub-features | — |
+| `/spec-forge:prd <name>` | Product Requirements Document | Google PRD, Amazon PR/FAQ |
+| `/spec-forge:srs <name>` | Software Requirements Specification | IEEE 830, ISO/IEC/IEEE 29148 |
+| `/spec-forge:tech-design <name>` | Technical Design Document | Google Design Doc, RFC Template |
+| `/spec-forge:test-plan <name>` | Test Plan & Test Cases | IEEE 829, ISTQB |
+| `/spec-forge:decompose <name>` | Decompose project into sub-features | — |
 | `/spec-forge <name>` | **Full chain** — auto-run PRD → SRS → Tech Design → Test Plan | All of the above |
 
 **Aliases**: `/prd`, `/srs`, `/tech-design`, `/test-plan`, `/idea`, `/feature`, `/decompose` work as shortcuts.
@@ -35,7 +35,7 @@ Software projects need clear specifications. spec-forge covers the full journey 
 
 ## Commands
 
-### `/spec-forge idea <name>` — Brainstorming
+### `/spec-forge:idea <name>` — Brainstorming
 
 Interactive, multi-session brainstorming for early-stage ideas:
 
@@ -44,8 +44,8 @@ Interactive, multi-session brainstorming for early-stage ideas:
 - **Graduated**: When an idea is ready, it flows into the spec chain seamlessly
 
 ```bash
-/spec-forge idea cool-feature       # Start or resume brainstorming
-/spec-forge idea                    # List all ideas
+/spec-forge:idea cool-feature       # Start or resume brainstorming
+/spec-forge:idea                    # List all ideas
 ```
 
 Status flow: `exploring` → `refining` → `ready` → `graduated`
@@ -76,19 +76,19 @@ Run the complete specification chain in one command:
 - PRD stage requires user interaction; subsequent stages run with minimal input (chain mode)
 - If an idea draft exists in `ideas/`, uses it as additional context
 
-### `/spec-forge decompose <name>` — Project Decomposition
+### `/spec-forge:decompose <name>` — Project Decomposition
 
 Analyze project scope and split into sub-features if needed:
 
 ```bash
-/spec-forge decompose my-project     # Interview → split analysis → manifest
+/spec-forge:decompose my-project     # Interview → split analysis → manifest
 ```
 
 - Lightweight 3-5 round interview focused on scope boundaries
 - Generates `docs/project-{name}.md` manifest for multi-split projects
 - Automatically invoked as Step 0 when running `/spec-forge <name>` full chain
 
-### `/spec-forge prd <name>`
+### `/spec-forge:prd <name>`
 
 Generates a Product Requirements Document including:
 - Problem statement and product vision
@@ -101,7 +101,7 @@ Generates a Product Requirements Document including:
 
 **Reference**: Google PRD, Amazon Working Backwards (PR/FAQ), Stripe Product Spec
 
-### `/spec-forge srs <name>`
+### `/spec-forge:srs <name>`
 
 Generates a Software Requirements Specification including:
 - Functional requirements with structured IDs (FR-XXX-NNN)
@@ -114,7 +114,7 @@ Generates a Software Requirements Specification including:
 
 **Reference**: IEEE 830, ISO/IEC/IEEE 29148, Amazon Technical Specifications
 
-### `/spec-forge tech-design <name>`
+### `/spec-forge:tech-design <name>`
 
 Generates a Technical Design Document including:
 - C4 architecture diagrams (Context, Container, Component)
@@ -128,7 +128,7 @@ Generates a Technical Design Document including:
 
 **Reference**: Google Design Doc, RFC Template, Uber/Meta Engineering Standards
 
-### `/spec-forge test-plan <name>`
+### `/spec-forge:test-plan <name>`
 
 Generates a Test Plan & Test Cases document including:
 - Test strategy (test pyramid: Unit → Integration → E2E)
@@ -144,7 +144,7 @@ Generates a Test Plan & Test Cases document including:
 ## Complete Workflow
 
 ```
-/spec-forge idea cool-feature              # Brainstorm (iterative, multi-session)
+/spec-forge:idea cool-feature              # Brainstorm (iterative, multi-session)
     ↓ (graduated)
 /spec-forge cool-feature                   # Scope analysis → PRD → SRS → Tech Design → Test Plan
     ↓

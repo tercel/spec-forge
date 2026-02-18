@@ -279,7 +279,7 @@ Idea saved: {idea-name}
   Validated: No
 
 Suggested next session: {Research / Continue exploring}
-  /spec-forge idea {idea-name}
+  /spec-forge:idea {idea-name}
 
 When validated and ready:
   /spec-forge {idea-name}         Start full spec chain
@@ -472,7 +472,7 @@ Available only after validation passes. Shift to convergent thinking:
 - Finalize MVP scope — ruthlessly cut anything non-essential
 - Define preliminary success criteria (measurable)
 - Identify technical constraints or risks
-- Prepare the draft for handoff to `/spec-forge prd`
+- Prepare the draft for handoff to `/spec-forge:prd`
 
 Update `draft.md` to a polished version. Change status to `refining`.
 
@@ -511,7 +511,7 @@ Idea '{idea-name}' is ready for formal specification!
 
 To start the spec chain:
   /spec-forge {idea-name}         Full chain (PRD -> SRS -> Tech Design -> Test Plan)
-  /spec-forge prd {idea-name}     PRD only
+  /spec-forge:prd {idea-name}     PRD only
 ```
 
 Note: The actual `graduated` status is set by the `/spec-forge` chain command after it successfully generates the PRD.
@@ -523,7 +523,7 @@ Update `state.json` timestamp only. Display:
 ```
 Idea '{idea-name}' parked.
   Everything is saved. Come back anytime:
-  /spec-forge idea {idea-name}
+  /spec-forge:idea {idea-name}
 ```
 
 #### 3.4 Record Session and Update

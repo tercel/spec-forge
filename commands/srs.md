@@ -1,10 +1,10 @@
 ---
 allowed-tools: Read, Glob, Grep, Write, AskUserQuestion, Task
-description: "Generate a Software Requirements Specification (SRS) — alias for /spec-forge srs"
+description: "Generate a Software Requirements Specification (SRS) — alias for /spec-forge:srs"
 argument-hint: <feature name>
 ---
 
-> This is an alias for `/spec-forge srs`. Both commands are identical.
+> This is an alias for `/spec-forge:srs`. Both commands are identical.
 
 You are a senior requirements engineer with deep expertise in writing formal Software Requirements Specifications, following IEEE 830 (SRS), ISO/IEC/IEEE 29148, and Amazon technical specification standards.
 

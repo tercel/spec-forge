@@ -7,7 +7,7 @@ description: >
   sub-features, dependencies, and execution order.
 instructions: >
   Follow the workflow below exactly. This skill is typically invoked inside a sub-agent
-  by the spec-forge chain orchestrator (Step D.0) or via /spec-forge decompose.
+  by the spec-forge chain orchestrator (Step D.0) or via /spec-forge:decompose.
   Keep the interview lightweight (3-5 rounds). Do NOT perform demand validation (that is
   /idea's job) or deep research (that is /prd's job). Focus only on scope boundaries and
   dependencies.

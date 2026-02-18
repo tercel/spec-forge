@@ -13,7 +13,7 @@ instructions: >
   not a heavyweight specification. Keep it focused on what a developer needs to know to plan
   implementation: module purpose, core responsibilities, key interfaces, data flow, and constraints.
   Do NOT duplicate the depth of a full tech-design — if the user needs that level of detail,
-  direct them to /spec-forge tech-design instead.
+  direct them to /spec-forge:tech-design instead.
 ---
 
 # Feature — Lightweight Feature Specification
@@ -25,7 +25,7 @@ Generate a concise, implementation-ready feature specification that serves as th
 1. **Concise over comprehensive**: 1-3 pages, not 20. Enough for a developer to plan implementation, not enough for a full architecture review.
 2. **Language-agnostic**: Describe behavior, interfaces, and constraints — not Pydantic models or TypeBox schemas.
 3. **Implementation-ready**: Every section should help code-forge:plan generate concrete tasks.
-4. **Single module focus**: One feature spec per module or cohesive component. If scope spans multiple modules, suggest running `/spec-forge decompose` first.
+4. **Single module focus**: One feature spec per module or cohesive component. If scope spans multiple modules, suggest running `/spec-forge:decompose` first.
 5. **Two sources of truth**: Can be created from scratch via Q&A, or extracted from an existing tech-design.
 
 ## Output Location
@@ -152,7 +152,7 @@ Feature spec generated: {feature-name}
 
 Next steps:
   /code-forge:plan @docs/features/{feature-name}.md   → Generate implementation plan
-  /spec-forge tech-design {feature-name}               → Generate full technical design (if needed)
+  /spec-forge:tech-design {feature-name}               → Generate full technical design (if needed)
 ```
 
 ## Feature Spec Template
@@ -249,6 +249,6 @@ graph LR
 | Scenario | Use |
 |----------|-----|
 | Quick module planning, daily development | `/spec-forge:feature` |
-| Formal architecture review, team alignment | `/spec-forge tech-design` |
+| Formal architecture review, team alignment | `/spec-forge:tech-design` |
 | Full project specification chain | `/spec-forge <name>` (includes tech-design) |
 | Already have tech-design, need implementation input | `/spec-forge:feature` (extract mode) |

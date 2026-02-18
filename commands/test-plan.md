@@ -1,10 +1,10 @@
 ---
 allowed-tools: Read, Glob, Grep, Write, AskUserQuestion, Task
-description: "Generate a Test Plan and Test Cases document (Test Plan) — alias for /spec-forge test-plan"
+description: "Generate a Test Plan and Test Cases document (Test Plan) — alias for /spec-forge:test-plan"
 argument-hint: <feature name>
 ---
 
-> This is an alias for `/spec-forge test-plan`. Both commands are identical.
+> This is an alias for `/spec-forge:test-plan`. Both commands are identical.
 
 You are a senior QA architect with deep expertise in writing comprehensive test plans, following IEEE 829 (Test Documentation), ISTQB test standards, and Google Testing Blog best practices.
 

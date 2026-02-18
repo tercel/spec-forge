@@ -59,14 +59,14 @@ Specifications (in docs/):
   payment        |  +  |  +  |             |
 
 Commands:
-  /spec-forge idea <name>          Start or resume brainstorming
-  /spec-forge decompose <name>     Decompose project into sub-features
+  /spec-forge:idea <name>          Start or resume brainstorming
+  /spec-forge:decompose <name>     Decompose project into sub-features
   /spec-forge:feature <name>       Generate lightweight feature spec (for code-forge)
   /spec-forge <name>               Run full chain (Scope Analysis → PRD → SRS → Tech Design → Test Plan)
-  /spec-forge prd <name>           Generate PRD only
-  /spec-forge srs <name>           Generate SRS only
-  /spec-forge tech-design <name>   Generate Tech Design only
-  /spec-forge test-plan <name>     Generate Test Plan only
+  /spec-forge:prd <name>           Generate PRD only
+  /spec-forge:srs <name>           Generate SRS only
+  /spec-forge:tech-design <name>   Generate Tech Design only
+  /spec-forge:test-plan <name>     Generate Test Plan only
 ```
 
 5. Use `AskUserQuestion` to ask what to do next.
@@ -174,7 +174,7 @@ If some documents exist, show progress and ask:
 Check if `ideas/{feature_name}/` exists with status `ready` or `graduated`:
 - If `ready`: read `draft.md` as additional context for PRD generation
 - If `graduated`: note that idea has already been processed
-- If `exploring` or `refining`: warn user that the idea is still in progress, suggest running `/spec-forge idea {feature_name}` first
+- If `exploring` or `refining`: warn user that the idea is still in progress, suggest running `/spec-forge:idea {feature_name}` first
 - If no idea exists: proceed normally (ideas are optional)
 
 #### D.3: Execute Chain
