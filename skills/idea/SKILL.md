@@ -30,9 +30,11 @@ Explore, research, validate, and crystallize ideas through iterative sessions be
 
 ## Storage Structure
 
+> **`ideas/` is a top-level directory at the project root, separate from `docs/`. Never nest it inside `docs/`.**
+
 ```
 {project-root}/
-├── ideas/                          # Brainstorming workspace
+├── ideas/                          # Brainstorming workspace (TOP-LEVEL, not under docs/)
 │   ├── {idea-name}/
 │   │   ├── state.json              # Status, metadata, and validation checklist
 │   │   ├── sessions/
@@ -75,8 +77,12 @@ Phases are not strictly sequential — users can revisit any phase at any time. 
 
 #### 1.1 Ensure Base Directory
 
+**IMPORTANT: `ideas/` MUST be at the project root — the same level as `docs/`, NOT inside it.**
+- Correct: `{project-root}/ideas/`
+- Wrong: `{project-root}/docs/ideas/`
+
 Check if `ideas/` exists in the project root. If not:
-1. Create the `ideas/` directory
+1. Create the `ideas/` directory at the project root
 2. Ask the user about .gitignore preference (see .gitignore Guidance above)
 3. If user chooses to gitignore, add `ideas/` to `.gitignore`
 
