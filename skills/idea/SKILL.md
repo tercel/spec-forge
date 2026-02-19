@@ -38,9 +38,10 @@ Explore, research, validate, and crystallize ideas through iterative sessions be
 │   ├── {idea-name}/
 │   │   ├── state.json              # Status, metadata, and validation checklist
 │   │   ├── sessions/
-│   │   │   ├── 001.md              # First session: spark & exploration
-│   │   │   ├── 002.md              # Second session: research & competitive analysis
-│   │   │   ├── 003.md              # Third session: demand validation
+│   │   │   ├── overview.md         # Session index: chronological order, summaries
+│   │   │   ├── explore-initial-spark.md    # First session
+│   │   │   ├── research-competitors.md     # Second session
+│   │   │   ├── validate-demand.md          # Third session
 │   │   │   └── ...
 │   │   ├── research/
 │   │   │   ├── competitors.md      # Competitive landscape analysis
@@ -70,6 +71,33 @@ Each return session, the user chooses a focus. The idea matures through these ph
 | **Refine** | Converge, sharpen | MVP scope, success criteria, draft polishing |
 
 Phases are not strictly sequential — users can revisit any phase at any time. But an idea cannot reach `ready` status without completing the Validate phase.
+
+## Session Overview File
+
+Each idea maintains a `sessions/overview.md` that tracks all sessions in chronological order. This file is the single source of truth for session ordering — filenames do NOT encode sequence.
+
+**Create this file when the first session is recorded. Update it after every subsequent session.**
+
+```markdown
+# Session Overview — {idea-name}
+
+> Chronological index of brainstorming sessions.
+> Updated: {date}
+
+## Sessions
+
+| # | Session | Type | Date | Summary |
+|---|---------|------|------|---------|
+| 1 | [explore-initial-spark](./explore-initial-spark.md) | Explore | {date} | {one-line summary} |
+| 2 | [research-competitors](./research-competitors.md) | Research | {date} | {one-line summary} |
+| 3 | [validate-demand](./validate-demand.md) | Validate | {date} | {one-line summary} |
+| ... | ... | ... | ... | ... |
+```
+
+**Rules:**
+- The `#` column is the chronological order (for human readability only — NOT part of the filename)
+- Append new sessions at the bottom
+- Never reorder or renumber existing entries
 
 ## Workflow
 
@@ -187,7 +215,15 @@ Be honest. If the idea sounds like a solution looking for a problem, say so gent
 
 #### 2.3 Record Session
 
-Write the session to `ideas/{idea-name}/sessions/001.md`:
+Write the session to `ideas/{idea-name}/sessions/{type}-{slug}.md` (e.g., `explore-initial-spark.md`):
+
+**Session filename rules:**
+- Format: `{session-type}-{brief-slug}.md` where type is one of: `explore`, `research`, `validate`, `refine`
+- The slug is a 2-4 word kebab-case description of the session focus (e.g., `initial-spark`, `competitors`, `demand-check`, `mvp-scope`)
+- Do NOT use sequential numbers (`001.md`, `002.md`, etc.) — chronological order is tracked in `sessions/overview.md`
+- If a type repeats (e.g., two explore sessions), differentiate by slug: `explore-initial-spark.md`, `explore-new-angles.md`
+
+**Session filename:**
 
 ```markdown
 # Session 1 — {date}
@@ -262,7 +298,7 @@ Create `draft.md`:
 - {Things to investigate in future sessions}
 
 ## Session History
-- Session 1 ({date}): Initial exploration — {one-line summary}
+- [{date}] explore-initial-spark — {one-line summary}
 ```
 
 #### 2.5 Update State and Wrap Up
@@ -528,7 +564,8 @@ Idea '{idea-name}' parked.
 
 #### 3.4 Record Session and Update
 
-- Write session to `sessions/{NNN}.md` (increment session number, include session type in header)
+- Write session to `sessions/{type}-{slug}.md` (use session type + descriptive slug, NOT sequential numbers)
+- Create or update `sessions/overview.md` to append the new session entry (see Session Overview below)
 - Update `draft.md` with any new content
 - Update `research/` files if research was conducted
 - Update `state.json`: `session_count`, `updated`, `draft_version`, `status`, `validation`
@@ -560,7 +597,7 @@ An idea cannot reach `ready` status without these being addressed:
 
 1. **Project-local**: Ideas are stored in the project's `ideas/` directory. Users can add `ideas/` to `.gitignore` for privacy, or commit for team collaboration.
 2. **Honest Assessment**: Unlike pure brainstorming, this skill is designed to kill bad ideas early. A "NOT VALIDATED" result saves weeks of wasted development. Be honest, not encouraging.
-3. **Session Preservation**: Every session is a separate file. Never overwrite or merge sessions — they are the historical record of how the idea evolved.
+3. **Session Preservation**: Every session is a separate file named `{type}-{slug}.md`. Never overwrite or merge sessions — they are the historical record of how the idea evolved. Chronological order is tracked in `sessions/overview.md`, not in filenames.
 4. **Research Artifacts**: The `research/` directory preserves competitive analysis and market research. This data feeds directly into the PRD's market analysis and competitive sections.
 5. **Draft Evolution**: `draft.md` is the living document that evolves. Old versions are implicitly preserved in the session history.
 6. **Anti-Pseudo-Requirement**: This principle carries through the entire spec-forge chain. It starts here at the idea stage, is reinforced in the PRD (demand evidence, feasibility verdict), and is traced through SRS and Tech Design.

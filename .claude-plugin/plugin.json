@@ -1,7 +1,7 @@
 {
   "name": "spec-forge",
   "description": "Generate professional software specifications — from brainstorming to PRD, SRS, Technical Design, and Test Plan — based on industry standards (Google, Amazon, IEEE). Single entry point with full chain mode and demand validation.",
-  "version": "0.9.1",
+  "version": "0.9.2",
   "author": {
     "name": "tercel",
     "url": "https://github.com/tercel"
