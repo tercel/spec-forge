@@ -36,7 +36,48 @@ docs/features/{feature-name}.md
 
 where `{feature-name}` is a lowercase, kebab-case slug (e.g., `core-executor`, `schema-system`, `acl-system`).
 
+**CRITICAL — No Sequential Numbering**: Do NOT prefix filenames with sequence numbers like `F001-`, `F002-`, `001-`, etc. The filename is ONLY the kebab-case slug. Ordering and relationships between features are managed in the overview file, not encoded in filenames.
+
 If the `docs/features/` directory does not exist, create it.
+
+### Overview File
+
+When generating feature specs for a multi-feature project (i.e., more than one feature spec exists or will exist in `docs/features/`), maintain an overview file:
+
+```
+docs/features/overview.md
+```
+
+**Overview file rules:**
+- Create or update this file whenever a new feature spec is generated
+- If the overview file already exists, read it and append/update the new feature entry
+- If a project manifest exists (`docs/project-*.md`), use its execution order and dependency information
+- Do NOT create the overview for a single standalone feature — only when 2+ features exist
+
+**Overview template:**
+
+```markdown
+# Feature Overview
+
+> Auto-generated index of feature specs for this project.
+> Updated: {date}
+
+## Features
+
+| Feature | Description | Dependencies | Status |
+|---------|-------------|--------------|--------|
+| [{feature-name}](./{feature-name}.md) | {one-line description} | {none or list} | draft |
+| ... | ... | ... | ... |
+
+## Execution Order
+
+{Ordered list showing recommended implementation sequence, derived from dependencies.
+If sourced from a project manifest, reference it.}
+
+1. **{feature-name}** — {reason it goes first, e.g., "no dependencies"}
+2. **{feature-name}** — {reason, e.g., "depends on feature-1"}
+3. ...
+```
 
 ## Workflow
 
@@ -127,6 +168,14 @@ Stop when you have enough to write a clear feature spec. Do NOT over-interview �
 
 Write the document to `docs/features/{feature-name}.md` using the template below.
 
+**Reminder**: The filename MUST be `{feature-name}.md` — a plain kebab-case slug with NO numeric prefixes (no `F001-`, `001-`, etc.).
+
+### Step 3b: Update Overview (if applicable)
+
+After writing the feature spec, check if 2+ feature specs now exist in `docs/features/` (excluding `overview.md`):
+- **If yes**: Create or update `docs/features/overview.md` using the overview template from the Output Location section
+- **If no** (this is the only feature spec): Skip overview generation
+
 ### Step 4: Quality Check
 
 Verify the generated feature spec against these criteria:
@@ -137,6 +186,7 @@ Verify the generated feature spec against these criteria:
 - [ ] **Language-agnostic**: No language-specific types, libraries, or patterns
 - [ ] **Actionable**: code-forge:plan could generate implementation tasks from this
 - [ ] **Concise**: Under 3 pages / ~150 lines
+- [ ] **No numbered prefix**: Filename is a plain kebab-case slug, NOT prefixed with F00X or similar
 
 Fix any issues before presenting.
 
@@ -149,6 +199,7 @@ Feature spec generated: {feature-name}
   Location: docs/features/{feature-name}.md
   Source: {extracted from tech-design | standalone Q&A}
   Length: {line count} lines
+  Overview: {updated | not needed (single feature)}
 
 Next steps:
   /code-forge:plan @docs/features/{feature-name}.md   → Generate implementation plan
