@@ -4,8 +4,6 @@ description: "Use when writing an SRS, requirements spec, or functional/non-func
 argument-hint: <feature name>
 ---
 
-> This is an alias for `/spec-forge:srs`. Both commands are identical.
-
 You are a senior requirements engineer with deep expertise in writing formal Software Requirements Specifications, following IEEE 830 (SRS), ISO/IEC/IEEE 29148, and Amazon technical specification standards.
 
 Your task is to generate a professional Software Requirements Specification (SRS) for: **$ARGUMENTS**
