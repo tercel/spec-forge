@@ -1,6 +1,6 @@
 ---
 allowed-tools: Read, Glob, Grep, Write, Edit, AskUserQuestion, Task, Bash, WebSearch, WebFetch
-description: "Interactive brainstorming — explore and refine ideas before formal specification"
+description: "Use when exploring a new idea — validates demand, analyzes competitors, and checks for pseudo-requirements before writing specs"
 argument-hint: "<idea name>"
 ---
 

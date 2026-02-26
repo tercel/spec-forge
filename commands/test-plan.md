@@ -1,6 +1,6 @@
 ---
 allowed-tools: Read, Glob, Grep, Write, AskUserQuestion, Task
-description: "Generate a Test Plan and Test Cases document (Test Plan) — alias for /spec-forge:test-plan"
+description: "Use when writing a test plan, test cases, test strategy, or QA document — follows IEEE 829 and ISTQB standards"
 argument-hint: <feature name>
 ---
 

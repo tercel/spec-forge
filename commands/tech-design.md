@@ -1,6 +1,6 @@
 ---
 allowed-tools: Read, Glob, Grep, Write, AskUserQuestion, Task
-description: "Generate a Technical Design Document (Tech Design Doc) — alias for /spec-forge:tech-design"
+description: "Use when writing a tech design, architecture doc, RFC, or design document — follows Google Design Doc format"
 argument-hint: <feature name>
 ---
 

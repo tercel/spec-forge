@@ -1,6 +1,6 @@
 ---
 allowed-tools: Read, Glob, Grep, Write, Edit, AskUserQuestion, Task, Bash
-description: "Generate professional software specifications — run the full chain or individual documents"
+description: "Use when generating software specifications — full chain (PRD→SRS→Tech Design→Test Plan) or individual documents"
 argument-hint: "[idea|decompose|feature|prd|srs|tech-design|test-plan] <feature name>"
 ---
 

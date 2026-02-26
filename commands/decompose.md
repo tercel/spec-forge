@@ -1,6 +1,6 @@
 ---
 allowed-tools: Read, Glob, Grep, Write, Edit, AskUserQuestion, Task
-description: "Decompose a project into sub-features — alias for /spec-forge:decompose"
+description: "Use when a project may need splitting into sub-features — analyzes scope and generates feature manifest with dependencies"
 argument-hint: <project name>
 ---
 

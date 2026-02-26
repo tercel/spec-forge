@@ -1,6 +1,6 @@
 ---
 allowed-tools: Read, Glob, Grep, Write, AskUserQuestion, Task
-description: "Generate a Software Requirements Specification (SRS) — alias for /spec-forge:srs"
+description: "Use when writing an SRS, requirements spec, or functional/non-functional requirements — follows IEEE 830 with traceability"
 argument-hint: <feature name>
 ---
 

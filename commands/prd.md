@@ -1,6 +1,6 @@
 ---
 allowed-tools: Read, Glob, Grep, Write, AskUserQuestion, Task
-description: "Generate a Product Requirements Document (PRD) — alias for /spec-forge:prd"
+description: "Use when writing a PRD, product spec, or product requirements — follows Google/Amazon/Stripe methodologies"
 argument-hint: <product/feature name>
 ---
 

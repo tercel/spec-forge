@@ -1,6 +1,6 @@
 ---
 allowed-tools: Read, Glob, Grep, Write, Edit, AskUserQuestion, Task
-description: "Generate a lightweight feature specification — alias for /spec-forge:feature"
+description: "Use when creating a feature spec for code-forge — distills requirements into a concise, implementation-ready document"
 argument-hint: <feature name>
 ---
 
