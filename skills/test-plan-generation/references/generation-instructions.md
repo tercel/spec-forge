@@ -38,7 +38,7 @@ Generate the complete test plan document. The PRIMARY PURPOSE is to guide engine
 **Standalone mode** (no upstream docs):
 - Skip the SRS traceability matrix
 - Instead, include a "Test Coverage Summary" section mapping test cases to the features described by the user in clarification
-- Add a note: *"To establish full traceability, consider running `/srs` → `/tech-design` first, then re-running `/test-plan`."*
+- Add a note: *"To establish full traceability, consider running `/spec-forge:srs` → `/spec-forge:tech-design` first, then re-running `/spec-forge:test-plan`."*
 
 ## Step 3: Quality Check
 

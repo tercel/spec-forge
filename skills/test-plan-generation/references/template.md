@@ -353,8 +353,8 @@ Each defect report must include the following information:
 | FR-[MOD]-001       | [Requirement description]          | TC-[MOD]-001, TC-[MOD]-010        | Covered            | [Notes if any]     |
 | FR-[MOD]-002       | [Requirement description]          | TC-[MOD]-002, TC-[MOD]-020        | Covered            | [Notes if any]     |
 | FR-[MOD]-003       | [Requirement description]          | TC-[MOD]-003                      | Partially Covered  | [Explain gap]      |
-| NFR-[MOD]-001      | [Non-functional requirement]       | TC-[MOD]-030                      | Covered            | [Notes if any]     |
-| NFR-[MOD]-002      | [Non-functional requirement]       | --                                 | Not Covered        | [Explain why and plan] |
+| NFR-[CATEGORY]-001 | [Non-functional requirement]       | TC-[MOD]-030                      | Covered            | [Notes if any]     |
+| NFR-[CATEGORY]-002 | [Non-functional requirement]       | --                                 | Not Covered        | [Explain why and plan] |
 
 ## 13. Test Schedule
 

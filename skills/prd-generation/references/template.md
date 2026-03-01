@@ -276,7 +276,7 @@ graph TD
 | [Metric 4, e.g., Error rate]           | KPI     | [e.g., < 1%]       | [e.g., Error log monitoring]           | [e.g., 5.2%]       |
 | [Metric 5, e.g., Adoption rate]        | OKR     | [e.g., 60% in 90d] | [e.g., Unique users / total users]     | [e.g., N/A (new)]  |
 
-[Ensure every metric ties back to a goal defined in Section 6. If a metric does not support a stated goal, reconsider whether it belongs here.]
+[Ensure every metric ties back to a goal defined in Section 9. If a metric does not support a stated goal, reconsider whether it belongs here.]
 
 ## 16. Timeline & Milestones
 

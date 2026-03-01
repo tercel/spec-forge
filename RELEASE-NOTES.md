@@ -1,6 +1,6 @@
 # Release Notes
 
-## v1.1.0 — Rename to spec-forge + Standalone Mode
+## v0.5.0 — Rename to spec-forge + Standalone Mode
 
 **Release Date**: 2025-02-09
 
@@ -22,7 +22,7 @@
 
 ---
 
-## v1.0.0 — Initial Release
+## v0.1.0 — Initial Release
 
 **Release Date**: 2025-01-01
 
@@ -32,7 +32,7 @@ spec-forge (originally doc-lifecycle) is a Claude Code plugin that generates pro
 
 ### Core Features
 
-#### `/prd` — Product Requirements Document Generation
+#### `/spec-forge:prd` — Product Requirements Document Generation
 - 5-step workflow: context scanning → clarification → generation → quality check → output
 - Market research & analysis (TAM/SAM/SOM) with source citations
 - Anti-pseudo-requirement principle: every feature backed by evidence of real demand
@@ -42,7 +42,7 @@ spec-forge (originally doc-lifecycle) is a Claude Code plugin that generates pro
 - Risk assessment matrix with likelihood/impact ratings
 - Quality checklist validation
 
-#### `/srs` — Software Requirements Specification Generation
+#### `/spec-forge:srs` — Software Requirements Specification Generation
 - IEEE 830 / ISO/IEC/IEEE 29148 compliant structure
 - Functional requirements (FR-MODULE-NNN) with actors, flows, acceptance criteria
 - Non-functional requirements (NFR-CATEGORY-NNN) with metrics and targets
@@ -51,7 +51,7 @@ spec-forge (originally doc-lifecycle) is a Claude Code plugin that generates pro
 - Modal verb discipline: "shall" / "should" / "may"
 - Quality checklist validation
 
-#### `/tech-design` — Technical Design Document Generation
+#### `/spec-forge:tech-design` — Technical Design Document Generation
 - C4 architecture diagrams (Context, Container, Component, Code)
 - At least 2 alternative solutions with comparison matrix
 - Complete parameter validation matrix for every API input
@@ -62,7 +62,7 @@ spec-forge (originally doc-lifecycle) is a Claude Code plugin that generates pro
 - Security, performance, observability, and deployment design
 - Quality checklist validation
 
-#### `/test-plan` — Test Plan & Test Cases Generation
+#### `/spec-forge:test-plan` — Test Plan & Test Cases Generation
 - IEEE 829 compliant test documentation
 - Real database testing policy: NO mocks for DB operations
 - Test case format (TC-MODULE-NNN) with exact DB state preconditions

@@ -37,7 +37,7 @@ Generate the complete technical design document. Key requirements:
 **Standalone mode** (no upstream docs):
 - Skip the SRS traceability matrix
 - Instead, include a "Design Inputs" section summarizing the requirements derived from user clarification
-- Add a note: *"To establish full traceability, consider running `/prd` → `/srs` first, then re-running `/tech-design`."*
+- Add a note: *"To establish full traceability, consider running `/spec-forge:prd` → `/spec-forge:srs` first, then re-running `/spec-forge:tech-design`."*
 
 ## Step 3: Quality Check
 

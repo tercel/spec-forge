@@ -25,7 +25,7 @@ Generate the complete SRS following the template structure. Key requirements:
 **Standalone mode** (no PRD):
 - Skip the PRD traceability matrix
 - Instead, include a "Requirements Source" section noting that requirements were derived from user clarification (not an upstream PRD)
-- Add a note: *"To establish full traceability, consider running `/prd` first, then re-running `/srs`."*
+- Add a note: *"To establish full traceability, consider running `/spec-forge:prd` first, then re-running `/spec-forge:srs`."*
 
 ## Step 3: Quality Check
 

@@ -114,5 +114,5 @@ CRITICAL: Follow the Anti-Shortcut Rules strictly. Do not present only one solut
 
 After the sub-agent returns, present the result to the user and suggest:
 
-1. **Continue the spec chain**: Run `/test-plan` to plan the testing strategy and write test cases based on this design.
+1. **Continue the spec chain**: Run `/spec-forge:test-plan` to plan the testing strategy and write test cases based on this design.
 2. **Ready to implement?** If the [code-forge](https://github.com/tercel/code-forge) plugin is installed, use `/code-forge:plan @docs/{slug}/tech-design.md` to break down the design into implementation tasks and execute them. If not, consider breaking the design into development tasks manually.

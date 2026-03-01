@@ -48,7 +48,7 @@ Interactive, multi-session brainstorming for early-stage ideas:
 /spec-forge:idea                    # List all ideas
 ```
 
-Status flow: `exploring` → `refining` → `ready` → `graduated`
+Status flow: `exploring` → `researching` → `refining` → `ready` → `graduated` (or `parked`)
 
 ### `/spec-forge:feature <name>` — Lightweight Feature Spec
 
