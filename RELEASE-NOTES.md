@@ -76,7 +76,7 @@ spec-forge (originally doc-lifecycle) is a Claude Code plugin that generates pro
 
 Full bidirectional traceability across all document types:
 ```
-PRD (PRD-ID) → SRS (FR/NFR-ID) → Tech Design (Component/API) → Test Plan (TC-ID)
+PRD (PRD-ID) → SRS (FR/NFR-ID) → Tech Design (Component/API) → Test Plan (TC-ID) → Feature Spec (code-forge input)
 ```
 
 ### Standards Referenced

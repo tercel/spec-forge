@@ -39,7 +39,7 @@ Once installed, the following commands are available in OpenCode:
 - `/spec-forge:idea <name>` — Interactive brainstorming and demand validation
 - `/spec-forge:feature <name>` — Generate lightweight feature specification
 - `/spec-forge:decompose <name>` — Decompose project into sub-features
-- `/spec-forge <name>` — Run full chain (PRD → SRS → Tech Design → Test Plan)
+- `/spec-forge <name>` — Run full chain (PRD → SRS → Tech Design → Test Plan → Feature Spec)
 - `/spec-forge:prd <feature name>` — Generate a Product Requirements Document
 - `/spec-forge:srs <feature name>` — Generate a Software Requirements Specification
 - `/spec-forge:tech-design <feature name>` — Generate a Technical Design Document

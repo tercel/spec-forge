@@ -17,7 +17,7 @@ Software projects need clear specifications. spec-forge covers the full journey 
 | `/spec-forge:tech-design <name>` | Technical Design Document | Google Design Doc, RFC Template |
 | `/spec-forge:test-plan <name>` | Test Plan & Test Cases | IEEE 829, ISTQB |
 | `/spec-forge:decompose <name>` | Decompose project into sub-features | — |
-| `/spec-forge <name>` | **Full chain** — auto-run PRD → SRS → Tech Design → Test Plan | All of the above |
+| `/spec-forge <name>` | **Full chain** — auto-run PRD → SRS → Tech Design → Test Plan → Feature Spec | All of the above |
 
 **Aliases**: `/prd`, `/srs`, `/tech-design`, `/test-plan`, `/idea`, `/feature`, `/decompose` work as shortcuts.
 
@@ -69,7 +69,7 @@ Generate a concise, implementation-ready feature specification:
 Run the complete specification chain in one command:
 
 ```bash
-/spec-forge user-login              # Auto: PRD → SRS → Tech Design → Test Plan
+/spec-forge user-login              # Auto: PRD → SRS → Tech Design → Test Plan → Feature Spec
 ```
 
 - Detects existing documents and resumes from where you left off
@@ -146,9 +146,7 @@ Generates a Test Plan & Test Cases document including:
 ```
 /spec-forge:idea cool-feature              # Brainstorm (iterative, multi-session)
     ↓ (graduated)
-/spec-forge cool-feature                   # Scope analysis → PRD → SRS → Tech Design → Test Plan
-    ↓
-/spec-forge:feature cool-feature           # Extract lightweight feature spec from tech-design
+/spec-forge cool-feature                   # Scope analysis → PRD → SRS → Tech Design → Test Plan → Feature Spec
     ↓
 /code-forge:plan @docs/features/cool-feature.md   # Break into tasks and execute
 ```
@@ -165,9 +163,11 @@ When you run the full chain, spec-forge builds bidirectional traceability:
 
 ```
 PRD ──traceability──→ SRS ──design input──→ Tech Design ──test input──→ Test Plan
- │                     │                      │                         │
- │  PRD-ID             │  FR/NFR-ID           │  Component/API          │  TC-ID
- │                     │                      │                         │
+ │                     │                      │       │                  │
+ │  PRD-ID             │  FR/NFR-ID           │       │  Component/API   │  TC-ID
+ │                     │                      │       ↓                  │
+ │                     │                      │   Feature Spec           │
+ │                     │                      │   (code-forge input)     │
  └─────────────────────┴──────────────────────┴─────────────────────────┘
                         Traceability matrix spans all documents
 ```
