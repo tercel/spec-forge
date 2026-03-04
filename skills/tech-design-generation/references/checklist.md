@@ -6,6 +6,9 @@ Use this checklist to validate the Technical Design Document before finalizing. 
 
 ## 1. Completeness Check
 
+- [ ] §3.5 User Scenarios are present with at least 1 concrete persona/goal/steps/success-condition (not generic placeholders)
+- [ ] §3.6 Acceptance Criteria table has at least 5 testable entries with AC-IDs, criteria, and verification methods
+- [ ] §3.7 Success Metrics has at least 2 measurable metrics with baselines, targets, and measurement methods
 - [ ] Architecture diagrams are included at the appropriate C4 levels (at minimum Context and Container)
 - [ ] At least two alternative solutions are described and compared
 - [ ] Technology stack table is complete with language, framework, runtime versions, and rationale for each choice
@@ -23,6 +26,12 @@ Use this checklist to validate the Technical Design Document before finalizing. 
 - [ ] Deployment plan is included with environments, CI/CD pipeline, and rollback strategy
 - [ ] Observability is covered with logging, monitoring, and alerting strategies
 - [ ] Testing strategy overview is present with coverage at unit, integration, and E2E levels
+- [ ] Feature specs are generated in `docs/features/` for every component in §8.1 Component Overview
+- [ ] Feature spec overview file (`docs/features/overview.md`) is generated with dependency graph and execution order
+- [ ] Each feature spec contains implementation-level detail (method signatures, logic steps, field mappings), not just section headings
+- [ ] Each feature spec Acceptance Criteria section has at least 1 testable entry (not a placeholder)
+- [ ] Each feature spec File Structure uses real source paths and file extensions, not placeholders
+- [ ] Each feature spec Test Module names the exact test file path and lists specific methods to test
 
 ## 2. Quality Check
 

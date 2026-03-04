@@ -97,6 +97,8 @@ CRITICAL: Follow the Anti-Shortcut Rules strictly. Do not copy-paste PRD content
 
 After the sub-agent returns, present the result to the user and suggest:
 
-1. **Continue the spec chain**: Run `/spec-forge:tech-design` to design the technical architecture based on these requirements.
-2. **Jump to testing**: Run `/spec-forge:test-plan` to go directly to test planning (standalone mode will compensate for the missing tech design).
+1. **Generate Tech Design**: Run `/spec-forge:tech-design` to design the technical architecture based on these requirements. This also auto-generates feature specs in `docs/features/` for code-forge consumption.
+2. **Generate Test Plan**: Run `/spec-forge:test-plan` to create a comprehensive test plan based on these requirements (on-demand, for formal QA).
 3. **Ready to implement?** If the [code-forge](https://github.com/tercel/code-forge) plugin is installed, use `/code-forge:plan @docs/{slug}/srs.md` to convert SRS requirements into implementation tasks and execute them. If not, consider breaking the requirements into development tasks manually.
+
+> **Note**: SRS is an on-demand document — it is NOT part of the default spec-forge auto chain (`idea → decompose → tech-design`). Use it when you need formal requirements traceability or compliance documentation.

@@ -29,7 +29,7 @@ ln -s "$(pwd)/spec-forge" ~/.config/opencode/skills/spec-forge
 
 ```bash
 ls ~/.config/opencode/skills/spec-forge/commands/
-# Should list: decompose.md  feature.md  idea.md  prd.md  spec-forge.md  srs.md  tech-design.md  test-plan.md
+# Should list: decompose.md  idea.md  prd.md  spec-forge.md  srs.md  tech-design.md  test-plan.md
 ```
 
 ## Usage
@@ -37,13 +37,12 @@ ls ~/.config/opencode/skills/spec-forge/commands/
 Once installed, the following commands are available in OpenCode:
 
 - `/spec-forge:idea <name>` — Interactive brainstorming and demand validation
-- `/spec-forge:feature <name>` — Generate lightweight feature specification
 - `/spec-forge:decompose <name>` — Decompose project into sub-features
-- `/spec-forge <name>` — Run full chain (PRD → SRS → Tech Design → Test Plan → Feature Spec)
-- `/spec-forge:prd <feature name>` — Generate a Product Requirements Document
-- `/spec-forge:srs <feature name>` — Generate a Software Requirements Specification
-- `/spec-forge:tech-design <feature name>` — Generate a Technical Design Document
-- `/spec-forge:test-plan <feature name>` — Generate a Test Plan & Test Cases
+- `/spec-forge:tech-design <name>` — Generate Tech Design + Feature Specs
+- `/spec-forge <name>` — Run full chain (Idea → Decompose → Tech Design + Feature Specs)
+- `/spec-forge:prd <name>` — Generate PRD (on-demand, for stakeholders)
+- `/spec-forge:srs <name>` — Generate SRS (on-demand, for compliance)
+- `/spec-forge:test-plan <name>` — Generate Test Plan (on-demand, for QA)
 
 ## Uninstall
 

@@ -1,7 +1,7 @@
 ---
 allowed-tools: Read, Glob, Grep, Write, Edit, AskUserQuestion, Task, Bash
-description: "Use when generating software specifications — full chain (PRD→SRS→Tech Design→Test Plan→Feature Spec) or individual documents"
-argument-hint: "[idea|decompose|feature|prd|srs|tech-design|test-plan] <feature name>"
+description: "Use when generating software specifications — full chain (Idea→Decompose→Tech Design + Feature Specs) or individual documents"
+argument-hint: "[idea|decompose|prd|srs|tech-design|test-plan] <feature name>"
 ---
 
 You are the spec-forge orchestrator. Your job is to route subcommands or run the full specification chain.
@@ -15,7 +15,6 @@ Parse `$ARGUMENTS` into `subcommand` and `feature_name`:
 | Input Pattern | subcommand | feature_name |
 |---|---|---|
 | `idea cool-feature` | `idea` | `cool-feature` |
-| `feature cool-feature` | `feature` | `cool-feature` |
 | `prd cool-feature` | `prd` | `cool-feature` |
 | `srs cool-feature` | `srs` | `cool-feature` |
 | `tech-design cool-feature` | `tech-design` | `cool-feature` |
@@ -49,24 +48,23 @@ Projects (in docs/):
   1 | my-project      | 3            | docs/project-my-project.md
 
 Feature Specs (in docs/features/):
-  # | Feature         | Source
-  1 | core-executor   | extracted from tech-design
-  2 | schema-system   | standalone
+  # | Feature         | Source Tech Design
+  1 | core-executor   | docs/my-feature/tech-design.md
+  2 | schema-system   | docs/my-feature/tech-design.md
 
 Specifications (in docs/):
-  Feature        | PRD | SRS | Tech Design | Test Plan | Feature Spec
-  user-login     |  +  |  +  |      +      |     +     |      +
-  payment        |  +  |  +  |             |           |
+  Feature        | PRD | SRS | Tech Design | Test Plan
+  user-login     |  +  |  +  |      +      |     +
+  payment        |  +  |  +  |             |
 
 Commands:
   /spec-forge:idea <name>          Start or resume brainstorming
   /spec-forge:decompose <name>     Decompose project into sub-features
-  /spec-forge:feature <name>       Generate lightweight feature spec (for code-forge)
-  /spec-forge <name>               Run full chain (Scope Analysis → PRD → SRS → Tech Design → Test Plan → Feature Spec)
-  /spec-forge:prd <name>           Generate PRD only
-  /spec-forge:srs <name>           Generate SRS only
-  /spec-forge:tech-design <name>   Generate Tech Design only
-  /spec-forge:test-plan <name>     Generate Test Plan only
+  /spec-forge <name>               Run full chain (Idea → Decompose → Tech Design + Feature Specs)
+  /spec-forge:tech-design <name>   Generate Tech Design + Feature Specs
+  /spec-forge:prd <name>           Generate PRD (on-demand, for stakeholders)
+  /spec-forge:srs <name>           Generate SRS (on-demand, for compliance)
+  /spec-forge:test-plan <name>     Generate Test Plan (on-demand, for QA)
 ```
 
 5. Use `AskUserQuestion` to ask what to do next.
@@ -74,10 +72,6 @@ Commands:
 ### Route B: `idea`
 
 Invoke the spec-forge:idea skill. Pass `feature_name` as the argument.
-
-### Route B2: `feature`
-
-Invoke the spec-forge:feature skill. Pass `feature_name` as the argument.
 
 ### Route C: `prd` / `srs` / `tech-design` / `test-plan` (single document)
 
@@ -89,32 +83,55 @@ Invoke the corresponding skill:
 
 ### Route D: `chain` (full chain auto mode)
 
-Run the full specification chain automatically for `feature_name`.
+Run the full specification chain automatically for `feature_name`. The chain consists of three stages:
 
-#### D.0: Scope Analysis
+1. **Idea** — Validate requirements and crystallize the concept (interactive)
+2. **Decompose** — Determine if the project needs splitting into sub-features
+3. **Tech Design** — Generate architecture document + auto-generate feature specs in `docs/features/`
+
+> **Note**: PRD, SRS, and Test Plan are NOT part of the auto chain. They can be generated on-demand via `/spec-forge:prd`, `/spec-forge:srs`, or `/spec-forge:test-plan` when needed (e.g., for stakeholder alignment, compliance, or formal QA). The tech-design in standalone mode captures requirements directly through targeted questions, eliminating the need for intermediate PRD/SRS documents.
+
+#### D.0: Check for Existing Idea
+
+Check if `ideas/{feature_name}/` exists:
+- If status is `ready` or `graduated`: note the idea is available as context, proceed to D.1
+- If status is `exploring` or `refining`: warn user that the idea is still in progress, suggest running `/spec-forge:idea {feature_name}` to finish it first
+- If no idea exists: proceed to D.0a (start with idea stage)
+
+#### D.0a: Stage 1 — Idea
+
+Launch `Task(subagent_type="general-purpose")`:
+- Sub-agent prompt: "Invoke the spec-forge:idea skill for '{feature_name}'. Guide the user through iterative discovery to validate the concept and produce a draft at ideas/{feature_name}/draft.md."
+- This is the most interactive stage — the user shapes the core requirements here
+- Wait for completion
+
+After sub-agent returns, check `ideas/{feature_name}/state.json`:
+- If `status` is `ready` or `graduated`: proceed to D.1
+- If `status` is `parked`: inform user — *"The idea was parked. Run `/spec-forge:idea {feature_name}` to resume when ready."* — stop chain
+- If `status` is `exploring`, `researching`, or `refining`: ask user via `AskUserQuestion`:
+  - **Continue anyway** — proceed to D.1 using partial draft as context (not recommended without validation)
+  - **Finish idea first** — stop chain, user resumes with `/spec-forge:idea {feature_name}`
+- If `ideas/{feature_name}/` still doesn't exist: warn and stop
+
+#### D.1: Stage 2 — Decompose
 
 Launch `Task(subagent_type="general-purpose")`:
 - Sub-agent prompt: "Invoke the spec-forge:decompose skill for '{feature_name}'."
 - Wait for completion
 
 Check result:
-- If `docs/project-{feature_name}.md` exists → multi-split mode, go to D.0a
-- Otherwise → single feature, proceed to D.1
+- If `docs/project-{feature_name}.md` exists → multi-split mode, go to D.1a
+- Otherwise → single feature, proceed to D.2
 
-#### D.0a: Multi-Split Chain Execution
+#### D.1a: Multi-Split Chain Execution
 
-Read `docs/project-{feature_name}.md` and parse the FEATURE_MANIFEST comment block to extract sub-feature names.
+Read `docs/project-{feature_name}.md` and parse the FEATURE_MANIFEST comment block to extract sub-feature names and their scope descriptions.
 
 For each sub-feature in execution order:
 
 Launch `Task(subagent_type="general-purpose")`:
-- Sub-agent prompt: "Run the spec-forge specification chain for '{sub_feature_name}'. Generate all 5 artifacts sequentially:
-  1. Invoke the spec-forge:prd skill for '{sub_feature_name}'. Write to docs/{sub_feature_name}/prd.md.
-  2. Invoke the spec-forge:srs skill for '{sub_feature_name}'. Chain mode: upstream PRD at docs/{sub_feature_name}/prd.md. Minimize user questions.
-  3. Invoke the spec-forge:tech-design skill for '{sub_feature_name}'. Chain mode: upstream PRD at docs/{sub_feature_name}/prd.md, SRS at docs/{sub_feature_name}/srs.md. Minimize user questions.
-  4. Invoke the spec-forge:test-plan skill for '{sub_feature_name}'. Chain mode: upstream SRS at docs/{sub_feature_name}/srs.md, Tech Design at docs/{sub_feature_name}/tech-design.md. Minimize user questions.
-  5. Invoke the spec-forge:feature skill for '{sub_feature_name}'. Extract mode: upstream tech-design at docs/{sub_feature_name}/tech-design.md. Auto-confirm extraction — do not ask the user, just generate. CRITICAL filename rule: the output file MUST be docs/features/{sub_feature_name}.md — a plain kebab-case slug with NO numeric prefixes (no 01-, F001-, etc.). After generating, create or update docs/features/overview.md with the feature index and recommended execution order."
-- Wait for completion → verify all 5 artifacts: 4 files in docs/{sub_feature_name}/ + docs/features/{sub_feature_name}.md
+- Sub-agent prompt: "Invoke the spec-forge:tech-design skill for '{sub_feature_name}'. Idea-first mode. Read ideas/{feature_name}/draft.md for overall requirements context and use it to populate §3.5 User Scenarios, §3.6 Acceptance Criteria, and §3.7 Success Metrics. Also read docs/project-{feature_name}.md for this sub-feature's specific scope and dependencies (look for the section describing '{sub_feature_name}') and use it to define §3.4 Scope and §3.2 Goals. Minimize user questions — extract answers from these documents where possible. IMPORTANT: This will also auto-generate feature specs in docs/features/ as part of Step 7."
+- Wait for completion → verify `docs/{sub_feature_name}/tech-design.md` exists and feature specs exist in `docs/features/`
 
 After each sub-feature completes, display progress:
 
@@ -122,13 +139,13 @@ After each sub-feature completes, display progress:
 spec-forge project: {feature_name} ({N} sub-features)
 
   {sub-feature-1}:
-    [x] PRD    [x] SRS    [x] Tech Design    [x] Test Plan    [x] Feature Spec
+    [x] Tech Design + Feature Specs
 
   {sub-feature-2}:
-    [x] PRD    [ ] SRS    [ ] Tech Design     [ ] Test Plan    [ ] Feature Spec
+    [x] Tech Design + Feature Specs
 
   {sub-feature-3}:
-    [ ] PRD    [ ] SRS    [ ] Tech Design     [ ] Test Plan    [ ] Feature Spec
+    [ ] In progress...
 ```
 
 After all sub-features complete, display multi-split completion:
@@ -138,108 +155,95 @@ spec-forge project complete: {feature_name}
 
 Generated documents:
   {sub-feature-1}/
-    [x] prd.md  [x] srs.md  [x] tech-design.md  [x] test-plan.md
-    [x] docs/features/{sub-feature-1}.md
+    [x] tech-design.md
   {sub-feature-2}/
-    [x] prd.md  [x] srs.md  [x] tech-design.md  [x] test-plan.md
-    [x] docs/features/{sub-feature-2}.md
+    [x] tech-design.md
 
-Feature overview: docs/features/overview.md
+Feature specs (auto-generated with tech-design):
+  docs/features/
+    [x] overview.md
+    [x] {component-1}.md
+    [x] {component-2}.md
+    ...
+
 Project manifest: docs/project-{feature_name}.md
 
 Next steps:
-  /code-forge:plan @docs/features/{sub-feature-1}.md      → Generate implementation plan
-  /code-forge:plan @docs/{sub-feature-1}/tech-design.md   → Or plan directly from tech-design
+  /code-forge:plan @docs/features/{component-name}.md   → Generate implementation plan for a component
+  /code-forge:status                                     → Track progress across features
+
+Optional (on-demand):
+  /spec-forge:prd {feature_name}                         → Generate PRD (for stakeholders)
+  /spec-forge:srs {feature_name}                         → Generate SRS (for compliance/audit)
+  /spec-forge:test-plan {feature_name}                   → Generate Test Plan (for formal QA)
 ```
 
-#### D.1: Detect Existing Progress
+#### D.2: Detect Existing Progress
 
-Scan `docs/` for existing documents matching `feature_name`:
-- `docs/{feature_name}/prd.md`
-- `docs/{feature_name}/srs.md`
-- `docs/{feature_name}/tech-design.md`
-- `docs/{feature_name}/test-plan.md`
-- `docs/features/{feature_name}.md`
+Scan for existing documents matching `feature_name`:
+- `ideas/{feature_name}/` (idea draft)
+- `docs/{feature_name}/tech-design.md` (tech design)
+- `docs/features/overview.md` (feature specs)
 
 Determine which stages are already complete.
 
-If all 5 artifacts exist, inform the user and ask:
-- Regenerate all (start over)
-- Regenerate from a specific stage
+If tech-design and feature specs both exist, inform the user and ask:
+- Regenerate all (start over from idea)
+- Regenerate tech-design only (keep idea)
 - Cancel
 
-If some documents exist, show progress and ask:
+If some stages are complete, show progress and ask:
 - Continue from next missing stage (Recommended)
 - Regenerate all
 - Cancel
 
-#### D.2: Check for Idea Draft
-
-Check if `ideas/{feature_name}/` exists with status `ready` or `graduated`:
-- If `ready`: read `draft.md` as additional context for PRD generation
-- If `graduated`: note that idea has already been processed
-- If `exploring` or `refining`: warn user that the idea is still in progress, suggest running `/spec-forge:idea {feature_name}` first
-- If no idea exists: proceed normally (ideas are optional)
-
-#### D.3: Execute Chain
-
-Run each stage sequentially. **Each stage is dispatched as a complete `Task` sub-agent** to prevent context accumulation across stages. The main context only handles coordination: checking progress, dispatching the next stage, and displaying status.
+#### D.3: Stage 3 — Tech Design
 
 **CRITICAL**: Do NOT invoke skills directly in the main context. Each stage MUST be a `Task(subagent_type="general-purpose")` call. The sub-agent handles scanning, user questions, and document generation independently. After it completes, its context is discarded and only a brief summary returns to the main context.
 
-**Stage 1: PRD** — Launch `Task(subagent_type="general-purpose")`:
-- Sub-agent prompt: "Invoke the spec-forge:prd skill for '{feature_name}'. {If idea draft exists: 'Also read ideas/{feature_name}/draft.md for additional context.'}"
-- This is the only stage that requires significant user interaction
-- Wait for completion → verify `docs/{feature_name}/prd.md` exists
+Before launching, check whether `ideas/{feature_name}/draft.md` exists and build the sub-agent prompt accordingly:
 
-**Stage 2: SRS** — Launch `Task(subagent_type="general-purpose")`:
-- Sub-agent prompt: "Invoke the spec-forge:srs skill for '{feature_name}'. Chain mode: upstream PRD exists at docs/{feature_name}/prd.md. Minimize user questions — extract answers from upstream docs where possible."
-- Wait for completion → verify `docs/{feature_name}/srs.md` exists
+- **If idea draft exists**: prompt = "Invoke the spec-forge:tech-design skill for '{feature_name}'. Idea-first mode. Read ideas/{feature_name}/draft.md for requirements context — extract User Scenarios from the draft to populate §3.5, extract validated requirements and MVP criteria to populate §3.6 Acceptance Criteria, extract success criteria and demand validation metrics to populate §3.7 Success Metrics, and extract MVP scope/boundaries to populate §3.4 Scope and §3.2 Goals. Minimize user questions where the idea draft already provides answers. IMPORTANT: After writing the tech-design, also auto-generate feature specs in docs/features/ as part of Step 7."
+- **If no idea draft**: prompt = "Invoke the spec-forge:tech-design skill for '{feature_name}'. Standalone mode — no upstream idea draft found. Ask the user the full set of standalone clarification questions (including user scenarios, acceptance criteria, and success metrics). IMPORTANT: After writing the tech-design, also auto-generate feature specs in docs/features/ as part of Step 7."
 
-**Stage 3: Tech Design** — Launch `Task(subagent_type="general-purpose")`:
-- Sub-agent prompt: "Invoke the spec-forge:tech-design skill for '{feature_name}'. Chain mode: upstream PRD at docs/{feature_name}/prd.md, SRS at docs/{feature_name}/srs.md. Minimize user questions — extract answers from upstream docs where possible."
-- Wait for completion → verify `docs/{feature_name}/tech-design.md` exists
+Launch `Task(subagent_type="general-purpose")` with the appropriate prompt above.
+Wait for completion → verify `docs/{feature_name}/tech-design.md` exists and feature specs exist in `docs/features/`.
 
-**Stage 4: Test Plan** — Launch `Task(subagent_type="general-purpose")`:
-- Sub-agent prompt: "Invoke the spec-forge:test-plan skill for '{feature_name}'. Chain mode: upstream SRS at docs/{feature_name}/srs.md, Tech Design at docs/{feature_name}/tech-design.md. Minimize user questions — extract answers from upstream docs where possible."
-- Wait for completion → verify `docs/{feature_name}/test-plan.md` exists
-
-**Stage 5: Feature Spec** — Launch `Task(subagent_type="general-purpose")`:
-- Sub-agent prompt: "Invoke the spec-forge:feature skill for '{feature_name}'. Extract mode: upstream tech-design at docs/{feature_name}/tech-design.md. Auto-confirm extraction — do not ask the user, just generate. CRITICAL filename rule: the output file MUST be docs/features/{feature_name}.md — a plain kebab-case slug with NO numeric prefixes (no 01-, F001-, etc.). After generating, create or update docs/features/overview.md with the feature index and recommended execution order."
-- Wait for completion → verify `docs/features/{feature_name}.md` exists
-
-After each stage completes, display brief progress in the main context:
+After completion, scan `docs/features/` to count generated specs, then display:
 ```
 spec-forge chain: {feature_name}
-  [x] PRD            docs/{feature_name}/prd.md
-  [x] SRS            docs/{feature_name}/srs.md
-  [ ] Tech Design    (next)
-  [ ] Test Plan
-  [ ] Feature Spec
+  [x] Idea           ideas/{feature_name}/
+  [x] Decompose      single feature
+  [x] Tech Design    docs/{feature_name}/tech-design.md
+  [x] Feature Specs  docs/features/overview.md + {actual count from scan} component specs
 ```
 
 #### D.4: Chain Completion
 
-After all 5 stages complete:
-
 ```
 spec-forge chain complete: {feature_name}
 
-Generated documents:
-  [x] docs/{feature_name}/prd.md
-  [x] docs/{feature_name}/srs.md
-  [x] docs/{feature_name}/tech-design.md
-  [x] docs/{feature_name}/test-plan.md
-  [x] docs/features/{feature_name}.md
+Generated:
+  [x] ideas/{feature_name}/              — validated requirements
+  [x] docs/{feature_name}/tech-design.md — architecture & design
+  [x] docs/features/overview.md          — feature index
+  [x] docs/features/{component-1}.md     — implementation spec
+  [x] docs/features/{component-2}.md     — implementation spec
+  ...
 
 Next steps:
-  /code-forge:plan @docs/features/{feature_name}.md      → Generate implementation plan
-  /code-forge:plan @docs/{feature_name}/tech-design.md   → Or plan directly from tech-design
+  /code-forge:plan @docs/features/{component-name}.md   → Generate implementation plan for a component
+  /code-forge:status                                     → Track progress across features
+
+Optional (on-demand):
+  /spec-forge:prd {feature_name}                         → Generate PRD (for stakeholders)
+  /spec-forge:srs {feature_name}                         → Generate SRS (for compliance/audit)
+  /spec-forge:test-plan {feature_name}                   → Generate Test Plan (for formal QA)
 ```
 
 If an idea draft was used, update its status to `graduated`:
 ```json
-{ "status": "graduated", "graduated_to": "docs/{feature_name}/prd.md" }
+{ "status": "graduated", "graduated_to": "docs/{feature_name}/tech-design.md" }
 ```
 
 ### Route E: `decompose`
@@ -251,3 +255,5 @@ Launch `Task(subagent_type="general-purpose")`:
 After the sub-agent returns:
 - If `docs/project-{feature_name}.md` exists: display the manifest and suggest running `/spec-forge {feature_name}` to execute the full chain for all sub-features
 - If no manifest (single verdict): inform user and suggest running `/spec-forge {feature_name}` to start the spec chain
+
+> **Note**: Running `/spec-forge {feature_name}` starts from the **Idea** stage if `ideas/{feature_name}/` does not exist yet. If you only want the Tech Design (skipping idea and decompose), run `/spec-forge:tech-design {feature_name}` directly.

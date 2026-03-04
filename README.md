@@ -2,7 +2,7 @@
 
 **Professional Software Specification Generator for Claude Code**
 
-Generate industry-standard specifications — from early-stage brainstorming to PRD, SRS, Technical Design, and Test Plan — each usable standalone or as part of a full traceability chain.
+Generate industry-standard specifications — from early-stage brainstorming to Technical Design with auto-generated feature specs — each usable standalone or as part of a streamlined auto chain.
 
 ## Overview
 
@@ -11,21 +11,20 @@ Software projects need clear specifications. spec-forge covers the full journey 
 | Command | Description | Standards |
 |---------|-------------|-----------|
 | `/spec-forge:idea <name>` | Interactive brainstorming — explore and refine ideas | — |
-| `/spec-forge:feature <name>` | Lightweight feature spec — bridge to code-forge | — |
-| `/spec-forge:prd <name>` | Product Requirements Document | Google PRD, Amazon PR/FAQ |
-| `/spec-forge:srs <name>` | Software Requirements Specification | IEEE 830, ISO/IEC/IEEE 29148 |
-| `/spec-forge:tech-design <name>` | Technical Design Document | Google Design Doc, RFC Template |
-| `/spec-forge:test-plan <name>` | Test Plan & Test Cases | IEEE 829, ISTQB |
 | `/spec-forge:decompose <name>` | Decompose project into sub-features | — |
-| `/spec-forge <name>` | **Full chain** — auto-run PRD → SRS → Tech Design → Test Plan → Feature Spec | All of the above |
+| `/spec-forge:tech-design <name>` | Technical Design Document + auto-generated feature specs | Google Design Doc, RFC Template |
+| `/spec-forge <name>` | **Full chain** — auto-run Idea → Decompose → Tech Design + Feature Specs | All of the above |
+| `/spec-forge:prd <name>` | Product Requirements Document (on-demand) | Google PRD, Amazon PR/FAQ |
+| `/spec-forge:srs <name>` | Software Requirements Specification (on-demand) | IEEE 830, ISO/IEC/IEEE 29148 |
+| `/spec-forge:test-plan <name>` | Test Plan & Test Cases (on-demand) | IEEE 829, ISTQB |
 
-**Aliases**: `/prd`, `/srs`, `/tech-design`, `/test-plan`, `/idea`, `/feature`, `/decompose` work as shortcuts.
+**Aliases**: `/prd`, `/srs`, `/tech-design`, `/test-plan`, `/idea`, `/decompose` work as shortcuts — they invoke each skill directly, bypassing the `/spec-forge` orchestrator.
 
 ## Features
 
-- **Idea to Spec**: Brainstorm interactively, then graduate ideas into formal documents
-- **Full Chain Mode**: One command runs the entire specification chain automatically
-- **Standalone or Chained**: Use any command on its own, or run the full chain for bidirectional traceability
+- **Idea to Spec**: Brainstorm interactively, then graduate ideas into architecture docs + feature specs
+- **Full Chain Mode**: One command runs the streamlined chain (Idea → Decompose → Tech Design + Feature Specs)
+- **Standalone or Chained**: Use any command on its own, or run the full chain for traceability
 - **Industry Standards**: Templates grounded in Google, Amazon, Stripe, IEEE, and ISTQB best practices
 - **Automatic Context Scanning**: Scans your project structure, README, and existing docs before generation
 - **Project Decomposition**: Automatically analyzes scope and splits large projects into sub-features
@@ -48,33 +47,20 @@ Interactive, multi-session brainstorming for early-stage ideas:
 /spec-forge:idea                    # List all ideas
 ```
 
-Status flow: `exploring` → `researching` → `refining` → `ready` → `graduated` (or `parked`)
-
-### `/spec-forge:feature <name>` — Lightweight Feature Spec
-
-Generate a concise, implementation-ready feature specification:
-
-```bash
-/spec-forge:feature core-executor     # Standalone: 2-3 round Q&A → docs/features/core-executor.md
-/spec-forge:feature user-auth         # Extract: if tech-design exists, auto-extracts from it
-```
-
-- **Two modes**: standalone Q&A or extract from existing tech-design
-- **Language-agnostic**: describes what to build, not how (no Pydantic, no TypeBox)
-- **code-forge ready**: output at `docs/features/` is the default input for `/code-forge:plan`
-- **Concise**: 1-3 pages, focused on module purpose, interfaces, data flow, and constraints
+Status flow: `exploring` → `refining` → `ready` → `graduated`
 
 ### `/spec-forge <name>` — Full Chain
 
-Run the complete specification chain in one command:
+Run the streamlined specification chain in one command:
 
 ```bash
-/spec-forge user-login              # Auto: PRD → SRS → Tech Design → Test Plan → Feature Spec
+/spec-forge user-login              # Auto: Idea → Decompose → Tech Design + Feature Specs
 ```
 
 - Detects existing documents and resumes from where you left off
-- PRD stage requires user interaction; subsequent stages run with minimal input (chain mode)
-- If an idea draft exists in `ideas/`, uses it as additional context
+- Idea stage is interactive; Tech Design minimizes questions when idea draft exists
+- Auto-generates per-component feature specs in `docs/features/` (Step 7 of tech-design)
+- If an idea draft exists in `ideas/`, uses it as requirements context
 
 ### `/spec-forge:decompose <name>` — Project Decomposition
 
@@ -86,7 +72,7 @@ Analyze project scope and split into sub-features if needed:
 
 - Lightweight 3-5 round interview focused on scope boundaries
 - Generates `docs/project-{name}.md` manifest for multi-split projects
-- Automatically invoked as Step 0 when running `/spec-forge <name>` full chain
+- Automatically invoked as Stage 2 when running `/spec-forge <name>` full chain (after Idea, before Tech Design)
 
 ### `/spec-forge:prd <name>`
 
@@ -146,42 +132,48 @@ Generates a Test Plan & Test Cases document including:
 ```
 /spec-forge:idea cool-feature              # Brainstorm (iterative, multi-session)
     ↓ (graduated)
-/spec-forge cool-feature                   # Scope analysis → PRD → SRS → Tech Design → Test Plan → Feature Spec
+/spec-forge cool-feature                   # Idea → Decompose → Tech Design + Feature Specs
     ↓
 /code-forge:plan @docs/features/cool-feature.md   # Break into tasks and execute
 ```
 
-**Quick path** (skip formal chain):
+**Quick path** (skip idea stage):
 ```
-/spec-forge:feature cool-feature           # 2-3 round Q&A → docs/features/cool-feature.md
+/spec-forge:tech-design cool-feature       # Tech Design + auto-generated feature specs
 /code-forge:plan @docs/features/cool-feature.md   # Generate implementation plan
 ```
 
-### Document Traceability (Chain Mode)
+### Document Traceability
 
-When you run the full chain, spec-forge builds bidirectional traceability:
-
+**Default auto chain** (idea → decompose → tech-design):
 ```
-PRD ──traceability──→ SRS ──design input──→ Tech Design ──test input──→ Test Plan
- │                     │                      │       │                  │
- │  PRD-ID             │  FR/NFR-ID           │       │  Component/API   │  TC-ID
- │                     │                      │       ↓                  │
- │                     │                      │   Feature Spec           │
- │                     │                      │   (code-forge input)     │
- └─────────────────────┴──────────────────────┴─────────────────────────┘
-                        Traceability matrix spans all documents
+Idea Draft ──────────────────────────────→ Tech Design ──→ Feature Specs
+(ideas/<name>/draft.md)                   §3.5/§3.6/§3.7    docs/features/
+                                           populated from      auto-generated
+                                           idea draft          in Step 7
+```
+
+**With optional upstream docs** (on-demand PRD/SRS add traceability):
+```
+PRD (optional) ──→ SRS (optional) ──→ Tech Design ──→ Feature Specs
+/spec-forge:prd     /spec-forge:srs     §3.5/§3.6/§3.7    docs/features/
+                                         traced to           auto-generated
+                                         FR/NFR IDs          in Step 7
 ```
 
 ## Output
 
 Each feature gets its own directory under `docs/`:
+- `docs/<feature-name>/tech-design.md` (always generated)
+
+Auto-generated feature specs go to `docs/features/`:
+- `docs/features/overview.md` (feature index + dependency graph)
+- `docs/features/<component-name>.md` (per-component implementation spec)
+
+On-demand documents (when explicitly requested):
 - `docs/<feature-name>/prd.md`
 - `docs/<feature-name>/srs.md`
-- `docs/<feature-name>/tech-design.md`
 - `docs/<feature-name>/test-plan.md`
-
-Lightweight feature specs go to `docs/features/`:
-- `docs/features/<feature-name>.md`
 
 For decomposed projects, a manifest is also generated:
 - `docs/project-<project-name>.md`

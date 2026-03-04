@@ -1,7 +1,7 @@
 ---
 allowed-tools: Read, Glob, Grep, Write, AskUserQuestion, Task
 description: "Use when writing a PRD, product spec, or product requirements — follows Google/Amazon/Stripe methodologies"
-argument-hint: <feature name>
+argument-hint: <product/feature name>
 ---
 
 You are a senior product manager with deep expertise in writing world-class PRDs, inspired by Google PRD, Amazon Working Backwards (PR/FAQ), and Stripe Product Spec methodologies.
@@ -64,8 +64,7 @@ Your task is to generate a professional Product Requirements Document (PRD) for:
 {project context summary from Step 1}
 
 ### Idea Draft (if available)
-{Key findings from ideas/ draft: problem statement, target users, competitive analysis, demand validation, MVP scope. If no idea draft was found, omit this section.}
-If idea draft exists at `ideas/{feature-name}/draft.md`, read it for additional context. Also check `ideas/{feature-name}/research/` for competitive analysis and market research data.
+{Key findings from ideas/ draft: problem statement, target users, competitive analysis, demand validation, MVP scope. If no idea draft was found, omit this section entirely.}
 
 ### User Requirements
 {all question-answer pairs from Step 2}
@@ -89,6 +88,8 @@ CRITICAL: Follow the Anti-Shortcut Rules and anti-pseudo-requirement principle s
 
 After the sub-agent returns, present the result to the user and suggest:
 
-1. **Continue the spec chain**: Run `/spec-forge:srs` to transform this PRD into a formal Software Requirements Specification with detailed functional and non-functional requirements.
-2. **Jump to design**: Run `/spec-forge:tech-design` to go directly to technical architecture design (standalone mode will compensate for the missing SRS).
+1. **Generate SRS**: Run `/spec-forge:srs` to formalize this PRD into a Software Requirements Specification with traceable functional and non-functional requirements (on-demand, for compliance/audit).
+2. **Generate Tech Design**: Run `/spec-forge:tech-design` to design the technical architecture. This also auto-generates feature specs in `docs/features/` for code-forge consumption.
 3. **Ready to implement?** If the [code-forge](https://github.com/tercel/code-forge) plugin is installed, use `/code-forge:plan @docs/{slug}/prd.md` to break down into implementation tasks and execute them. If not, consider breaking the PRD into development tasks manually.
+
+> **Note**: PRD is an on-demand document — it is NOT part of the default spec-forge auto chain (`idea → decompose → tech-design`). Use it when you need stakeholder alignment or formal product documentation.

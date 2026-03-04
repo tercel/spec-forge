@@ -46,6 +46,37 @@
 
 [Define the boundaries of this design. What systems, services, and components are affected? What is included and what is excluded?]
 
+### 3.5 User Scenarios
+
+[Describe 1-3 concrete end-to-end user journeys this design must support. Write as a narrative: who the user is, what they're trying to accomplish, and what success looks like. Keep each scenario to 3-5 steps. These scenarios anchor the design in real usage and drive the acceptance criteria below.]
+
+| # | Persona | Goal | Steps | Success Condition |
+|---|---------|------|-------|-------------------|
+| US-01 | [e.g., Registered user] | [e.g., Recover forgotten password] | 1. User clicks "Forgot password"<br>2. Enters email address<br>3. Receives reset link<br>4. Sets new password | [e.g., User can log in with new password within 60s of form submission] |
+| US-02 | [e.g., Admin] | [e.g., Suspend an account] | 1. Admin navigates to user management<br>2. Selects user and clicks "Suspend"<br>3. Enters reason and confirms | [e.g., Suspended user cannot log in; audit record created] |
+
+### 3.6 Acceptance Criteria
+
+[Define the conditions that must be true for this feature to be considered complete. Each criterion should be testable — a QA engineer must be able to write a test case directly from it. Map each AC to a user scenario from §3.5 above where applicable.]
+
+| AC-ID | Criterion | Scenario | Verification Method |
+|-------|-----------|----------|---------------------|
+| AC-001 | [e.g., User can reset password using a valid reset link within 15 minutes of requesting it] | US-01 | [e.g., Integration test: POST /auth/reset-password with valid token → new password works] |
+| AC-002 | [e.g., Reset link expires after 15 minutes; expired token returns 401] | US-01 | [e.g., Unit test: token TTL = 900s; integration test: expired token rejected] |
+| AC-003 | [e.g., System returns identical response whether email exists or not (prevents user enumeration)] | US-01 | [e.g., Integration test: unknown email returns same 200 response as known email] |
+
+[Add one AC per meaningful user-facing behavior. For complex features, expect 5-15 criteria. Each AC in this table becomes the acceptance criteria entry in the corresponding feature spec.]
+
+### 3.7 Success Metrics
+
+[Define how success will be measured after launch. Each metric should be observable, measurable, and time-bound.]
+
+| Metric | Baseline | Target | Measurement Method | Timeframe |
+|--------|----------|--------|--------------------|-----------|
+| [e.g., Feature completion rate] | [e.g., N/A (new)] | [e.g., ≥ 85%] | [e.g., Analytics: completed / initiated events] | [e.g., First 30 days] |
+| [e.g., Related support tickets] | [e.g., 20/week] | [e.g., ≤ 5/week] | [e.g., Support ticket tagging] | [e.g., 60 days post-launch] |
+| [e.g., p95 task completion time] | [e.g., N/A] | [e.g., ≤ 3 min] | [e.g., Frontend timing event] | [e.g., Ongoing] |
+
 ---
 
 ## 4. System Context
@@ -422,33 +453,40 @@ Define a comprehensive, consistent error handling approach across all layers.
 
 ## 8. Detailed Design
 
-### 8.1 Component Design
+> **Note**: Per-component implementation details (method signatures, logic steps, field mappings, state machines) are generated as individual **feature specs** in `docs/features/`. This section provides the component overview and system-level interactions only. See `docs/features/overview.md` for the full feature index.
 
-The following diagram shows the internal components of the primary service.
+### 8.1 Component Overview
+
+| Component | Responsibility | Public Interface | Dependencies | Feature Spec |
+|-----------|---------------|-----------------|--------------|--------------|
+| [Component A] | [One-line description of what this component does] | [Key methods or endpoints it exposes] | [Other components it depends on] | [`docs/features/component-a.md`] |
+| [Component B] | [One-line description] | [Key methods or endpoints] | [Dependencies] | [`docs/features/component-b.md`] |
+| [Component C] | [One-line description] | [Key methods or endpoints] | [Dependencies] | [`docs/features/component-c.md`] |
+
+[Add a row for every major component. Each component maps to exactly one feature spec file.]
+
+### 8.2 Component Interaction
+
+The following diagram shows how components interact with each other. Focus on **interfaces and data flow between components**, not internal details.
 
 ```mermaid
 flowchart LR
-    subgraph "Service A Components"
-        Controller["Controller Layer<br/><i>HTTP request handling</i>"]
-        Validator["Validation Middleware<br/><i>Input validation</i>"]
-        AuthMiddleware["Auth Middleware<br/><i>Authentication & authorization</i>"]
-        Service["Service Layer<br/><i>Business logic</i>"]
-        Repository["Repository Layer<br/><i>Data access abstraction</i>"]
-        EventPublisher["Event Publisher<br/><i>Publishes domain events</i>"]
+    subgraph "System Components"
+        A["Component A<br/><i>Responsibility</i>"]
+        B["Component B<br/><i>Responsibility</i>"]
+        C["Component C<br/><i>Responsibility</i>"]
     end
 
-    Controller --> Validator
-    Controller --> AuthMiddleware
-    Controller --> Service
-    Service --> Repository
-    Service --> EventPublisher
+    A -->|"calls method()"| B
+    B -->|"returns result"| A
+    B -->|"reads from"| C
 ```
 
-[Describe each component, its responsibility, and the interfaces between components.]
+[Describe the interaction patterns between components. Explain which component calls which, what data flows between them, and any ordering constraints.]
 
-### 8.2 Core Workflow
+### 8.3 Core Workflow
 
-The following sequence diagram shows the primary workflow for the feature.
+The following sequence diagram shows the primary end-to-end workflow for the feature.
 
 ```mermaid
 sequenceDiagram
@@ -482,7 +520,7 @@ sequenceDiagram
 
 [Describe the workflow step by step. Explain the happy path and note where error handling diverges.]
 
-### 8.3 Data Flow
+### 8.4 Data Flow
 
 ```mermaid
 flowchart LR

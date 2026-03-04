@@ -2,12 +2,25 @@
 
 Follow these steps exactly to generate the Technical Design Document.
 
+> **Step correspondence**: These 5 steps map to the SKILL.md 7-step workflow as follows:
+> - Step 1 (Generate Document) → SKILL.md Step 4
+> - Step 2 (Traceability) → SKILL.md Step 5
+> - Step 3 (Quality Check) → SKILL.md Step 6
+> - Step 4 (Write Output) → SKILL.md Step 4 (write phase)
+> - Step 5 (Generate Feature Specs) → SKILL.md Step 7
+>
+> Steps 1-3 of SKILL.md (codebase scan, upstream search, clarification questions) are performed by the
+> orchestrator in `commands/tech-design.md` before this sub-agent is launched.
+
 ## Step 1: Generate Document
 
 Load and follow the tech design template from the skill reference file at:
 `skills/tech-design-generation/references/template.md`
 
 Generate the complete technical design document. Key requirements:
+- **§3.5 User Scenarios**: Write 1-3 concrete end-to-end narratives. Each scenario must name a specific persona, a specific goal, numbered steps, and a measurable success condition. Do NOT write generic scenarios like "User uses the feature successfully" — they must be specific enough that a QA engineer can derive a test case.
+- **§3.6 Acceptance Criteria**: Write 5-15 testable AC entries mapping to the user scenarios. Each AC must be verifiable — specify the exact API call, test type, and assertion. ACs drive the Acceptance Criteria section in each feature spec. If an idea draft exists (idea-first mode), extract the MVP requirements and success criteria from it as inputs for the AC table.
+- **§3.7 Success Metrics**: Define 2-5 measurable metrics with baselines and targets. Metrics must be observable (tied to specific events or data sources), not aspirational. If standalone mode (no PRD), derive metrics from the idea draft's "Demand Validation" section if available.
 - Include at least 2 alternative solutions with a comparison matrix
 - **Technology Stack**: Specify exact language, framework, runtime, ORM, database, cache, and all dependencies with version numbers and rationale
 - **Naming Conventions**: Define complete naming rules for code (files, classes, functions, variables, constants), API (URLs, params, fields, error codes), and database (tables, columns, indexes, constraints)
@@ -29,15 +42,14 @@ Generate the complete technical design document. Key requirements:
 
 ## Step 2: Traceability
 
-**Chain mode** (upstream docs found):
+**Upstream mode** (PRD/SRS found):
 - Map SRS functional requirements to technical components
 - Map SRS non-functional requirements to architecture decisions
 - Ensure all FR/NFR items are addressed in the design
 
-**Standalone mode** (no upstream docs):
+**Idea-first or Standalone mode** (no PRD/SRS):
 - Skip the SRS traceability matrix
-- Instead, include a "Design Inputs" section summarizing the requirements derived from user clarification
-- Add a note: *"To establish full traceability, consider running `/spec-forge:prd` → `/spec-forge:srs` first, then re-running `/spec-forge:tech-design`."*
+- Instead, include a "Design Inputs" section summarizing the requirements derived from the idea draft (idea-first mode) or user clarification (standalone mode)
 
 ## Step 3: Quality Check
 
@@ -52,6 +64,28 @@ Run through every item in the checklist. For any failed check, revise the docume
 2. Create the `docs/` directory if it doesn't exist
 3. Write the final document to `docs/<feature-name>/tech-design.md`
 4. Confirm the file path and provide a brief summary
+
+## Step 5: Generate Feature Specs
+
+After writing the main tech-design document, generate individual feature spec files from the Component Overview table in §8.
+
+1. **Extract components**: For each row in §8.1 Component Overview, create a feature spec at `docs/features/{component-name}.md`
+2. **Populate implementation detail**: Each feature spec contains the implementation-level content — method signatures, logic steps, field mapping tables, state machines, default values, error handling specifics. This is the depth that would traditionally live in §8 but now lives in per-component files for code-forge consumption.
+3. **Assign metadata**: Use the component slug (filename without `.md`) as the stable identifier for all cross-references in `Depends On` / `Blocks` fields. Do NOT assign numeric IDs (F-01, F-02, ...) — execution order lives exclusively in `overview.md`. Map SRS requirement IDs from the Traceability Matrix. Derive priority from requirement priorities.
+4. **Generate overview**: Create `docs/features/overview.md` with the feature table, dependency graph, and execution order.
+5. **Cross-reference**: Ensure each feature spec's SRS Refs field matches the Traceability Matrix in the main tech-design document. Ensure Depends On / Blocks fields use component slugs and form a consistent dependency graph. Verify all referenced slugs correspond to actual files in `docs/features/`.
+
+Read `skills/tech-design-generation/SKILL.md` and locate Step 7 (Feature Spec Generation) — it contains the Feature Spec Template you must use for each component file.
+
+**Anti-Shortcut Rules for Feature Specs:**
+- Do NOT generate empty-shell feature specs with just section headings and no content
+- Do NOT write "see tech-design for details" — the feature spec must be self-contained for implementation
+- Do NOT skip the metadata header (Component slug, SRS Refs, Dependencies) — code-forge:plan relies on it
+- Do NOT duplicate system-level content (API specs, DB schema, security design) — only component internals
+- Do NOT leave Acceptance Criteria empty or write "TBD" — map relevant ACs from §3.6, add component-specific ones
+- Do NOT write placeholder File Structure or Test Module — derive actual paths from the project structure
+- File Structure must use real source root, real file extension, and real module path derived from the architecture
+- Test Module must name the exact test file path and list specific functions/methods to unit test
 
 ## Important Guidelines
 

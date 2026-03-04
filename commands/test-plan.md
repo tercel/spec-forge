@@ -109,5 +109,7 @@ CRITICAL: Follow the Anti-Shortcut Rules strictly. Do not use placeholders inste
 After the sub-agent returns, present the result to the user and suggest:
 
 1. **Begin implementation and testing** based on the test plan. Use the test cases as the source of truth for writing test code.
-2. **Missing upstream docs?** If you want full traceability, consider running the full spec chain: `/spec-forge:prd` → `/spec-forge:srs` → `/spec-forge:tech-design` → `/spec-forge:test-plan`.
-3. **Ready to implement?** If the [code-forge](https://github.com/tercel/code-forge) plugin is installed, use `/code-forge:plan @docs/{slug}/tech-design.md` to implement features test-first, using this test plan as the guide. If not, use the test cases directly as your TDD starting point.
+2. **Missing upstream docs?** If you want full traceability, generate the upstream documents individually: `/spec-forge:tech-design` (architecture + feature specs), and optionally `/spec-forge:srs` (formal requirements).
+3. **Ready to implement?** If the [code-forge](https://github.com/tercel/code-forge) plugin is installed, use `/code-forge:plan @docs/features/{component}.md` to implement each component test-first, using this test plan as the guide. If not, use the test cases directly as your TDD starting point.
+
+> **Note**: Test Plan is an on-demand document — it is NOT part of the default spec-forge auto chain (`idea → decompose → tech-design`). Use it when you need formal QA documentation or structured test case management.
