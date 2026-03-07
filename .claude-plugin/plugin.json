@@ -1,10 +1,12 @@
 {
   "name": "spec-forge",
   "description": "Generate professional software specifications — from brainstorming to PRD, SRS, Technical Design, and Test Plan — based on industry standards (Google, Amazon, IEEE).",
-  "version": "0.12.0",
+  "version": "0.12.1",
   "author": {
     "name": "tercel",
-    "url": "https://github.com/tercel"
+    "email": "tercel.yi@gmail.com",
+    "url": "https://github.com/tercel",
+    "x": "https://x.com/tercelyi"
   },
   "repository": "https://github.com/tercel/spec-forge",
   "license": "MIT",

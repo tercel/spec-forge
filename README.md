@@ -232,8 +232,7 @@ If code-forge is not installed, each command's "Next Steps" section provides gen
 ### Claude Code (via Plugin Marketplace)
 
 ```bash
-/plugin marketplace add tercel/claude-code-skills
-/plugin install spec-forge@claude-code-skills
+/plugin install tercel/spec-forge
 ```
 
 ### Codex

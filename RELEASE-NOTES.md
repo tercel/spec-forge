@@ -17,7 +17,7 @@
 
 ```bash
 /plugin uninstall doc-lifecycle
-/plugin install spec-forge@claude-code-skills
+/plugin install tercel/spec-forge
 ```
 
 ---
