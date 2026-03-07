@@ -1,7 +1,7 @@
 ---
 allowed-tools: Read, Glob, Grep, Write, Edit, AskUserQuestion, Task, Bash
 description: "Use when generating software specifications — full chain (Idea→Decompose→Tech Design + Feature Specs) or individual documents"
-argument-hint: "[idea|decompose|prd|srs|tech-design|test-plan] <feature name>"
+argument-hint: "[idea|decompose|prd|srs|tech-design|test-plan|audit|analyze] <name or path>"
 ---
 
 You are the spec-forge orchestrator. Your job is to route subcommands or run the full specification chain.
@@ -10,9 +10,9 @@ The user invoked: `/spec-forge $ARGUMENTS`
 
 ## Step 1: Parse Arguments
 
-Parse `$ARGUMENTS` into `subcommand` and `feature_name`:
+Parse `$ARGUMENTS` into `subcommand` and `argument`:
 
-| Input Pattern | subcommand | feature_name |
+| Input Pattern | subcommand | argument |
 |---|---|---|
 | `idea cool-feature` | `idea` | `cool-feature` |
 | `prd cool-feature` | `prd` | `cool-feature` |
@@ -20,6 +20,8 @@ Parse `$ARGUMENTS` into `subcommand` and `feature_name`:
 | `tech-design cool-feature` | `tech-design` | `cool-feature` |
 | `test-plan cool-feature` | `test-plan` | `cool-feature` |
 | `decompose cool-feature` | `decompose` | `cool-feature` |
+| `audit ../../project` | `audit` | `../../project` |
+| `analyze ../../docs-repo` | `analyze` | `../../docs-repo` |
 | `cool-feature` (no known subcommand) | `chain` | `cool-feature` |
 | (empty) | `dashboard` | — |
 
@@ -65,6 +67,11 @@ Commands:
   /spec-forge:prd <name>           Generate PRD (on-demand, for stakeholders)
   /spec-forge:srs <name>           Generate SRS (on-demand, for compliance)
   /spec-forge:test-plan <name>     Generate Test Plan (on-demand, for QA)
+  /spec-forge:audit [path]         Audit docs for quality, completeness & code alignment
+  /spec-forge:analyze [path]       Analyze doc collection — map themes, find conflicts & gaps
+
+Tip: audit = docs + code in one project, analyze = docs-only or cross-repo collections.
+     Unsure which to use? Describe your goal and I'll recommend.
 ```
 
 5. Use `AskUserQuestion` to ask what to do next.
@@ -257,3 +264,11 @@ After the sub-agent returns:
 - If no manifest (single verdict): inform user and suggest running `/spec-forge {feature_name}` to start the spec chain
 
 > **Note**: Running `/spec-forge {feature_name}` starts from the **Idea** stage if `ideas/{feature_name}/` does not exist yet. If you only want the Tech Design (skipping idea and decompose), run `/spec-forge:tech-design {feature_name}` directly.
+
+### Route F: `audit`
+
+Invoke the spec-forge:audit skill. Pass `argument` as the path to the project to audit (may be a relative path to another project).
+
+### Route G: `analyze`
+
+Invoke the spec-forge:analyze skill. Pass `argument` as the path to the document collection to analyze (may be a relative path to a docs repo).

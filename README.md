@@ -17,8 +17,10 @@ Software projects need clear specifications. spec-forge covers the full journey 
 | `/spec-forge:prd <name>` | Product Requirements Document (on-demand) | Google PRD, Amazon PR/FAQ |
 | `/spec-forge:srs <name>` | Software Requirements Specification (on-demand) | IEEE 830, ISO/IEC/IEEE 29148 |
 | `/spec-forge:test-plan <name>` | Test Plan & Test Cases (on-demand) | IEEE 829, ISTQB |
+| `/spec-forge:audit [path]` | Audit docs for quality, completeness & code alignment | — |
+| `/spec-forge:analyze [path]` | Analyze document collection — map themes, find conflicts & gaps | — |
 
-**Aliases**: `/prd`, `/srs`, `/tech-design`, `/test-plan`, `/idea`, `/decompose` work as shortcuts — they invoke each skill directly, bypassing the `/spec-forge` orchestrator.
+**Aliases**: `/prd`, `/srs`, `/tech-design`, `/test-plan`, `/idea`, `/decompose`, `/audit`, `/analyze` work as shortcuts — they invoke each skill directly, bypassing the `/spec-forge` orchestrator.
 
 ## Features
 
@@ -31,6 +33,8 @@ Software projects need clear specifications. spec-forge covers the full journey 
 - **Smart Upstream Detection**: Finds upstream documents when available; asks compensating questions when not
 - **Quality Checklists**: Built-in 4-tier validation (completeness, quality, consistency, formatting)
 - **Mermaid Diagrams**: Architecture, sequence, user journey, and Gantt diagrams
+- **Documentation Audit**: Cross-reference docs against code for quality, completeness, and consistency
+- **Document Landscape Analysis**: Map, cluster, and evaluate document ecosystems
 
 ## Commands
 
@@ -126,6 +130,41 @@ Generates a Test Plan & Test Cases document including:
 **Standalone**: When no upstream SRS/Tech Design is found, asks additional questions to compensate.
 
 **Reference**: IEEE 829, ISTQB Test Standards, Google Testing Blog
+
+### `/spec-forge:audit [path]` — Documentation Audit
+
+Audit existing project documentation for quality, completeness, and code alignment:
+
+```bash
+/spec-forge:audit                          # Audit current project's docs
+/spec-forge:audit ../../other-project      # Audit another project
+```
+
+- Cross-references docs against the actual codebase (API surfaces, features, architecture)
+- Checks internal consistency between documents (terminology, facts, versions)
+- Evaluates quality dimensions (completeness, accuracy, clarity, currency)
+- Generates a findings report with severity levels (Critical/Major/Minor/Info)
+- Optionally applies fixes to resolved findings
+
+**Best for**: Single projects with both documentation and source code.
+
+### `/spec-forge:analyze [path]` — Document Landscape Analysis
+
+Analyze a collection of documents to understand the knowledge landscape:
+
+```bash
+/spec-forge:analyze ../../aipartnerup-docs  # Analyze a docs-only repo
+/spec-forge:analyze                         # Analyze current project's docs/
+```
+
+- Builds a document map with type classification and theme clustering
+- Detects conflicts and contradictions between documents
+- Identifies coverage gaps and missing documentation
+- Finds redundancies and near-duplicate content
+- Assesses document staleness from content signals
+- Proposes reorganization when structure can be improved
+
+**Best for**: Document ecosystems, cross-repo docs, research collections, mixed-format doc repos.
 
 ## Complete Workflow
 
