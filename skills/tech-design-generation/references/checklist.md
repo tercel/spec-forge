@@ -32,6 +32,7 @@ Use this checklist to validate the Technical Design Document before finalizing. 
 - [ ] Each feature spec Acceptance Criteria section has at least 1 testable entry (not a placeholder)
 - [ ] Each feature spec File Structure uses real source paths and file extensions, not placeholders
 - [ ] Each feature spec Test Module names the exact test file path and lists specific methods to test
+- [ ] Feature specs have NO numeric IDs, order prefixes, or sequence numbers in titles or filenames — ordering lives only in `overview.md`'s `#` column
 
 ## 2. Quality Check
 

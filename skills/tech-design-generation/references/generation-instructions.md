@@ -71,7 +71,7 @@ After writing the main tech-design document, generate individual feature spec fi
 
 1. **Extract components**: For each row in §8.1 Component Overview, create a feature spec at `docs/features/{component-name}.md`
 2. **Populate implementation detail**: Each feature spec contains the implementation-level content — method signatures, logic steps, field mapping tables, state machines, default values, error handling specifics. This is the depth that would traditionally live in §8 but now lives in per-component files for code-forge consumption.
-3. **Assign metadata**: Use the component slug (filename without `.md`) as the stable identifier for all cross-references in `Depends On` / `Blocks` fields. Do NOT assign numeric IDs (F-01, F-02, ...) — execution order lives exclusively in `overview.md`. Map SRS requirement IDs from the Traceability Matrix. Derive priority from requirement priorities.
+3. **Assign metadata**: Use the component slug (filename without `.md`) as the stable identifier for all cross-references in `Depends On` / `Blocks` fields. Do NOT assign numeric IDs (F-01, F-02, ...), do NOT prefix filenames with numbers (01-, 02-...), and do NOT include order numbers in feature spec titles or headings. Execution order is defined exclusively in the `#` column of the Features table in `overview.md`. Map SRS requirement IDs from the Traceability Matrix. Derive priority from requirement priorities.
 4. **Generate overview**: Create `docs/features/overview.md` with the feature table, dependency graph, and execution order.
 5. **Cross-reference**: Ensure each feature spec's SRS Refs field matches the Traceability Matrix in the main tech-design document. Ensure Depends On / Blocks fields use component slugs and form a consistent dependency graph. Verify all referenced slugs correspond to actual files in `docs/features/`.
 
@@ -83,6 +83,7 @@ Read `skills/tech-design-generation/SKILL.md` and locate Step 7 (Feature Spec Ge
 - Do NOT skip the metadata header (Component slug, SRS Refs, Dependencies) — code-forge:plan relies on it
 - Do NOT duplicate system-level content (API specs, DB schema, security design) — only component internals
 - Do NOT leave Acceptance Criteria empty or write "TBD" — map relevant ACs from §3.6, add component-specific ones
+- Do NOT add numeric prefixes, order numbers, or IDs to feature spec titles or filenames — ordering lives exclusively in `overview.md`
 - Do NOT write placeholder File Structure or Test Module — derive actual paths from the project structure
 - File Structure must use real source root, real file extension, and real module path derived from the architecture
 - Test Module must name the exact test file path and list specific functions/methods to unit test

@@ -116,6 +116,8 @@ For each component, create a feature spec at `docs/features/{component-name}.md`
 
 **Feature Spec Template:**
 
+> **No numbering**: Feature spec titles and filenames use the component slug only (e.g., `auth-service.md`, NOT `01-auth-service.md` or `F-01 Auth Service`). Do NOT prefix titles with numbers, IDs, or order indicators. Execution order is defined exclusively in `docs/features/overview.md`.
+
 ```markdown
 # {Component Name}
 
@@ -226,13 +228,16 @@ Create or update `docs/features/overview.md`:
 
 ## Features
 
-| Feature | Description | Dependencies | Priority | Status |
-|---------|-------------|--------------|----------|--------|
-| [{name}](./{name}.md) | {one-line} | {deps or "—"} | {P0/P1/P2} | draft |
+| # | Feature | Description | Dependencies | Priority | Status |
+|---|---------|-------------|--------------|----------|--------|
+| 1 | [{name}](./{name}.md) | {one-line} | {deps or "—"} | {P0/P1/P2} | draft |
+| 2 | [{name}](./{name}.md) | {one-line} | {deps or "—"} | {P0/P1/P2} | draft |
+
+> The `#` column defines the canonical execution order based on the dependency graph. Features with no dependencies come first. This is the ONLY place where feature ordering is assigned — individual feature specs must NOT contain order numbers or numeric IDs.
 
 ## Execution Order
 
-{Ordered list based on dependency graph. Features with no dependencies come first.}
+{Same order as the `#` column above, with dependency rationale.}
 
 1. **{feature-name}** — {reason, e.g., "no dependencies"}
 2. **{feature-name}** — {reason, e.g., "depends on auth-service"}
@@ -248,7 +253,7 @@ For system-level concerns (solution design, API specifications, security, perfor
 When filling Depends On / Blocks fields and building the execution order in overview.md:
 
 1. Parse component dependencies from the Component Overview table and from component interaction diagrams
-2. Use each component's slug (its filename without `.md`) as the stable cross-reference identifier — do NOT assign numeric IDs. Execution order lives exclusively in `docs/features/overview.md`.
+2. Use each component's slug (its filename without `.md`) as the stable cross-reference identifier — do NOT assign numeric IDs, order prefixes, or sequence numbers to feature specs. Execution order is defined exclusively in the `#` column of the Features table in `docs/features/overview.md`.
 3. Cross-reference with SRS requirement IDs from the Traceability Matrix (§18, Appendix D — Requirements Traceability) to fill SRS Refs (leave empty if no upstream SRS exists)
 4. Derive priority from the requirement priorities (P0 requirements → P0 feature)
 
