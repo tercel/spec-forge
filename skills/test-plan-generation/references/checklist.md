@@ -32,6 +32,8 @@ Use this checklist to validate the completed Test Plan before delivering it to s
 - [ ] Performance benchmarks have measurable targets with specific numeric thresholds (response time, throughput, error rate)
 - [ ] **Performance tests use production-like data volumes** — not empty databases
 - [ ] Risk-based prioritization is applied -- high-risk areas have deeper coverage with more test cases and more edge case scenarios
+- [ ] Every risk entry (both testing risks and product risks) includes a **Risk Reasoning** note that justifies both the Likelihood and Impact ratings with at least one concrete, project-specific factor — bare H/M/L scores with no justification fail this check
+- [ ] **Strategy Rationale section is present** (§4.4) with a Pyramid Distribution table that specifies a target percentage and project-specific rationale for each test level — copying generic industry percentages without justification fails this check
 - [ ] Critical user paths have comprehensive coverage including positive flows, negative flows, boundary values, and edge cases
 - [ ] Security test cases address OWASP Top 10 categories relevant to the application
 

@@ -65,13 +65,13 @@
 
 ### 4.2 Test Types
 
-| Type          | Description                                                        | Approach                                    | Priority |
-|---------------|--------------------------------------------------------------------|--------------------------------------------|----------|
-| Functional    | [Describe functional testing scope and objectives]                 | Black-box, equivalence partitioning, BVA   | P0       |
-| Performance   | [Describe performance testing targets and load profiles]           | Load testing, stress testing, endurance     | P1       |
-| Security      | [Describe security testing scope -- OWASP Top 10 coverage]        | Penetration testing, vulnerability scanning | P1       |
-| Compatibility | [Describe target browsers, devices, and OS versions]               | Cross-browser, cross-device testing         | P1       |
-| Regression    | [Describe regression testing strategy and automation approach]     | Automated test suite execution              | P0       |
+| Type          | Description                                                        | Approach                                    | Priority | Rationale |
+|---------------|--------------------------------------------------------------------|--------------------------------------------|----------|-----------|
+| Functional    | [Describe functional testing scope and objectives]                 | Black-box, equivalence partitioning, BVA   | P0       | [Why P0 — e.g., "core user-facing behavior; any functional defect directly affects usability"] |
+| Performance   | [Describe performance testing targets and load profiles]           | Load testing, stress testing, endurance     | P1       | [Why this priority and scope — e.g., "SRS NFR-PERF-001 mandates p95 < 200ms; load profile based on projected peak of 5K RPM"] |
+| Security      | [Describe security testing scope -- OWASP Top 10 coverage]        | Penetration testing, vulnerability scanning | P1       | [Why this scope — e.g., "feature handles PII; OWASP Top 10 is the minimum required by the security team's baseline policy"] |
+| Compatibility | [Describe target browsers, devices, and OS versions]               | Cross-browser, cross-device testing         | P1       | [Why these targets — e.g., "analytics show 94% of users on Chrome/Safari latest 2; mobile is 38% of sessions"] |
+| Regression    | [Describe regression testing strategy and automation approach]     | Automated test suite execution              | P0       | [Why automated and P0 — e.g., "CI gate; any regression reaching staging blocks release pipeline"] |
 
 ### 4.3 Test Methods
 
@@ -87,7 +87,25 @@
 
 [Describe when and how gray-box testing is applied. Explain how partial knowledge of internals improves test effectiveness for integration testing, API testing, and security testing.]
 
-### 4.4 Database Testing Policy
+### 4.4 Strategy Rationale
+
+**Pyramid Distribution:**
+
+[State the chosen test distribution (e.g., 60% unit / 25% integration / 10% system / 5% acceptance) and explain why this distribution was selected for this specific project. Do NOT copy a generic percentage — justify it from project characteristics.]
+
+| Level      | Target % | Rationale |
+|------------|----------|-----------|
+| Unit (Pure Logic) | [X%] | [Why — e.g., "domain is calculation-heavy with extensive branching logic that is most efficiently covered at the unit level"] |
+| Unit (DB-Touching) | [X%] | [Why — e.g., "significant repository layer with complex query logic that must be validated against real constraints"] |
+| Integration | [X%] | [Why — e.g., "service orchestrates 4 downstream APIs; integration boundaries are the primary failure surface"] |
+| System / E2E | [X%] | [Why — e.g., "limited to critical user journeys only; full automation would be brittle given UI churn in early releases"] |
+| Acceptance | [X%] | [Why — e.g., "product owner requires sign-off on 3 key business scenarios before each release"] |
+
+**Automation vs. Manual split:**
+
+[State the overall automation target (e.g., "80% automated") and justify it — e.g., "80% is achievable given the API-first architecture; the remaining 20% covers exploratory and UX testing that requires human judgment."]
+
+### 4.5 Database Testing Policy
 
 **Principle: Any method that touches the database must be tested against a real database, not a mock.**
 
@@ -121,7 +139,7 @@ Mocking the database hides real issues: SQL syntax errors, constraint violations
 - **Cleanup**: [Describe cleanup strategy — auto-rollback, afterEach hooks, TestContainers auto-destroy]
 - **Determinism**: [Describe how to ensure tests produce consistent results — fixed timestamps, deterministic IDs, controlled sequences]
 
-### 4.5 What CAN Be Mocked (Exceptions)
+### 4.6 What CAN Be Mocked (Exceptions)
 
 Mocking is appropriate ONLY for:
 - **External third-party APIs** you don't own (payment gateways, email services, SMS providers) — use contract testing + mocks
@@ -330,21 +348,21 @@ Each defect report must include the following information:
 
 ### 11.1 Testing Risks
 
-| Risk                                          | Likelihood | Impact | Mitigation                                          |
-|-----------------------------------------------|------------|--------|-----------------------------------------------------|
-| [Test environment instability]                | [H/M/L]   | [H/M/L]| [Describe mitigation strategy]                      |
-| [Insufficient test data]                      | [H/M/L]   | [H/M/L]| [Describe mitigation strategy]                      |
-| [Resource unavailability]                     | [H/M/L]   | [H/M/L]| [Describe mitigation strategy]                      |
-| [Third-party service downtime]                | [H/M/L]   | [H/M/L]| [Describe mitigation strategy]                      |
-| [Scope creep during testing phase]            | [H/M/L]   | [H/M/L]| [Describe mitigation strategy]                      |
+| Risk                                          | Likelihood | Likelihood Reasoning | Impact | Impact Reasoning | Mitigation                                          |
+|-----------------------------------------------|------------|----------------------|--------|------------------|-----------------------------------------------------|
+| [Test environment instability]                | [H/M/L]   | [Why this likelihood — e.g., "shared staging env has had 3 outages in past 2 months"] | [H/M/L]| [Why this impact — e.g., "delays test execution; P0 tests cannot run without environment"] | [Describe mitigation strategy]                      |
+| [Insufficient test data]                      | [H/M/L]   | [Why — e.g., "PII constraints limit what production data can be anonymized"]           | [H/M/L]| [Why — e.g., "missing edge-case data makes boundary tests unreliable"]                    | [Describe mitigation strategy]                      |
+| [Resource unavailability]                     | [H/M/L]   | [Why — e.g., "QA team is shared across 2 concurrent releases"]                         | [H/M/L]| [Why — e.g., "delays test completion; may compress regression window"]                    | [Describe mitigation strategy]                      |
+| [Third-party service downtime]                | [H/M/L]   | [Why — e.g., "payment gateway sandbox has 98.5% uptime historically"]                  | [H/M/L]| [Why — e.g., "integration tests cannot run without sandbox"]                              | [Describe mitigation strategy]                      |
+| [Scope creep during testing phase]            | [H/M/L]   | [Why — e.g., "feature is still in active development; 2 open PRs may expand scope"]    | [H/M/L]| [Why — e.g., "new scope invalidates completed test cases, requiring rework"]              | [Describe mitigation strategy]                      |
 
 ### 11.2 Product Risks
 
-| Risk Area       | Risk Description                                       | Test Approach                                |
-|-----------------|--------------------------------------------------------|----------------------------------------------|
-| [Risk area 1]   | [Describe the product risk]                            | [Describe test approach to mitigate]         |
-| [Risk area 2]   | [Describe the product risk]                            | [Describe test approach to mitigate]         |
-| [Risk area 3]   | [Describe the product risk]                            | [Describe test approach to mitigate]         |
+| Risk Area       | Risk Description                                       | Likelihood | Impact | Risk Reasoning                                                              | Test Approach                                |
+|-----------------|--------------------------------------------------------|------------|--------|-----------------------------------------------------------------------------|----------------------------------------------|
+| [Risk area 1]   | [Describe the product risk]                            | [H/M/L]   | [H/M/L]| [Why this likelihood + impact combination — cite a specific technical or business factor] | [Describe test approach to mitigate]         |
+| [Risk area 2]   | [Describe the product risk]                            | [H/M/L]   | [H/M/L]| [Risk reasoning]                                                            | [Describe test approach to mitigate]         |
+| [Risk area 3]   | [Describe the product risk]                            | [H/M/L]   | [H/M/L]| [Risk reasoning]                                                            | [Describe test approach to mitigate]         |
 
 ## 12. Requirements Traceability Matrix
 

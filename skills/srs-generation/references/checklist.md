@@ -21,7 +21,7 @@ Use this checklist to validate the Software Requirements Specification before fi
 - [ ] Requirements describe WHAT the system must do, not HOW it should be implemented -- no implementation details, specific algorithms, or technology choices appear in requirement descriptions unless they are genuine constraints
 - [ ] Boundary conditions are specified for all requirements involving numeric ranges, string lengths, file sizes, date ranges, or collection sizes
 - [ ] Error scenarios and alternative flows are documented for each functional requirement, covering invalid input, timeout, unauthorized access, and system failure cases
-- [ ] Every non-functional requirement includes a specific, measurable metric with a quantitative target value and a defined measurement method
+- [ ] Every non-functional requirement includes a specific, measurable metric with a quantitative target value, a defined measurement method, and a **Threshold Rationale** — the rationale must cite at least one concrete source (business SLA, production baseline, competitive benchmark, regulatory standard, or cost/complexity trade-off)
 
 ## 3. Consistency Check
 
@@ -30,6 +30,7 @@ Use this checklist to validate the Software Requirements Specification before fi
 - [ ] No two requirements conflict with each other -- there are no contradictions between functional requirements, between non-functional requirements, or between functional and non-functional requirements
 - [ ] All documents referenced in the body of the SRS are listed in the References table (Section 3.4) with version and date
 - [ ] Priority levels (P0, P1, P2) are assigned consistently and align with the priority scheme used in the upstream PRD
+- [ ] Every functional requirement includes a **Priority Rationale** field that justifies the assigned tier — the rationale must connect the priority to a concrete consequence (e.g., launch risk, user impact, availability of a workaround); a bare P0/P1/P2 label with no justification fails this check
 - [ ] Requirement IDs referenced in the CRUD matrix, the traceability matrix, and cross-references within the document all correspond to defined requirements
 
 ## 4. Format Check

@@ -18,7 +18,7 @@ Use this checklist to validate every generated PRD before delivering it to the u
 - [ ] Feasibility Verdict provides a clear GO / CONDITIONAL GO / NO-GO recommendation
 - [ ] User Personas are defined with name, role, demographics, needs, and pain points (minimum two personas)
 - [ ] User Stories are written for every persona, each with at least two acceptance criteria
-- [ ] Functional Requirements table lists all identified requirements with IDs, descriptions, priorities, and statuses
+- [ ] Functional Requirements table lists all identified requirements with IDs, descriptions, priorities, **Priority Rationale**, and statuses — every row must include a rationale that answers "why this tier and not the one above or below"; rows with a bare P0/P1/P2 and no justification fail this check
 - [ ] Success Metrics are defined with target values, measurement methods, and current baselines
 - [ ] Timeline and Milestones section includes a Gantt chart or equivalent schedule with key dates
 - [ ] Risk Assessment Matrix is present with at least two identified risks and their mitigation strategies
@@ -42,7 +42,7 @@ Use this checklist to validate every generated PRD before delivering it to the u
 
 - [ ] Terminology is consistent throughout the document (same feature, concept, or component is always referred to by the same name)
 - [ ] Requirement IDs follow the PRD-MODULE-NNN naming convention without gaps or duplicates
-- [ ] Priority levels (P0/P1/P2) are applied consistently and every P0 item clearly ties to a stated goal
+- [ ] Priority levels (P0/P1/P2) are applied consistently, every P0 item clearly ties to a stated goal, and every priority level (P0, P1, and P2) has a written rationale that distinguishes it from the adjacent tier
 - [ ] Every requirement traces back to at least one goal in the Goals section
 - [ ] Personas defined in Section 10 are referenced in the User Stories in Section 11
 - [ ] Success Metrics in Section 15 align with and measure the Goals in Section 9

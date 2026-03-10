@@ -194,19 +194,21 @@ This section exists to ensure the product addresses a genuine need, not an imagi
 
 ## 12. Functional Requirements Overview
 
-| ID            | Feature                  | Description                                                   | Priority | Status      |
-|---------------|--------------------------|---------------------------------------------------------------|----------|-------------|
-| PRD-[MOD]-001 | [Feature name]           | [Describe what this feature does and why it is needed]        | P0       | Proposed    |
-| PRD-[MOD]-002 | [Feature name]           | [Describe what this feature does and why it is needed]        | P0       | Proposed    |
-| PRD-[MOD]-003 | [Feature name]           | [Describe what this feature does and why it is needed]        | P1       | Proposed    |
-| PRD-[MOD]-004 | [Feature name]           | [Describe what this feature does and why it is needed]        | P1       | Proposed    |
-| PRD-[MOD]-005 | [Feature name]           | [Describe what this feature does and why it is needed]        | P2       | Proposed    |
+| ID            | Feature                  | Description                                                   | Priority | Priority Rationale                                                                 | Status      |
+|---------------|--------------------------|---------------------------------------------------------------|----------|------------------------------------------------------------------------------------|-------------|
+| PRD-[MOD]-001 | [Feature name]           | [Describe what this feature does and why it is needed]        | P0       | [Why P0 — e.g., "core action the product is built around; product cannot function without this"] | Proposed    |
+| PRD-[MOD]-002 | [Feature name]           | [Describe what this feature does and why it is needed]        | P0       | [Why P0 — e.g., "required for legal compliance; launching without this creates regulatory liability"] | Proposed    |
+| PRD-[MOD]-003 | [Feature name]           | [Describe what this feature does and why it is needed]        | P1       | [Why P1 not P0 — e.g., "significantly improves retention but manual workaround exists in v1"] | Proposed    |
+| PRD-[MOD]-004 | [Feature name]           | [Describe what this feature does and why it is needed]        | P1       | [Why P1 not P2 — e.g., "user research showed 65% of surveyed users cited this as important"] | Proposed    |
+| PRD-[MOD]-005 | [Feature name]           | [Describe what this feature does and why it is needed]        | P2       | [Why P2 — e.g., "nice-to-have polish; deferred because no user has requested this explicitly"] | Proposed    |
 
 **Priority Legend:**
 
 - **P0 -- Must Have:** Required for launch. Cannot ship without this.
 - **P1 -- Should Have:** Significantly improves the product but not strictly required for minimum viable launch.
 - **P2 -- Nice to Have:** Enhancement that can be deferred to a subsequent release.
+
+> **Priority Rationale requirement:** Every row must include a Priority Rationale. A priority without justification is an undefended assumption. The rationale must answer "why this tier and not the tier above or below" — it must reference user impact, business consequence, or the existence/absence of an acceptable workaround.
 
 ## 13. User Journey
 

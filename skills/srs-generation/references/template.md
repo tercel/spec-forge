@@ -109,12 +109,13 @@ graph TD
 
 #### FR-[MOD1]-001: [Requirement Title]
 
-| Field               | Value                                                    |
-|---------------------|----------------------------------------------------------|
-| **ID**              | FR-[MOD1]-001                                            |
-| **Title**           | [Concise requirement title]                              |
-| **Priority**        | P0 / P1 / P2                                            |
-| **Source**          | [PRD-XXX-NNN or stakeholder reference]                   |
+| Field                    | Value                                                    |
+|--------------------------|----------------------------------------------------------|
+| **ID**                   | FR-[MOD1]-001                                            |
+| **Title**                | [Concise requirement title]                              |
+| **Priority**             | P0 / P1 / P2                                            |
+| **Priority Rationale**   | [Why this priority — e.g., "P0: launch cannot proceed without this capability; it is the core action the product is built around" or "P2: improves UX but existing workaround is acceptable for v1"] |
+| **Source**               | [PRD-XXX-NNN or stakeholder reference]                   |
 
 **Description:**
 [The system shall ... Describe what the system must do in clear, unambiguous language. Use "shall" for mandatory behavior.]
@@ -157,12 +158,13 @@ graph TD
 
 #### FR-[MOD1]-002: [Requirement Title]
 
-| Field               | Value                                                    |
-|---------------------|----------------------------------------------------------|
-| **ID**              | FR-[MOD1]-002                                            |
-| **Title**           | [Concise requirement title]                              |
-| **Priority**        | P0 / P1 / P2                                            |
-| **Source**          | [PRD-XXX-NNN or stakeholder reference]                   |
+| Field                    | Value                                                    |
+|--------------------------|----------------------------------------------------------|
+| **ID**                   | FR-[MOD1]-002                                            |
+| **Title**                | [Concise requirement title]                              |
+| **Priority**             | P0 / P1 / P2                                            |
+| **Priority Rationale**   | [Why this priority]                                      |
+| **Source**               | [PRD-XXX-NNN or stakeholder reference]                   |
 
 **Description:**
 [The system shall ... ]
@@ -216,28 +218,30 @@ graph TD
 
 #### NFR-PERF-001: [Requirement Title]
 
-| Field                | Value                                                   |
-|----------------------|---------------------------------------------------------|
-| **ID**               | NFR-PERF-001                                            |
-| **Title**            | [e.g., API Response Time]                               |
-| **Priority**         | P0 / P1 / P2                                           |
-| **Metric**           | [e.g., Response time at 95th percentile]                |
-| **Target**           | [e.g., < 200ms]                                         |
-| **Measurement**      | [e.g., Application Performance Monitoring (APM) tool]   |
+| Field                    | Value                                                   |
+|--------------------------|---------------------------------------------------------|
+| **ID**                   | NFR-PERF-001                                            |
+| **Title**                | [e.g., API Response Time]                               |
+| **Priority**             | P0 / P1 / P2                                           |
+| **Metric**               | [e.g., Response time at 95th percentile]                |
+| **Target**               | [e.g., < 200ms]                                         |
+| **Threshold Rationale**  | [Why this specific target — e.g., "200ms is the threshold beyond which users perceive lag (Nielsen 1993); our primary competitor achieves ~180ms p95, so matching is table stakes for launch"] |
+| **Measurement**          | [e.g., Application Performance Monitoring (APM) tool]   |
 
 **Description:**
 [The system shall ... Describe the performance requirement with specific, measurable targets.]
 
 #### NFR-PERF-002: [Requirement Title]
 
-| Field                | Value                                                   |
-|----------------------|---------------------------------------------------------|
-| **ID**               | NFR-PERF-002                                            |
-| **Title**            | [e.g., Concurrent User Capacity]                        |
-| **Priority**         | P0 / P1 / P2                                           |
-| **Metric**           | [e.g., Number of simultaneous users]                    |
-| **Target**           | [e.g., 10,000 concurrent users]                         |
-| **Measurement**      | [e.g., Load testing with k6 / JMeter]                  |
+| Field                    | Value                                                   |
+|--------------------------|---------------------------------------------------------|
+| **ID**                   | NFR-PERF-002                                            |
+| **Title**                | [e.g., Concurrent User Capacity]                        |
+| **Priority**             | P0 / P1 / P2                                           |
+| **Metric**               | [e.g., Number of simultaneous users]                    |
+| **Target**               | [e.g., 10,000 concurrent users]                         |
+| **Threshold Rationale**  | [Why this capacity — e.g., "current peak is 6K users; 10K provides 1.7× headroom for projected 6-month growth without re-architecture"] |
+| **Measurement**          | [e.g., Load testing with k6 / JMeter]                  |
 
 **Description:**
 [The system shall ... ]
@@ -246,28 +250,30 @@ graph TD
 
 #### NFR-SEC-001: [Requirement Title]
 
-| Field                | Value                                                   |
-|----------------------|---------------------------------------------------------|
-| **ID**               | NFR-SEC-001                                             |
-| **Title**            | [e.g., Authentication Mechanism]                        |
-| **Priority**         | P0 / P1 / P2                                           |
-| **Metric**           | [e.g., Compliance with OAuth 2.0 / OIDC specification] |
-| **Target**           | [e.g., Full compliance]                                 |
-| **Measurement**      | [e.g., Security audit, penetration testing]             |
+| Field                    | Value                                                   |
+|--------------------------|---------------------------------------------------------|
+| **ID**                   | NFR-SEC-001                                             |
+| **Title**                | [e.g., Authentication Mechanism]                        |
+| **Priority**             | P0 / P1 / P2                                           |
+| **Metric**               | [e.g., Compliance with OAuth 2.0 / OIDC specification] |
+| **Target**               | [e.g., Full compliance]                                 |
+| **Threshold Rationale**  | [Why this standard — e.g., "OAuth 2.0 + OIDC is the industry baseline required by enterprise customers; alternatives like API keys are insufficient for the user-delegated access model this feature requires"] |
+| **Measurement**          | [e.g., Security audit, penetration testing]             |
 
 **Description:**
 [The system shall ... ]
 
 #### NFR-SEC-002: [Requirement Title]
 
-| Field                | Value                                                   |
-|----------------------|---------------------------------------------------------|
-| **ID**               | NFR-SEC-002                                             |
-| **Title**            | [e.g., Data Encryption at Rest]                         |
-| **Priority**         | P0 / P1 / P2                                           |
-| **Metric**           | [e.g., Encryption standard]                             |
-| **Target**           | [e.g., AES-256]                                         |
-| **Measurement**      | [e.g., Security audit]                                  |
+| Field                    | Value                                                   |
+|--------------------------|---------------------------------------------------------|
+| **ID**                   | NFR-SEC-002                                             |
+| **Title**                | [e.g., Data Encryption at Rest]                         |
+| **Priority**             | P0 / P1 / P2                                           |
+| **Metric**               | [e.g., Encryption standard]                             |
+| **Target**               | [e.g., AES-256]                                         |
+| **Threshold Rationale**  | [Why AES-256 — e.g., "required by SOC 2 Type II controls; AES-128 would also be cryptographically sufficient but 256 is the documented policy standard"] |
+| **Measurement**          | [e.g., Security audit]                                  |
 
 **Description:**
 [The system shall ... ]
@@ -276,14 +282,15 @@ graph TD
 
 #### NFR-REL-001: [Requirement Title]
 
-| Field                | Value                                                   |
-|----------------------|---------------------------------------------------------|
-| **ID**               | NFR-REL-001                                             |
-| **Title**            | [e.g., Mean Time Between Failures]                      |
-| **Priority**         | P0 / P1 / P2                                           |
-| **Metric**           | [e.g., MTBF]                                            |
-| **Target**           | [e.g., > 720 hours]                                     |
-| **Measurement**      | [e.g., Production monitoring over 90-day window]        |
+| Field                    | Value                                                   |
+|--------------------------|---------------------------------------------------------|
+| **ID**                   | NFR-REL-001                                             |
+| **Title**                | [e.g., Mean Time Between Failures]                      |
+| **Priority**             | P0 / P1 / P2                                           |
+| **Metric**               | [e.g., MTBF]                                            |
+| **Target**               | [e.g., > 720 hours]                                     |
+| **Threshold Rationale**  | [Why this target — e.g., "720 hours = 30 days MTBF; derived from current production baseline of 850h minus one standard deviation as a conservative floor"] |
+| **Measurement**          | [e.g., Production monitoring over 90-day window]        |
 
 **Description:**
 [The system shall ... ]
@@ -292,14 +299,15 @@ graph TD
 
 #### NFR-AVL-001: [Requirement Title]
 
-| Field                | Value                                                   |
-|----------------------|---------------------------------------------------------|
-| **ID**               | NFR-AVL-001                                             |
-| **Title**            | [e.g., System Uptime SLA]                               |
-| **Priority**         | P0 / P1 / P2                                           |
-| **Metric**           | [e.g., Uptime percentage]                               |
-| **Target**           | [e.g., 99.9% (8.76 hours downtime per year)]            |
-| **Measurement**      | [e.g., Uptime monitoring service]                       |
+| Field                    | Value                                                   |
+|--------------------------|---------------------------------------------------------|
+| **ID**                   | NFR-AVL-001                                             |
+| **Title**                | [e.g., System Uptime SLA]                               |
+| **Priority**             | P0 / P1 / P2                                           |
+| **Metric**               | [e.g., Uptime percentage]                               |
+| **Target**               | [e.g., 99.9% (8.76 hours downtime per year)]            |
+| **Threshold Rationale**  | [Why this SLA tier — e.g., "99.9% matches the contractual SLA in enterprise customer agreements; 99.99% would require active-active multi-region infrastructure not in scope for v1"] |
+| **Measurement**          | [e.g., Uptime monitoring service]                       |
 
 **Description:**
 [The system shall ... ]
@@ -308,14 +316,15 @@ graph TD
 
 #### NFR-MNT-001: [Requirement Title]
 
-| Field                | Value                                                   |
-|----------------------|---------------------------------------------------------|
-| **ID**               | NFR-MNT-001                                             |
-| **Title**            | [e.g., Code Coverage Threshold]                         |
-| **Priority**         | P0 / P1 / P2                                           |
-| **Metric**           | [e.g., Unit test code coverage]                         |
-| **Target**           | [e.g., >= 80%]                                          |
-| **Measurement**      | [e.g., Coverage reporting tool in CI pipeline]          |
+| Field                    | Value                                                   |
+|--------------------------|---------------------------------------------------------|
+| **ID**                   | NFR-MNT-001                                             |
+| **Title**                | [e.g., Code Coverage Threshold]                         |
+| **Priority**             | P0 / P1 / P2                                           |
+| **Metric**               | [e.g., Unit test code coverage]                         |
+| **Target**               | [e.g., >= 80%]                                          |
+| **Threshold Rationale**  | [Why 80% — e.g., "80% is the team's existing standard across all services; going higher on new code only would create inconsistency; below 80% has historically correlated with regression-prone releases in our post-mortems"] |
+| **Measurement**          | [e.g., Coverage reporting tool in CI pipeline]          |
 
 **Description:**
 [The system shall ... ]
@@ -324,14 +333,15 @@ graph TD
 
 #### NFR-PRT-001: [Requirement Title]
 
-| Field                | Value                                                   |
-|----------------------|---------------------------------------------------------|
-| **ID**               | NFR-PRT-001                                             |
-| **Title**            | [e.g., Browser Compatibility]                           |
-| **Priority**         | P0 / P1 / P2                                           |
-| **Metric**           | [e.g., Supported browser versions]                      |
-| **Target**           | [e.g., Latest 2 major versions of Chrome, Firefox, Safari, Edge] |
-| **Measurement**      | [e.g., Cross-browser testing suite]                     |
+| Field                    | Value                                                   |
+|--------------------------|---------------------------------------------------------|
+| **ID**                   | NFR-PRT-001                                             |
+| **Title**                | [e.g., Browser Compatibility]                           |
+| **Priority**             | P0 / P1 / P2                                           |
+| **Metric**               | [e.g., Supported browser versions]                      |
+| **Target**               | [e.g., Latest 2 major versions of Chrome, Firefox, Safari, Edge] |
+| **Threshold Rationale**  | [Why latest 2 versions — e.g., "analytics show 97% of users are within 2 major versions; supporting older versions would require polyfills that increase bundle size by ~40KB"] |
+| **Measurement**          | [e.g., Cross-browser testing suite]                     |
 
 **Description:**
 [The system shall ... ]
@@ -340,14 +350,15 @@ graph TD
 
 #### NFR-USB-001: [Requirement Title]
 
-| Field                | Value                                                   |
-|----------------------|---------------------------------------------------------|
-| **ID**               | NFR-USB-001                                             |
-| **Title**            | [e.g., Accessibility Compliance]                        |
-| **Priority**         | P0 / P1 / P2                                           |
-| **Metric**           | [e.g., WCAG conformance level]                          |
-| **Target**           | [e.g., WCAG 2.1 Level AA]                               |
-| **Measurement**      | [e.g., Automated accessibility audit + manual testing]  |
+| Field                    | Value                                                   |
+|--------------------------|---------------------------------------------------------|
+| **ID**                   | NFR-USB-001                                             |
+| **Title**                | [e.g., Accessibility Compliance]                        |
+| **Priority**             | P0 / P1 / P2                                           |
+| **Metric**               | [e.g., WCAG conformance level]                          |
+| **Target**               | [e.g., WCAG 2.1 Level AA]                               |
+| **Threshold Rationale**  | [Why AA and not AAA — e.g., "AA is the legal baseline for ADA and EN 301 549 compliance; AAA would require restricting certain design patterns (e.g., no time limits at all) that conflict with the real-time collaboration features"] |
+| **Measurement**          | [e.g., Automated accessibility audit + manual testing]  |
 
 **Description:**
 [The system shall ... ]

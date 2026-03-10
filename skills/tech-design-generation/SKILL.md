@@ -104,7 +104,7 @@ Validate the completed tech-design document AND all generated feature specs in `
 
 ### Step 7 -- Feature Spec Generation
 
-After the main Technical Design Document passes the quality check, automatically generate individual feature specs for each component identified in Section 8 (Detailed Design). This eliminates the need to run `/spec-forge:feature` separately — the tech-design now produces both the architecture document and the implementation-ready feature specs in a single pass.
+After the main Technical Design Document passes the quality check, automatically generate individual feature specs for each component identified in Section 8 (Detailed Design). The tech-design produces both the architecture document and the implementation-ready feature specs in a single pass.
 
 #### 7.1 Identify Components
 
@@ -427,7 +427,7 @@ docs/features/{component-name}.md     — one per component
 docs/features/overview.md             — feature index with dependencies and execution order
 ```
 
-Feature specs contain the implementation-level detail (method signatures, logic steps, field mappings) that code-forge:plan consumes directly. This eliminates the need to run `/spec-forge:feature` as a separate step.
+Feature specs contain the implementation-level detail (method signatures, logic steps, field mappings) that code-forge:plan consumes directly.
 
 ## Automatic Upstream Document Scanning
 
