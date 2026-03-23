@@ -20,12 +20,13 @@ Parse `$ARGUMENTS` into `subcommand` and `argument`:
 | `tech-design cool-feature` | `tech-design` | `cool-feature` |
 | `test-plan cool-feature` | `test-plan` | `cool-feature` |
 | `decompose cool-feature` | `decompose` | `cool-feature` |
+| `review cool-feature` | `review` | `cool-feature` |
 | `audit ../../project` | `audit` | `../../project` |
 | `analyze ../../docs-repo` | `analyze` | `../../docs-repo` |
 | `cool-feature` (no known subcommand) | `chain` | `cool-feature` |
 | (empty) | `dashboard` | — |
 
-For routes B-E (idea, prd, srs, tech-design, test-plan, decompose, chain), `argument` is a feature name — referred to as `feature_name` in route descriptions below. For routes F-G (audit, analyze), `argument` is a file path.
+For routes B-E (idea, prd, srs, tech-design, test-plan, decompose, review, chain), `argument` is a feature name — referred to as `feature_name` in route descriptions below. For routes F-G (audit, analyze), `argument` is a file path.
 
 ## Step 2: Route
 
@@ -69,6 +70,7 @@ Commands:
   /spec-forge:prd <name>           Generate PRD (on-demand, for stakeholders)
   /spec-forge:srs <name>           Generate SRS (on-demand, for compliance)
   /spec-forge:test-plan <name>     Generate Test Plan (on-demand, for QA)
+  /spec-forge:review <name>        Review generated specs for quality & consistency, auto-fix issues
   /spec-forge:audit [path]         Audit docs for quality, completeness & code alignment
   /spec-forge:analyze [path]       Analyze doc collection — map themes, find conflicts & gaps
 
@@ -82,21 +84,23 @@ Tip: audit = docs + code in one project, analyze = docs-only or cross-repo colle
 
 Invoke the spec-forge:idea skill. Pass `feature_name` as the argument.
 
-### Route C: `prd` / `srs` / `tech-design` / `test-plan` (single document)
+### Route C: `prd` / `srs` / `tech-design` / `test-plan` / `review` (single document)
 
 Invoke the corresponding skill:
 - `prd` → invoke `spec-forge:prd` skill with `feature_name`
 - `srs` → invoke `spec-forge:srs` skill with `feature_name`
 - `tech-design` → invoke `spec-forge:tech-design` skill with `feature_name`
 - `test-plan` → invoke `spec-forge:test-plan` skill with `feature_name`
+- `review` → invoke `spec-forge:review` skill with `feature_name`
 
 ### Route D: `chain` (full chain auto mode)
 
-Run the full specification chain automatically for `feature_name`. The chain consists of three stages:
+Run the full specification chain automatically for `feature_name`. The chain consists of four stages:
 
 1. **Idea** — Validate requirements and crystallize the concept (interactive)
 2. **Decompose** — Determine if the project needs splitting into sub-features
 3. **Tech Design** — Generate architecture document + auto-generate feature specs in `docs/features/`
+4. **Review** — Audit generated documents for quality and consistency; auto-fix issues if found
 
 > **Note**: PRD, SRS, and Test Plan are NOT part of the auto chain. They can be generated on-demand via `/spec-forge:prd`, `/spec-forge:srs`, or `/spec-forge:test-plan` when needed (e.g., for stakeholder alignment, compliance, or formal QA). The tech-design in standalone mode captures requirements directly through targeted questions, eliminating the need for intermediate PRD/SRS documents.
 
@@ -157,7 +161,15 @@ spec-forge project: {feature_name} ({N} sub-features)
     [ ] In progress...
 ```
 
-After all sub-features complete, display multi-split completion:
+After all sub-features complete, display multi-split progress:
+
+```
+spec-forge project: {feature_name} — all sub-features generated, starting review...
+```
+
+Then proceed to **D.4 (Review)** — the review covers ALL generated documents across all sub-features.
+
+After review completes, display multi-split chain completion:
 
 ```
 spec-forge project complete: {feature_name}
@@ -175,6 +187,7 @@ Feature specs (auto-generated with tech-design):
     [x] {component-2}.md
     ...
 
+Review: {PASS | N issues fixed | N issues remaining}
 Project manifest: docs/project-{feature_name}.md
 
 Next steps:
@@ -225,9 +238,45 @@ spec-forge chain: {feature_name}
   [x] Decompose      single feature
   [x] Tech Design    docs/{feature_name}/tech-design.md
   [x] Feature Specs  docs/features/overview.md + {actual count from scan} component specs
+  [ ] Review         pending...
 ```
 
-#### D.4: Chain Completion
+Proceed to D.4 (Review).
+
+#### D.4: Stage 4 — Review
+
+After all documents are generated (tech-design + feature specs), review them for quality and consistency. This stage catches issues like incomplete sections, internal contradictions, missing traceability, and vague specifications before the chain completes.
+
+Launch `Task(subagent_type="general-purpose")`:
+- Sub-agent prompt:
+
+```
+You are a senior specification reviewer. Review and auto-fix spec-forge generated documents for '{feature_name}'.
+
+Read the review skill definition at:
+skills/review/SKILL.md
+
+Follow every step of the workflow exactly. In this chain context:
+- Skip Step 1 user questions — review scope is "All", auto-fix is "Yes — fix Critical+Major automatically"
+- Review targets: docs/{feature_name}/tech-design.md and all docs/features/*.md
+- Upstream reference (read for context, NOT reviewed): ideas/{feature_name}/draft.md (if exists)
+- Maximum 2 review-fix iterations
+- Be honest — don't inflate findings and don't fabricate issues
+```
+
+Wait for completion. Parse the sub-agent's result to determine:
+- **PASS**: All documents passed quality check
+- **N issues fixed**: Issues were found and auto-fixed
+- **N issues remaining**: Some issues could not be auto-fixed
+
+Display review status:
+```
+spec-forge review: {PASS | N issues fixed | N issues remaining}
+```
+
+If issues remain after review, display the remaining findings for user awareness, then proceed to D.5.
+
+#### D.5: Chain Completion
 
 ```
 spec-forge chain complete: {feature_name}
@@ -239,6 +288,7 @@ Generated:
   [x] docs/features/{component-1}.md     — implementation spec
   [x] docs/features/{component-2}.md     — implementation spec
   ...
+  [x] Review                             — {PASS | N issues fixed | N issues remaining}
 
 Next steps:
   /code-forge:plan @docs/features/{component-name}.md   → Generate implementation plan for a component
