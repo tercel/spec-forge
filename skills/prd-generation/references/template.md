@@ -146,19 +146,44 @@ This section exists to ensure the product addresses a genuine need, not an imagi
 - [Non-goal 2: State another explicit exclusion]
 - [Non-goal 3: State another explicit exclusion]
 
-## 10. User Personas
+## 10. Consumer Analysis
+
+Before defining personas, identify **who or what** will consume this feature. Not every feature has AI Agent consumers — but the decision must be explicit, not accidental.
+
+### 10.1 Consumer Types
+
+| Consumer Type | Applicable? | Justification |
+|---------------|-------------|---------------|
+| Human User    | Yes / No    | [Why this feature does or does not serve human users] |
+| AI Agent      | Yes / No    | [Why this feature does or does not serve AI agents — e.g., "AI coding assistants will call this API to retrieve project metadata", or "This is a visual drag-and-drop builder with no programmatic interface — agents are not a target consumer"] |
+
+> **Guidance:** Mark a consumer type as applicable if it represents a realistic usage path within 12 months of launch. If AI Agent is marked "Yes", at least one Agent Persona and one Agent User Story are required below. If marked "No", document the rationale so future reviewers don't re-ask.
+
+### 10.2 Human Personas
 
 | Name          | Role              | Demographics                  | Needs                                      | Pain Points                                |
 |---------------|-------------------|-------------------------------|--------------------------------------------|--------------------------------------------|
 | [Persona 1]   | [Role/Title]      | [Age range, tech proficiency, usage frequency] | [What this persona needs from the product] | [What frustrates this persona today]       |
 | [Persona 2]   | [Role/Title]      | [Age range, tech proficiency, usage frequency] | [What this persona needs from the product] | [What frustrates this persona today]       |
-| [Persona 3]   | [Role/Title]      | [Age range, tech proficiency, usage frequency] | [What this persona needs from the product] | [What frustrates this persona today]       |
+
+### 10.3 Agent Personas
+
+> Skip this section if AI Agent is marked "No" in §10.1. If applicable, define at least one agent persona.
+
+| Name | Agent Type | Integration Pattern | Context Constraints | Needs | Failure Modes |
+|------|-----------|-------------------|-------------------|-------|--------------|
+| [e.g., CI Pipeline Agent] | [e.g., Autonomous / Human-in-the-loop / Orchestrator] | [e.g., REST API polling, Webhook-driven, MCP tool call] | [e.g., 200k token context window, 30s timeout per tool call, no persistent memory across sessions] | [What this agent needs from the product — e.g., structured JSON responses, idempotent operations, batch endpoints] | [How this agent fails today — e.g., unstructured error messages cause retry loops, lack of pagination forces full dataset loads] |
+
+> **Agent Type taxonomy:**
+> - **Autonomous**: Operates without human oversight per task (e.g., CI/CD bot, monitoring agent)
+> - **Human-in-the-loop**: Assists a human who approves/rejects actions (e.g., coding assistant, copilot)
+> - **Orchestrator**: Coordinates multiple sub-agents or services (e.g., workflow engine, multi-agent system)
 
 ## 11. User Stories
 
 ### US-001: [Short title]
 
-**As a** [user type from the personas above],
+**As a** [human user type from the personas above],
 **I want** [action or capability],
 **so that** [benefit or outcome].
 
@@ -170,7 +195,7 @@ This section exists to ensure the product addresses a genuine need, not an imagi
 
 ### US-002: [Short title]
 
-**As a** [user type],
+**As a** [human user type],
 **I want** [action or capability],
 **so that** [benefit or outcome].
 
@@ -179,18 +204,20 @@ This section exists to ensure the product addresses a genuine need, not an imagi
 - [ ] [Testable condition 1]
 - [ ] [Testable condition 2]
 
-### US-003: [Short title]
+### US-003: [Short title — Agent story, if applicable]
 
-**As a** [user type],
-**I want** [action or capability],
-**so that** [benefit or outcome].
+> Include agent user stories only when AI Agent is marked "Yes" in §10.1. Use the format below — note the differences from human stories: agents have integration patterns, not UI interactions.
+
+**As a** [agent persona name from §10.3],
+**I want** [programmatic action — e.g., "call the project metadata endpoint with a single GET request"],
+**so that** [outcome — e.g., "I can populate my context window with project structure without multiple round-trips"].
 
 **Acceptance Criteria:**
 
-- [ ] [Testable condition 1]
-- [ ] [Testable condition 2]
+- [ ] [Machine-verifiable condition — e.g., "Response is valid JSON with a deterministic schema (no field order variation)"]
+- [ ] [Idempotency/reliability condition — e.g., "Identical requests within 60s return identical responses"]
 
-[Add additional user stories as needed. Every persona should be represented by at least one user story.]
+[Add additional user stories as needed. Every persona (human and agent) should be represented by at least one user story.]
 
 ## 12. Functional Requirements Overview
 
@@ -212,24 +239,36 @@ This section exists to ensure the product addresses a genuine need, not an imagi
 
 ## 13. User Journey
 
-[Describe the primary user journey through the feature. The Mermaid flowchart below should illustrate the happy path and key decision points.]
+[Describe the primary user journey through the feature. The Mermaid flowchart below should illustrate the happy path and key decision points. If AI Agent is marked "Yes" in §10.1, include a parallel agent interaction path.]
 
 ```mermaid
 graph TD
-    A[User lands on entry point] --> B{Is user authenticated?}
-    B -- Yes --> C[Display main feature view]
-    B -- No --> D[Redirect to login]
-    D --> E[User authenticates]
-    E --> C
-    C --> F[User performs primary action]
-    F --> G{Action successful?}
-    G -- Yes --> H[Display success confirmation]
-    G -- No --> I[Display error message]
-    I --> F
-    H --> J[User continues or exits]
+    subgraph Human Path
+        A[User lands on entry point] --> B{Is user authenticated?}
+        B -- Yes --> C[Display main feature view]
+        B -- No --> D[Redirect to login]
+        D --> E[User authenticates]
+        E --> C
+        C --> F[User performs primary action]
+        F --> G{Action successful?}
+        G -- Yes --> H[Display success confirmation]
+        G -- No --> I[Display error message]
+        I --> F
+        H --> J[User continues or exits]
+    end
+
+    subgraph Agent Path — include only if AI Agent is applicable per §10.1
+        K[Agent sends API request with auth token] --> L{Token valid?}
+        L -- Yes --> M[Process request]
+        L -- No --> N[Return 401 JSON error]
+        M --> O{Request successful?}
+        O -- Yes --> P[Return structured JSON response]
+        O -- No --> Q[Return error with code + machine-parseable detail]
+        Q --> R[Agent decides: retry / escalate / abort]
+    end
 ```
 
-[Replace the diagram above with the actual user journey for your feature. Include branching paths for error handling, edge cases, and alternative flows.]
+[Replace the diagram above with the actual user journey for your feature. Include branching paths for error handling, edge cases, and alternative flows. Remove the Agent Path subgraph if AI Agent is not applicable.]
 
 ## 14. Feature Architecture
 

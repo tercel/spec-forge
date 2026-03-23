@@ -40,6 +40,7 @@ Run through every item in the checklist. For any failed check, revise the docume
 - Market sizing must cite sources — do not fabricate market data
 - Competitive analysis must be balanced — acknowledge competitor strengths honestly
 - Feasibility verdict must be honest — a CONDITIONAL GO or NO-GO is a valid and valuable outcome
+- **Consumer Analysis**: Before writing personas, explicitly decide whether the feature serves Human Users, AI Agents, or both. If AI Agent is marked "Yes", include at least one Agent Persona (with Agent Type, Integration Pattern, Context Constraints, and Failure Modes) and at least one Agent User Story with machine-verifiable acceptance criteria.
 - User stories should follow the format: "As a [user type], I want [action] so that [benefit]"
 - PRD IDs should follow the format: PRD-<MODULE>-<NNN> (e.g., PRD-AUTH-001)
 - Include both goals and non-goals to set clear boundaries

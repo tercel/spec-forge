@@ -77,11 +77,15 @@ graph TD
 
 ### 4.3 User Characteristics
 
-| User Class              | Description                                           | Technical Proficiency |
-|-------------------------|-------------------------------------------------------|-----------------------|
-| [e.g., End User]       | [Describe who they are and what they do]              | Low / Medium / High   |
-| [e.g., Administrator]  | [Describe who they are and what they do]              | Medium / High         |
-| [e.g., API Consumer]   | [Describe who they are and what they do]              | High                  |
+> If the upstream PRD (§10.1) identifies AI Agent as an applicable consumer, include agent user classes in this table alongside human user classes. If no upstream PRD exists, explicitly consider whether AI agents are realistic consumers of this system.
+
+| User Class | Consumer Type | Description | Technical Proficiency | Interaction Pattern |
+|-----------|--------------|-------------|----------------------|-------------------|
+| [e.g., End User] | Human | [Describe who they are and what they do] | Low / Medium / High | [e.g., Web UI, mobile app] |
+| [e.g., Administrator] | Human | [Describe who they are and what they do] | Medium / High | [e.g., Admin dashboard, CLI] |
+| [e.g., API Consumer] | Human | [Describe who they are and what they do] | High | [e.g., REST API, SDK] |
+| [e.g., CI Pipeline Agent] | AI Agent | [Describe the agent's purpose, autonomy level, and operational context — e.g., "Autonomous agent that polls build status and triggers deployments; operates on 30s intervals with no human oversight per cycle"] | N/A | [e.g., REST API with service token, webhook listener, MCP tool call] |
+| [e.g., Coding Assistant] | AI Agent | [Describe the agent — e.g., "Human-in-the-loop agent that retrieves code context and suggests changes; user approves each action"] | N/A | [e.g., REST API, streaming response required for real-time feedback] |
 
 ### 4.4 Constraints
 
@@ -121,18 +125,20 @@ graph TD
 [The system shall ... Describe what the system must do in clear, unambiguous language. Use "shall" for mandatory behavior.]
 
 **Actors:**
-- [Primary actor, e.g., Authenticated User]
+- [Primary actor, e.g., Authenticated User — or AI Agent name from §4.3 if this requirement serves agent consumers]
 - [Secondary actor, e.g., Notification Service]
+
+> When the primary actor is an AI Agent, describe the flow in terms of API calls and programmatic actions (not UI interactions). Include machine-parseable error responses, idempotency expectations, and structured output requirements in the acceptance criteria.
 
 **Preconditions:**
 - [Condition that must be true before this requirement can be exercised]
 - [Another precondition]
 
 **Main Flow:**
-1. [The actor performs action X]
+1. [The actor performs action X — for agents: "The agent sends POST /api/v1/resource with JSON body {fields}"]
 2. [The system validates input Y]
 3. [The system processes the request and performs Z]
-4. [The system returns result W to the actor]
+4. [The system returns result W to the actor — for agents: "The system returns 201 with JSON body containing {resource_id, created_at}"]
 
 **Alternative Flows:**
 - **AF-1: [Alternative scenario name]**
@@ -142,7 +148,7 @@ graph TD
 
 - **AF-2: [Error scenario name]**
   1. [At step N of the main flow, if validation fails...]
-  2. [The system shall display error message E]
+  2. [The system shall return error response E — for agents: "return 422 with JSON {error_code, message, field, constraint} enabling programmatic retry decisions"]
   3. [The flow returns to step M]
 
 **Postconditions:**

@@ -21,6 +21,10 @@ Use this checklist to validate the Software Requirements Specification before fi
 - [ ] Requirements describe WHAT the system must do, not HOW it should be implemented -- no implementation details, specific algorithms, or technology choices appear in requirement descriptions unless they are genuine constraints
 - [ ] Boundary conditions are specified for all requirements involving numeric ranges, string lengths, file sizes, date ranges, or collection sizes
 - [ ] Error scenarios and alternative flows are documented for each functional requirement, covering invalid input, timeout, unauthorized access, and system failure cases
+- [ ] §4.3 User Characteristics includes a Consumer Type column (Human / AI Agent) and an Interaction Pattern column for each user class
+- [ ] If upstream PRD marks AI Agent as applicable (§10.1): at least one functional requirement has an AI Agent as primary actor with programmatic flows (API calls, not UI steps)
+- [ ] Agent-facing error responses include structured, machine-parseable fields (error_code, message, field, constraint) — not just human-readable text
+- [ ] Agent-facing acceptance criteria include relevant machine-verifiable conditions (idempotency, deterministic response schema, timeout behavior) where applicable
 - [ ] Every non-functional requirement includes a specific, measurable metric with a quantitative target value, a defined measurement method, and a **Threshold Rationale** — the rationale must cite at least one concrete source (business SLA, production baseline, competitive benchmark, regulatory standard, or cost/complexity trade-off)
 
 ## 3. Consistency Check

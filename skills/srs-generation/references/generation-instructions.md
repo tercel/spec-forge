@@ -49,6 +49,7 @@ Run through every item in the checklist. For any failed check, revise the docume
 - Use "shall" for mandatory requirements, "should" for recommended, "may" for optional
 - Avoid implementation details — describe WHAT, not HOW
 - Include boundary conditions and error scenarios for each requirement
+- **Consumer-aware requirements**: If the upstream PRD (§10.1) marks AI Agent as an applicable consumer, ensure that: (1) §4.3 User Characteristics includes agent user classes with Consumer Type, Interaction Pattern, and autonomy level; (2) functional requirements where the primary actor is an agent use programmatic flows (API calls, not UI steps); (3) error responses for agent-facing requirements include structured, machine-parseable fields (error_code, message, field, constraint) — not just human-readable text; (4) acceptance criteria for agent-facing requirements include idempotency, deterministic schema, and timeout behavior conditions where relevant
 
 ## Anti-Shortcut Rules
 

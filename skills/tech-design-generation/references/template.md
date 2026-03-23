@@ -50,10 +50,13 @@
 
 [Describe 1-3 concrete end-to-end user journeys this design must support. Write as a narrative: who the user is, what they're trying to accomplish, and what success looks like. Keep each scenario to 3-5 steps. These scenarios anchor the design in real usage and drive the acceptance criteria below.]
 
-| # | Persona | Goal | Steps | Success Condition |
-|---|---------|------|-------|-------------------|
-| US-01 | [e.g., Registered user] | [e.g., Recover forgotten password] | 1. User clicks "Forgot password"<br>2. Enters email address<br>3. Receives reset link<br>4. Sets new password | [e.g., User can log in with new password within 60s of form submission] |
-| US-02 | [e.g., Admin] | [e.g., Suspend an account] | 1. Admin navigates to user management<br>2. Selects user and clicks "Suspend"<br>3. Enters reason and confirms | [e.g., Suspended user cannot log in; audit record created] |
+[If the upstream PRD (§10.1) identifies AI Agent as an applicable consumer type, include at least one agent scenario in this table. If no upstream PRD exists, explicitly consider whether AI agents are a realistic consumer of this feature and include an agent scenario if so.]
+
+| # | Persona | Type | Goal | Steps | Success Condition |
+|---|---------|------|------|-------|-------------------|
+| US-01 | [e.g., Registered user] | Human | [e.g., Recover forgotten password] | 1. User clicks "Forgot password"<br>2. Enters email address<br>3. Receives reset link<br>4. Sets new password | [e.g., User can log in with new password within 60s of form submission] |
+| US-02 | [e.g., Admin] | Human | [e.g., Suspend an account] | 1. Admin navigates to user management<br>2. Selects user and clicks "Suspend"<br>3. Enters reason and confirms | [e.g., Suspended user cannot log in; audit record created] |
+| US-03 | [e.g., CI Pipeline Agent] | Agent | [e.g., Retrieve user list for access audit] | 1. Agent sends GET /api/v1/users?status=active with service token<br>2. Receives paginated JSON response<br>3. Follows next_cursor until exhausted | [e.g., Agent collects all active users in < 10 API calls; response schema is stable across pages] |
 
 ### 3.6 Acceptance Criteria
 
@@ -64,6 +67,8 @@
 | AC-001 | [e.g., User can reset password using a valid reset link within 15 minutes of requesting it] | US-01 | [e.g., Integration test: POST /auth/reset-password with valid token → new password works] |
 | AC-002 | [e.g., Reset link expires after 15 minutes; expired token returns 401] | US-01 | [e.g., Unit test: token TTL = 900s; integration test: expired token rejected] |
 | AC-003 | [e.g., System returns identical response whether email exists or not (prevents user enumeration)] | US-01 | [e.g., Integration test: unknown email returns same 200 response as known email] |
+| AC-004 | [e.g., Paginated user list response schema is identical across all pages — same field names, types, and order; no fields appear or disappear between pages] | US-03 | [e.g., Integration test: compare JSON schema of page 1 vs page N; assert structural equality] |
+| AC-005 | [e.g., Cursor-based pagination is idempotent — re-requesting the same cursor returns the same result set if no underlying data changed] | US-03 | [e.g., Integration test: freeze data, request same cursor twice, assert byte-identical response bodies] |
 
 [Add one AC per meaningful user-facing behavior. For complex features, expect 5-15 criteria. Each AC in this table becomes the acceptance criteria entry in the corresponding feature spec.]
 
@@ -87,6 +92,7 @@ The following C4 Context Diagram shows the system under design, the users who in
 flowchart TB
     User["[Person]<br/>User<br/><i>Describe the primary user</i>"]
     Admin["[Person]<br/>Administrator<br/><i>Describe the admin user</i>"]
+    Agent["[Agent]<br/>AI Agent<br/><i>Remove this node if AI Agent is not applicable per §3.5</i>"]
 
     System["[System]<br/>System Name<br/><i>Describe the system under design</i>"]
 
@@ -96,10 +102,13 @@ flowchart TB
 
     User -->|"Uses"| System
     Admin -->|"Manages"| System
+    Agent -->|"Calls API"| System
     System -->|"Authenticates via"| ExtAuth
     System -->|"Sends notifications via"| ExtNotif
     System -->|"Processes payments via"| ExtPayment
 ```
+
+> **Note:** Remove the `Agent` node and its `Agent -->|"Calls API"| System` edge if AI Agent is not an applicable consumer type. The diagram should only include actors that represent real consumers of this system.
 
 [Describe the context diagram. Explain the relationships between the system, its users, and external dependencies.]
 
