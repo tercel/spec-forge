@@ -13,19 +13,20 @@ Software projects need clear specifications. spec-forge covers the full journey 
 | `/spec-forge:idea <name>` | Interactive brainstorming — explore and refine ideas | — |
 | `/spec-forge:decompose <name>` | Decompose project into sub-features | — |
 | `/spec-forge:tech-design <name>` | Technical Design Document + auto-generated feature specs | Google Design Doc, RFC Template |
-| `/spec-forge <name>` | **Full chain** — auto-run Idea → Decompose → Tech Design + Feature Specs | All of the above |
+| `/spec-forge <name>` | **Full chain** — auto-run Idea → Decompose → Tech Design + Feature Specs → Review | All of the above |
+| `/spec-forge:review <name>` | Review generated specs for quality & consistency, auto-fix issues | — |
 | `/spec-forge:prd <name>` | Product Requirements Document (on-demand) | Google PRD, Amazon PR/FAQ |
 | `/spec-forge:srs <name>` | Software Requirements Specification (on-demand) | IEEE 830, ISO/IEC/IEEE 29148 |
 | `/spec-forge:test-plan <name>` | Test Plan & Test Cases (on-demand) | IEEE 829, ISTQB |
 | `/spec-forge:audit [path]` | Audit docs for quality, completeness & code alignment | — |
 | `/spec-forge:analyze [path]` | Analyze document collection — map themes, find conflicts & gaps | — |
 
-**Aliases**: `/prd`, `/srs`, `/tech-design`, `/test-plan`, `/idea`, `/decompose`, `/audit`, `/analyze` work as shortcuts — they invoke each skill directly, bypassing the `/spec-forge` orchestrator.
+**Aliases**: `/prd`, `/srs`, `/tech-design`, `/test-plan`, `/idea`, `/decompose`, `/review`, `/audit`, `/analyze` work as shortcuts — they invoke each skill directly, bypassing the `/spec-forge` orchestrator.
 
 ## Features
 
 - **Idea to Spec**: Brainstorm interactively, then graduate ideas into architecture docs + feature specs
-- **Full Chain Mode**: One command runs the streamlined chain (Idea → Decompose → Tech Design + Feature Specs)
+- **Full Chain Mode**: One command runs the streamlined chain (Idea → Decompose → Tech Design + Feature Specs → Review)
 - **Standalone or Chained**: Use any command on its own, or run the full chain for traceability
 - **Industry Standards**: Templates grounded in Google, Amazon, Stripe, IEEE, and ISTQB best practices
 - **Automatic Context Scanning**: Scans your project structure, README, and existing docs before generation
@@ -33,6 +34,7 @@ Software projects need clear specifications. spec-forge covers the full journey 
 - **Smart Upstream Detection**: Finds upstream documents when available; asks compensating questions when not
 - **Quality Checklists**: Built-in 4-tier validation (completeness, quality, consistency, formatting)
 - **Mermaid Diagrams**: Architecture, sequence, user journey, and Gantt diagrams
+- **Spec Review**: Review generated specs for completeness, consistency, and actionability with auto-fix
 - **Documentation Audit**: Cross-reference docs against code for quality, completeness, and consistency
 - **Document Landscape Analysis**: Map, cluster, and evaluate document ecosystems
 
@@ -131,6 +133,22 @@ Generates a Test Plan & Test Cases document including:
 
 **Reference**: IEEE 829, ISTQB Test Standards, Google Testing Blog
 
+### `/spec-forge:review <name>` — Spec Review
+
+Review generated specifications for quality, completeness, and internal consistency:
+
+```bash
+/spec-forge:review user-login          # Review all specs for user-login
+```
+
+- Checks completeness, internal consistency, specificity, traceability, and actionability
+- Compares feature specs against tech-design for API signature and component boundary alignment
+- Auto-fixes Critical and Major issues (up to 2 review-fix iterations)
+- Leaves `<!-- REVIEW: ... -->` comments when domain knowledge is needed for a fix
+- Automatically runs as Stage 4 in the full chain (`/spec-forge <name>`)
+
+**Best for**: After generating specs, before starting implementation.
+
 ### `/spec-forge:audit [path]` — Documentation Audit
 
 Audit existing project documentation for quality, completeness, and code alignment:
@@ -171,7 +189,7 @@ Analyze a collection of documents to understand the knowledge landscape:
 ```
 /spec-forge:idea cool-feature              # Brainstorm (iterative, multi-session)
     ↓ (graduated)
-/spec-forge cool-feature                   # Idea → Decompose → Tech Design + Feature Specs
+/spec-forge cool-feature                   # Idea → Decompose → Tech Design + Feature Specs → Review
     ↓
 /code-forge:plan @docs/features/<component-name>.md   # Break into tasks and execute
 ```
@@ -179,6 +197,7 @@ Analyze a collection of documents to understand the knowledge landscape:
 **Quick path** (skip idea stage):
 ```
 /spec-forge:tech-design cool-feature       # Tech Design + auto-generated feature specs
+/spec-forge:review cool-feature            # Review specs before implementation
 /code-forge:plan @docs/features/<component-name>.md   # Generate implementation plan
 ```
 

@@ -65,7 +65,7 @@ Specifications (in docs/):
 Commands:
   /spec-forge:idea <name>          Start or resume brainstorming
   /spec-forge:decompose <name>     Decompose project into sub-features
-  /spec-forge <name>               Run full chain (Idea → Decompose → Tech Design + Feature Specs)
+  /spec-forge <name>               Run full chain (Idea → Decompose → Tech Design + Feature Specs → Review)
   /spec-forge:tech-design <name>   Generate Tech Design + Feature Specs
   /spec-forge:prd <name>           Generate PRD (on-demand, for stakeholders)
   /spec-forge:srs <name>           Generate SRS (on-demand, for compliance)
