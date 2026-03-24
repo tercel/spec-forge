@@ -122,7 +122,7 @@ After sub-agent returns, check `ideas/{feature_name}/state.json`:
 - If `status` is `ready` or `graduated`: proceed to D.1
 - If `status` is `parked`: inform user — *"The idea was parked. Run `/spec-forge:idea {feature_name}` to resume when ready."* — stop chain
 - If `status` is `exploring`, `researching`, or `refining`: ask user via `AskUserQuestion`:
-  - **Continue anyway** — proceed to D.1 using partial draft as context (not recommended without validation)
+  - **Continue anyway** — proceed to D.1 using partial draft as context. Warn the user: *"This design will be based on an unvalidated idea. The requirements may not be solid — consider running `/spec-forge:idea {feature_name}` to completion before finalizing."* Pass this warning context to the tech-design sub-agent so it appears in the generated document's Scope section.
   - **Finish idea first** — stop chain, user resumes with `/spec-forge:idea {feature_name}`
 - If `ideas/{feature_name}/` still doesn't exist: warn and stop
 
