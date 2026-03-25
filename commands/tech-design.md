@@ -136,4 +136,4 @@ CRITICAL: Follow Step 5 (Generate Feature Specs) from generation-instructions.md
 After the sub-agent returns, present the result to the user and suggest:
 
 1. **Ready to implement?** Feature specs are already generated at `docs/features/`. Use `/code-forge:plan @docs/features/{component-name}.md` to start implementing any component. Use `/code-forge:status` to track progress across features.
-2. **Generate Test Plan** (optional): Run `/spec-forge:test-plan` to create a comprehensive test plan and test cases based on this design (on-demand, for formal QA).
+2. **Generate Test Cases** (optional): Run `/spec-forge:test-cases` to generate structured test cases with coverage matrix based on this design.

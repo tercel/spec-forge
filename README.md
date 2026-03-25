@@ -17,11 +17,11 @@ Software projects need clear specifications. spec-forge covers the full journey 
 | `/spec-forge:review <name>` | Review generated specs for quality & consistency, auto-fix issues | — |
 | `/spec-forge:prd <name>` | Product Requirements Document (on-demand) | Google PRD, Amazon PR/FAQ |
 | `/spec-forge:srs <name>` | Software Requirements Specification (on-demand) | IEEE 830, ISO/IEC/IEEE 29148 |
-| `/spec-forge:test-plan <name>` | Test Plan & Test Cases (on-demand) | IEEE 829, ISTQB |
+| `/spec-forge:test-cases <name>` | Test Cases with coverage matrix (on-demand) | Multi-dimensional coverage |
 | `/spec-forge:audit [path]` | Audit docs for quality, completeness & code alignment | — |
 | `/spec-forge:analyze [path]` | Analyze document collection — map themes, find conflicts & gaps | — |
 
-**Aliases**: `/prd`, `/srs`, `/tech-design`, `/test-plan`, `/idea`, `/decompose`, `/review`, `/audit`, `/analyze` work as shortcuts — they invoke each skill directly, bypassing the `/spec-forge` orchestrator.
+**Aliases**: `/prd`, `/srs`, `/tech-design`, `/test-cases`, `/idea`, `/decompose`, `/review`, `/audit`, `/analyze` work as shortcuts — they invoke each skill directly, bypassing the `/spec-forge` orchestrator.
 
 ## Features
 
@@ -120,18 +120,15 @@ Generates a Technical Design Document including:
 
 **Reference**: Google Design Doc, RFC Template, Uber/Meta Engineering Standards
 
-### `/spec-forge:test-plan <name>`
+### `/spec-forge:test-cases <name>`
 
-Generates a Test Plan & Test Cases document including:
-- Test strategy (test pyramid: Unit → Integration → E2E)
-- Detailed test case specifications (preconditions, steps, expected results)
-- Entry/exit criteria
-- Defect management process
-- Requirements traceability matrix (SRS → Test Cases, when SRS exists)
-
-**Standalone**: When no upstream SRS/Tech Design is found, asks additional questions to compensate.
-
-**Reference**: IEEE 829, ISTQB Test Standards, Google Testing Blog
+Generates structured test cases with multi-dimensional coverage:
+- Auto-scans project to extract testable units (APIs, functions, components, CLI commands, tools)
+- Detects project profile (Web API, CLI, Frontend, AI Agent, etc.) and adapts output
+- Multi-dimensional coverage: L1 (Happy Path) + L2 (Boundary/Error) + L3 (Negative)
+- Coverage matrix with gap analysis
+- Test strategy and methodology (default); `--formal` adds management sections (environment, roles, schedule)
+- Downstream integration: output consumed by `/code-forge:tdd @test-cases.md`
 
 ### `/spec-forge:review <name>` — Spec Review
 
@@ -231,7 +228,7 @@ Auto-generated feature specs go to `docs/features/`:
 On-demand documents (when explicitly requested):
 - `docs/<feature-name>/prd.md`
 - `docs/<feature-name>/srs.md`
-- `docs/<feature-name>/test-plan.md`
+- `docs/<feature-name>/test-cases.md`
 
 For decomposed projects, a manifest is also generated:
 - `docs/project-<project-name>.md`

@@ -106,6 +106,25 @@ Run the full specification chain automatically for `feature_name`. The chain con
 
 > **Note**: PRD, SRS, and Test Cases are NOT part of the auto chain. They can be generated on-demand via `/spec-forge:prd`, `/spec-forge:srs`, or `/spec-forge:test-cases` when needed (e.g., for stakeholder alignment, compliance, or test coverage). The tech-design in standalone mode captures requirements directly through targeted questions, eliminating the need for intermediate PRD/SRS documents.
 
+#### D.Pre: Project Context Scan (Once for Entire Chain)
+
+Before launching any stage, scan the project once to build shared context. This avoids each sub-agent re-scanning the same project independently.
+
+Read and execute the Project Context Protocol:
+`skills/shared/project-context.md`
+
+Execute PC.1 (Project Discovery), PC.2 (Tech Stack Detection), PC.3 (Project Profile), and PC.4 (Architecture Awareness).
+
+Store the results as `{project_context_summary}` — a concise (~500 words) summary including:
+- Project Profile (Web API / CLI / Frontend / etc.)
+- Tech Stack (language, framework, database, test framework)
+- Architecture pattern (layered, MVC, clean, microservices)
+- Module structure (key directories and their roles)
+
+This summary is passed to EVERY sub-agent in the chain via their prompts, so they don't need to re-scan.
+
+---
+
 #### D.0: Check for Existing Idea
 
 Check if `ideas/{feature_name}/` exists:
@@ -116,7 +135,7 @@ Check if `ideas/{feature_name}/` exists:
 #### D.0a: Stage 1 — Idea
 
 Launch `Task(subagent_type="general-purpose")`:
-- Sub-agent prompt: "Invoke the spec-forge:idea skill for '{feature_name}'. Guide the user through iterative discovery to validate the concept and produce a draft at ideas/{feature_name}/draft.md."
+- Sub-agent prompt: "Invoke the spec-forge:idea skill for '{feature_name}'. Guide the user through iterative discovery to validate the concept and produce a draft at ideas/{feature_name}/draft.md.\n\n## Project Context (pre-scanned)\n{project_context_summary}"
 - This is the most interactive stage — the user shapes the core requirements here
 - Wait for completion
 
@@ -131,7 +150,7 @@ After sub-agent returns, check `ideas/{feature_name}/state.json`:
 #### D.1: Stage 2 — Decompose
 
 Launch `Task(subagent_type="general-purpose")`:
-- Sub-agent prompt: "Invoke the spec-forge:decompose skill for '{feature_name}'."
+- Sub-agent prompt: "Invoke the spec-forge:decompose skill for '{feature_name}'. Skip project scanning in Step 1 — use the pre-scanned context below instead.\n\n## Project Context (pre-scanned)\n{project_context_summary}"
 - Wait for completion
 
 Check result:
@@ -145,7 +164,7 @@ Read `docs/project-{feature_name}.md` and parse the FEATURE_MANIFEST comment blo
 For each sub-feature in execution order:
 
 Launch `Task(subagent_type="general-purpose")`:
-- Sub-agent prompt: "Invoke the spec-forge:tech-design skill for '{sub_feature_name}'. Idea-first mode. Read ideas/{feature_name}/draft.md for overall requirements context and use it to populate §3.5 User Scenarios, §3.6 Acceptance Criteria, and §3.7 Success Metrics. Also read docs/project-{feature_name}.md for this sub-feature's specific scope and dependencies (look for the section describing '{sub_feature_name}') and use it to define §3.4 Scope and §3.2 Goals. Minimize user questions — extract answers from these documents where possible. IMPORTANT: This will also auto-generate feature specs in docs/features/ as part of Step 7."
+- Sub-agent prompt: "Invoke the spec-forge:tech-design skill for '{sub_feature_name}'. Idea-first mode. Read ideas/{feature_name}/draft.md for overall requirements context and use it to populate §3.5 User Scenarios, §3.6 Acceptance Criteria, and §3.7 Success Metrics. Also read docs/project-{feature_name}.md for this sub-feature's specific scope and dependencies (look for the section describing '{sub_feature_name}') and use it to define §3.4 Scope and §3.2 Goals. Minimize user questions — extract answers from these documents where possible. IMPORTANT: This will also auto-generate feature specs in docs/features/ as part of Step 7. Skip project scanning in Step 1 — use the pre-scanned context below instead.\n\n## Project Context (pre-scanned)\n{project_context_summary}"
 - Wait for completion → verify `docs/{sub_feature_name}/tech-design.md` exists and feature specs exist in `docs/features/`
 
 After each sub-feature completes, display progress:
@@ -192,14 +211,17 @@ Feature specs (auto-generated with tech-design):
 Review: {PASS | N issues fixed | N issues remaining}
 Project manifest: docs/project-{feature_name}.md
 
-Next steps:
-  /code-forge:plan @docs/features/{component-name}.md   → Generate implementation plan for a component
-  /code-forge:status                                     → Track progress across features
+Recommended flow:
+  /spec-forge:test-cases {feature_name}                   → Generate test cases with coverage matrix
+  /code-forge:plan @docs/features/{component-name}.md     → Generate implementation plan
+  /code-forge:impl {component-name}                       → Execute tasks (TDD)
+
+Quick start (skip test cases):
+  /code-forge:plan @docs/features/{component-name}.md     → Jump to implementation planning
 
 Optional (on-demand):
-  /spec-forge:prd {feature_name}                         → Generate PRD (for stakeholders)
-  /spec-forge:srs {feature_name}                         → Generate SRS (for compliance/audit)
-  /spec-forge:test-cases {feature_name}                   → Generate test cases with coverage matrix
+  /spec-forge:prd {feature_name}                          → Generate PRD (for stakeholders)
+  /spec-forge:srs {feature_name}                          → Generate SRS (for compliance/audit)
 ```
 
 #### D.2: Detect Existing Progress
@@ -227,8 +249,8 @@ If some stages are complete, show progress and ask:
 
 Before launching, check whether `ideas/{feature_name}/draft.md` exists and build the sub-agent prompt accordingly:
 
-- **If idea draft exists**: prompt = "Invoke the spec-forge:tech-design skill for '{feature_name}'. Idea-first mode. Read ideas/{feature_name}/draft.md for requirements context — extract User Scenarios from the draft to populate §3.5, extract validated requirements and MVP criteria to populate §3.6 Acceptance Criteria, extract success criteria and demand validation metrics to populate §3.7 Success Metrics, and extract MVP scope/boundaries to populate §3.4 Scope and §3.2 Goals. Minimize user questions where the idea draft already provides answers. IMPORTANT: After writing the tech-design, also auto-generate feature specs in docs/features/ as part of Step 7."
-- **If no idea draft**: prompt = "Invoke the spec-forge:tech-design skill for '{feature_name}'. Standalone mode — no upstream idea draft found. Ask the user the full set of standalone clarification questions (including user scenarios, acceptance criteria, and success metrics). IMPORTANT: After writing the tech-design, also auto-generate feature specs in docs/features/ as part of Step 7."
+- **If idea draft exists**: prompt = "Invoke the spec-forge:tech-design skill for '{feature_name}'. Idea-first mode. Read ideas/{feature_name}/draft.md for requirements context — extract User Scenarios from the draft to populate §3.5, extract validated requirements and MVP criteria to populate §3.6 Acceptance Criteria, extract success criteria and demand validation metrics to populate §3.7 Success Metrics, and extract MVP scope/boundaries to populate §3.4 Scope and §3.2 Goals. Minimize user questions where the idea draft already provides answers. IMPORTANT: After writing the tech-design, also auto-generate feature specs in docs/features/ as part of Step 7. Skip project scanning in Step 1 — use the pre-scanned context below instead.\n\n## Project Context (pre-scanned)\n{project_context_summary}"
+- **If no idea draft**: prompt = "Invoke the spec-forge:tech-design skill for '{feature_name}'. Standalone mode — no upstream idea draft found. Ask the user the full set of standalone clarification questions (including user scenarios, acceptance criteria, and success metrics). IMPORTANT: After writing the tech-design, also auto-generate feature specs in docs/features/ as part of Step 7. Skip project scanning in Step 1 — use the pre-scanned context below instead.\n\n## Project Context (pre-scanned)\n{project_context_summary}"
 
 Launch `Task(subagent_type="general-purpose")` with the appropriate prompt above.
 Wait for completion → verify `docs/{feature_name}/tech-design.md` exists and feature specs exist in `docs/features/`.
@@ -292,14 +314,18 @@ Generated:
   ...
   [x] Review                             — {PASS | N issues fixed | N issues remaining}
 
-Next steps:
-  /code-forge:plan @docs/features/{component-name}.md   → Generate implementation plan for a component
-  /code-forge:status                                     → Track progress across features
+Recommended flow:
+  /spec-forge:test-cases {feature_name}                   → Generate test cases with coverage matrix
+  /code-forge:plan @docs/features/{component-name}.md     → Generate implementation plan
+  /code-forge:impl {component-name}                       → Execute tasks (TDD)
+  /code-forge:review {component-name}                     → Review code quality
+
+Quick start (skip test cases):
+  /code-forge:plan @docs/features/{component-name}.md     → Jump to implementation planning
 
 Optional (on-demand):
-  /spec-forge:prd {feature_name}                         → Generate PRD (for stakeholders)
-  /spec-forge:srs {feature_name}                         → Generate SRS (for compliance/audit)
-  /spec-forge:test-cases {feature_name}                   → Generate test cases with coverage matrix
+  /spec-forge:prd {feature_name}                          → Generate PRD (for stakeholders)
+  /spec-forge:srs {feature_name}                          → Generate SRS (for compliance/audit)
 ```
 
 If an idea draft was used, update its status to `graduated`:
