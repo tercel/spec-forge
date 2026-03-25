@@ -1,7 +1,7 @@
 ---
 allowed-tools: Read, Glob, Grep, Write, Edit, AskUserQuestion, Task, Bash
 description: "Use when generating software specifications — full chain (Idea→Decompose→Tech Design + Feature Specs) or individual documents"
-argument-hint: "[idea|decompose|prd|srs|tech-design|test-plan|audit|analyze] <name or path>"
+argument-hint: "[idea|decompose|prd|srs|tech-design|test-cases|audit|analyze] <name or path>"
 ---
 
 You are the spec-forge orchestrator. Your job is to route subcommands or run the full specification chain.
@@ -18,7 +18,8 @@ Parse `$ARGUMENTS` into `subcommand` and `argument`:
 | `prd cool-feature` | `prd` | `cool-feature` |
 | `srs cool-feature` | `srs` | `cool-feature` |
 | `tech-design cool-feature` | `tech-design` | `cool-feature` |
-| `test-plan cool-feature` | `test-plan` | `cool-feature` |
+| `test-cases cool-feature` | `test-cases` | `cool-feature` |
+| `test-cases --formal cool-feature` | `test-cases` | `--formal cool-feature` |
 | `decompose cool-feature` | `decompose` | `cool-feature` |
 | `review cool-feature` | `review` | `cool-feature` |
 | `audit ../../project` | `audit` | `../../project` |
@@ -26,7 +27,7 @@ Parse `$ARGUMENTS` into `subcommand` and `argument`:
 | `cool-feature` (no known subcommand) | `chain` | `cool-feature` |
 | (empty) | `dashboard` | — |
 
-For routes B-E (idea, prd, srs, tech-design, test-plan, decompose, review, chain), `argument` is a feature name — referred to as `feature_name` in route descriptions below. For routes F-G (audit, analyze), `argument` is a file path.
+For routes B-E (idea, prd, srs, tech-design, test-cases, decompose, review, chain), `argument` is a feature name — referred to as `feature_name` in route descriptions below. For routes F-G (audit, analyze), `argument` is a file path.
 
 ## Step 2: Route
 
@@ -34,7 +35,7 @@ For routes B-E (idea, prd, srs, tech-design, test-plan, decompose, review, chain
 
 Display spec-forge dashboard:
 
-1. Scan `docs/` for existing spec documents (`docs/*/prd.md`, `docs/*/srs.md`, `docs/*/tech-design.md`, `docs/*/test-plan.md`)
+1. Scan `docs/` for existing spec documents (`docs/*/prd.md`, `docs/*/srs.md`, `docs/*/tech-design.md`, `docs/*/test-cases.md`)
 2. Scan `docs/` for decomposed projects (`docs/project-*.md`)
 3. Scan `docs/features/` for lightweight feature specs (`docs/features/*.md`)
 4. Scan `ideas/` for active ideas
@@ -58,7 +59,7 @@ Feature Specs (in docs/features/):
   2 | schema-system   | docs/my-feature/tech-design.md
 
 Specifications (in docs/):
-  Feature        | PRD | SRS | Tech Design | Test Plan
+  Feature        | PRD | SRS | Tech Design | Test Cases
   user-login     |  +  |  +  |      +      |     +
   payment        |  +  |  +  |             |
 
@@ -69,7 +70,8 @@ Commands:
   /spec-forge:tech-design <name>   Generate Tech Design + Feature Specs
   /spec-forge:prd <name>           Generate PRD (on-demand, for stakeholders)
   /spec-forge:srs <name>           Generate SRS (on-demand, for compliance)
-  /spec-forge:test-plan <name>     Generate Test Plan (on-demand, for QA)
+  /spec-forge:test-cases <name>    Generate test cases with coverage matrix (on-demand)
+  /spec-forge:test-cases --formal <name>  Same + management sections (environment, roles, schedule)
   /spec-forge:review <name>        Review generated specs for quality & consistency, auto-fix issues
   /spec-forge:audit [path]         Audit docs for quality, completeness & code alignment
   /spec-forge:analyze [path]       Analyze doc collection — map themes, find conflicts & gaps
@@ -84,13 +86,13 @@ Tip: audit = docs + code in one project, analyze = docs-only or cross-repo colle
 
 Invoke the spec-forge:idea skill. Pass `feature_name` as the argument.
 
-### Route C: `prd` / `srs` / `tech-design` / `test-plan` / `review` (single document)
+### Route C: `prd` / `srs` / `tech-design` / `test-cases` / `review` (single document)
 
 Invoke the corresponding skill:
 - `prd` → invoke `spec-forge:prd` skill with `feature_name`
 - `srs` → invoke `spec-forge:srs` skill with `feature_name`
 - `tech-design` → invoke `spec-forge:tech-design` skill with `feature_name`
-- `test-plan` → invoke `spec-forge:test-plan` skill with `feature_name`
+- `test-cases` → invoke `spec-forge:test-cases` skill with `feature_name`
 - `review` → invoke `spec-forge:review` skill with `feature_name`
 
 ### Route D: `chain` (full chain auto mode)
@@ -102,7 +104,7 @@ Run the full specification chain automatically for `feature_name`. The chain con
 3. **Tech Design** — Generate architecture document + auto-generate feature specs in `docs/features/`
 4. **Review** — Audit generated documents for quality and consistency; auto-fix issues if found
 
-> **Note**: PRD, SRS, and Test Plan are NOT part of the auto chain. They can be generated on-demand via `/spec-forge:prd`, `/spec-forge:srs`, or `/spec-forge:test-plan` when needed (e.g., for stakeholder alignment, compliance, or formal QA). The tech-design in standalone mode captures requirements directly through targeted questions, eliminating the need for intermediate PRD/SRS documents.
+> **Note**: PRD, SRS, and Test Cases are NOT part of the auto chain. They can be generated on-demand via `/spec-forge:prd`, `/spec-forge:srs`, or `/spec-forge:test-cases` when needed (e.g., for stakeholder alignment, compliance, or test coverage). The tech-design in standalone mode captures requirements directly through targeted questions, eliminating the need for intermediate PRD/SRS documents.
 
 #### D.0: Check for Existing Idea
 
@@ -197,7 +199,7 @@ Next steps:
 Optional (on-demand):
   /spec-forge:prd {feature_name}                         → Generate PRD (for stakeholders)
   /spec-forge:srs {feature_name}                         → Generate SRS (for compliance/audit)
-  /spec-forge:test-plan {feature_name}                   → Generate Test Plan (for formal QA)
+  /spec-forge:test-cases {feature_name}                   → Generate test cases with coverage matrix
 ```
 
 #### D.2: Detect Existing Progress
@@ -297,7 +299,7 @@ Next steps:
 Optional (on-demand):
   /spec-forge:prd {feature_name}                         → Generate PRD (for stakeholders)
   /spec-forge:srs {feature_name}                         → Generate SRS (for compliance/audit)
-  /spec-forge:test-plan {feature_name}                   → Generate Test Plan (for formal QA)
+  /spec-forge:test-cases {feature_name}                   → Generate test cases with coverage matrix
 ```
 
 If an idea draft was used, update its status to `graduated`:
