@@ -202,7 +202,8 @@ Follow every instruction completely. Key requirements:
 - Minimum 4 cases per testable unit (1×L1 + 2×L2 + 1×L3)
 - Use REAL database testing (not mocks) for any DB-touching tests
 - Use TC-<MODULE>-<NNN> format for test case IDs
-- Include Data Integrity test cases
+- Include Data Integrity test cases ONLY if project has a database (check Has Database flag)
+- Include Security test cases ONLY if project has auth or handles user input (check Has Auth flag)
 - Generate combination tests for interacting units
 - Build coverage matrix with gap analysis
 - Use concrete test data, not placeholders
