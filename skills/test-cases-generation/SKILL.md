@@ -132,6 +132,29 @@ Scan the project to determine its type. Check for framework signatures and unit 
 
 **Output**: Explicit project profile label with rationale, e.g.: "Project Profile: **Web API** (Express detected in package.json, 12 route handlers found, PostgreSQL via Prisma)"
 
+### Step 1.5 — Doc-First Discipline (Mandatory)
+
+Before scanning code or extracting testable units, the doc-first discipline applies. Read the existing test documentation, identify what already exists, and decide for each test case set whether to **REUSE** (reference existing), **EXTEND** (edit existing in place), or **NEW** (genuinely missing). The default for any module that already has a `test-cases.md` file is to extend in place — never to create parallel `test-cases-v2.md` files, never to append `## Update` blocks, never to leave deprecated cases strikethrough'd.
+
+The full discipline, the four rules, the pre-generation checklist, and the anti-patterns to avoid:
+
+@../shared/doc-first.md
+
+**You MUST run the pre-generation checklist (the five questions) from doc-first.md before proceeding to Step 2.** If an existing `test-cases.md` (or equivalent) already covers any of the units this generation will discuss, you must:
+
+1. List the existing files and TC IDs that overlap (with `file:line` references)
+2. Decide REUSE / EXTEND / NEW for each module
+3. Bias toward EXTEND — opening the existing test-cases file and adding/modifying entries — over NEW
+4. **Preserve existing TC IDs.** Once a TC-XXX-NNN has been issued and referenced from test code, it must not be silently renumbered. New cases get new IDs; removed cases retire their IDs (not reused).
+5. Identify which existing TC IDs are referenced from real test code (`grep` for the ID literal in test files) — those are load-bearing and must not be deleted without coordinating the test code update
+6. Surface which test files will need updating downstream
+
+If the project shows signs of doc drift (multiple `test-cases-*.md` files, TC ID collisions across files, obvious duplication of cases), warn the user and recommend `/spec-forge:analyze` or `/spec-forge:propagate` first.
+
+If a usable existing test-cases doc already covers most of what the user is asking for, the right action is **edit it in place**, not generate a new file.
+
+---
+
 ### Step 2 — Deep Scan and Extract
 
 Extraction must go beyond listing function signatures. For each testable unit, capture four layers:

@@ -34,6 +34,28 @@ Before writing a single requirement, scan the project to build context:
 
 Execute the Project Context Protocol (PC.1 through PC.3) to establish the technical landscape — programming languages, frameworks, project profile, existing APIs, data stores. This ensures requirements are grounded in the real project environment rather than written in a vacuum. The detected project profile (PC.3) determines which non-functional requirement categories are most relevant (e.g., database-backed projects need data integrity NFRs; CLI tools need usability NFRs).
 
+### Step 1.5: Doc-First Discipline (Mandatory)
+
+Before locating the upstream PRD or writing any requirements, the doc-first discipline applies. Read the existing documentation, identify what already covers the topic, and decide for each requirement whether to **REUSE** (reference existing), **EXTEND** (edit existing in place), or **NEW** (genuinely missing). The default for any requirement that has coverage in an existing SRS is to extend in place — never to create parallel `srs-v2.md` files, never to append `## Update` blocks, never to leave deprecated requirements strikethrough'd. Requirement IDs are contracts: once issued, they should not be silently re-purposed.
+
+The full discipline, the four rules, the pre-generation checklist, and the anti-patterns to avoid:
+
+@../shared/doc-first.md
+
+**You MUST run the pre-generation checklist (the five questions) from doc-first.md before proceeding to Step 2.** If existing docs already cover any of the requirements this SRS will discuss, you must:
+
+1. List the existing files and requirement IDs that overlap (with `file:line` references)
+2. Decide REUSE / EXTEND / NEW for each requirement
+3. Bias toward EXTEND — opening the existing SRS and modifying it — over NEW
+4. **Preserve existing requirement IDs.** Once a requirement ID has been issued, it must not be silently renumbered. If a requirement is split, the original ID is retained for one of the parts and the new parts get new IDs. If a requirement is removed, its ID is retired (not reused).
+5. Surface any downstream documents (tech-design, test-cases, feature specs) this generation will affect, so the user knows the propagation cost
+
+If the project shows signs of doc drift (multiple `srs-*.md` files, obvious duplication, requirement ID collisions), warn the user before proceeding and recommend they run `/spec-forge:analyze` or `/spec-forge:propagate` first.
+
+If a usable existing SRS already covers most of what the user is asking for, the right action is **edit it in place**, not generate a new file.
+
+---
+
 ### Step 2: Find the Upstream PRD
 
 The most critical input to any SRS is the Product Requirements Document. The skill automatically searches for a matching PRD file (following the `docs/<feature-name>/prd.md` naming convention) and reads it thoroughly when found. The PRD provides the product vision, user stories, feature definitions, success metrics, and scope boundaries that the SRS must formalize into precise, testable requirements. If no PRD is found, the skill proceeds but flags that traceability to product-level requirements will be limited.

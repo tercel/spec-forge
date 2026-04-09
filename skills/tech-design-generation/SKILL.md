@@ -51,6 +51,29 @@ Additionally:
 
 This scanning ensures the generated design document is grounded in the real architecture. The detected project profile and architecture pattern inform which design sections need the most depth (e.g., a microservices project needs API contract design; a monolith needs module boundary design).
 
+### Step 1.5 -- Doc-First Discipline (Mandatory)
+
+Before locating upstream documents or writing any design content, the doc-first discipline applies. Read the existing documentation, identify what already covers the architecture, components, decisions, or interfaces, and decide for each section whether to **REUSE** (reference existing), **EXTEND** (edit existing in place), or **NEW** (genuinely missing). The default for any topic that already has coverage in an existing tech-design or ADR is to extend in place — never to create parallel `tech-design-v2.md` files, never to append `## Update` blocks, never to leave superseded ADRs strikethrough'd inside the active doc.
+
+The full discipline, the four rules, the pre-generation checklist, and the anti-patterns to avoid:
+
+@../shared/doc-first.md
+
+**You MUST run the pre-generation checklist (the five questions) from doc-first.md before proceeding to Step 2.** If existing docs already cover any of the topics this tech design will discuss, you must:
+
+1. List the existing files and sections that overlap (with `file:line` references) — this includes ADRs in `docs/adr/` or `docs/decisions/`
+2. Decide REUSE / EXTEND / NEW for each section (architecture, API design, data model, security, deployment)
+3. Bias toward EXTEND — opening the existing tech-design and modifying it — over NEW
+4. **Respect ADR immutability.** ADRs are decision records: an old decision is not deleted when superseded. Instead, the old ADR is marked `Status: Superseded by ADR-NNN` and a new ADR is added that references it. This is the *only* exception to the no-strikethrough rule, because ADRs are explicitly historical artifacts.
+5. Identify which existing component names, interface contracts, and module boundaries must remain stable to preserve compatibility with code and downstream specs
+6. Surface any downstream documents (feature specs, test-cases, README) this generation will affect
+
+If the project shows signs of doc drift (multiple `tech-design-*.md` files, contradictory architecture diagrams in different docs, obvious duplication), warn the user before proceeding and recommend they run `/spec-forge:analyze` or `/spec-forge:propagate` first.
+
+If a usable existing tech-design already covers most of what the user is asking for, the right action is **edit it in place**, not generate a new file.
+
+---
+
 ### Step 2 -- Find Upstream Documents
 
 Search for matching upstream documents that feed into this design. Determine the operating mode:
