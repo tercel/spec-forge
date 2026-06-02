@@ -21,6 +21,10 @@ Use this checklist to validate the Technical Design Document before finalizing. 
 - [ ] Business logic rules are documented: state machine (if applicable), computation formulas with precision, conditional logic
 - [ ] Error handling taxonomy covers all HTTP error categories with retry strategy and user-facing messages
 - [ ] Retry and circuit breaker configuration is defined for every external dependency
+- [ ] §7.6 Core Principles are present, including the rule that anticipated failures map to specific 4xx codes and 500 is reserved exclusively for unanticipated faults
+- [ ] §7.6 Database Constraint → Error Translation table maps every externally-reachable UNIQUE, FOREIGN KEY, CHECK, and NOT NULL constraint from §10 to a specific error code and HTTP status
+- [ ] §7.7 Error Catalog & Traceability table is present and every anticipated failure appears as a row: each SRS alternative/error flow (AF-*), each §7.5 business-rule guard, each §7.3 validation rule, and each §7.6 constraint translation has at least one catalog entry
+- [ ] §9.1 API Overview includes a Possible Error Codes column for every endpoint, and every code listed there has a matching row in §7.7 (no endpoint lists 500 as a contract response)
 - [ ] API specifications are complete with endpoints, methods, request/response schemas, and error codes
 - [ ] Database schema is defined with table structures, column types, and constraints
 - [ ] Security design is addressed covering authentication, authorization, encryption, and audit logging
@@ -46,6 +50,9 @@ Use this checklist to validate the Technical Design Document before finalizing. 
 - [ ] Business logic computation rules include precision, rounding strategy, and worked examples
 - [ ] State machine transitions include guard conditions and side effects, not just from→to
 - [ ] Error taxonomy distinguishes client-retryable vs non-retryable errors clearly
+- [ ] No anticipated failure resolves to a generic 500 — duplicate-create, not-found, permission, state-guard, and constraint violations each return a distinct 4xx code with an actionable message (not "Internal Server Error")
+- [ ] User-facing error messages are actionable and leak no internals — no stack traces, SQL, raw driver exceptions, or PII in any message in §7.6, §7.7, or §9
+- [ ] Every error code is diagnosable: its message identifies the offending field/value or the specific business rule violated, so the caller knows what to fix without reading server logs
 - [ ] All diagrams are clear, properly labeled, and have descriptive titles
 - [ ] API design follows RESTful conventions (or deviation is justified with a stated reason)
 - [ ] Performance targets are specific and measurable (not vague terms like "fast" or "scalable")

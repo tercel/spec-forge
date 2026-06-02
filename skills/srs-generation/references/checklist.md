@@ -21,6 +21,8 @@ Use this checklist to validate the Software Requirements Specification before fi
 - [ ] Requirements describe WHAT the system must do, not HOW it should be implemented -- no implementation details, specific algorithms, or technology choices appear in requirement descriptions unless they are genuine constraints
 - [ ] Boundary conditions are specified for all requirements involving numeric ranges, string lengths, file sizes, date ranges, or collection sizes
 - [ ] Error scenarios and alternative flows are documented for each functional requirement, covering invalid input, timeout, unauthorized access, and system failure cases
+- [ ] Every operation error reports the real, specific cause — each error flow's outcome names what actually failed (which field, which rule, which entity, which state), not a generic "operation failed" or "server error"
+- [ ] Every anticipated failure is a distinct, distinguishable error flow (e.g. invalid input, uniqueness violation, missing reference, invalid state transition, insufficient permission, not-found) so the downstream design can map each cause to its own specific error code rather than a generic 500
 - [ ] §4.3 User Characteristics includes a Consumer Type column (Human / AI Agent) and an Interaction Pattern column for each user class
 - [ ] If upstream PRD marks AI Agent as applicable (§10.1): at least one functional requirement has an AI Agent as primary actor with programmatic flows (API calls, not UI steps)
 - [ ] Agent-facing error responses include structured, machine-parseable fields (error_code, message, field, constraint) — not just human-readable text

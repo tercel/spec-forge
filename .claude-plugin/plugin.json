@@ -1,7 +1,7 @@
 {
   "name": "spec-forge",
-  "description": "Generate professional software specifications — from brainstorming to PRD, SRS, Technical Design, and Test Plan — based on industry standards (Google, Amazon, IEEE).",
-  "version": "0.18.0",
+  "description": "Generate and maintain professional software specifications — from idea validation to PRD, SRS, technical design, feature specs, test cases, review, audit, analysis, and propagation — based on industry standards.",
+  "version": "0.19.0",
   "author": {
     "name": "tercel",
     "url": "https://github.com/tercel",
@@ -13,7 +13,7 @@
     "PRD",
     "SRS",
     "Technical Design",
-    "Test Plan",
+    "Test Cases",
     "brainstorming",
     "specification",
     "documentation",
@@ -21,9 +21,12 @@
     "project decomposition",
     "idea",
     "feature specs",
+    "review",
     "audit",
     "analyze",
+    "propagate",
     "knowledge mapping",
-    "document analysis"
+    "document analysis",
+    "test cases"
   ]
 }

@@ -436,6 +436,29 @@ stateDiagram-v2
 
 Define a comprehensive, consistent error handling approach across all layers.
 
+#### Core Principles
+
+These principles are mandatory and override any convenience shortcut:
+
+1. **Every operation error reports its real, specific cause — never a generic 500.** Any failure the system can anticipate — a precondition violation, a business-rule violation (§7.5), a uniqueness or foreign-key constraint violation (§10), a state-machine guard failure (§7.5), or a validation failure (§7.3) — **must** return a deterministic 4xx with a specific error code and a message that names the actual cause (which field, which rule, which entity, which value). The caller must always learn exactly what went wrong and how to fix it. A `500 INTERNAL_ERROR` is reserved **exclusively for unanticipated faults** (an unhandled exception, a bug, an infrastructure failure). If a failure is described anywhere in this document, it is by definition anticipated, so it must not surface as 500 — and a correct status code with a vague message ("invalid request", "operation failed") is equally unacceptable.
+   - *Example (one of many):* Creating a record whose unique business key already exists is an anticipated failure — it must return `409 CONFLICT` with a code like `RESOURCE_ALREADY_EXISTS` and a message naming the conflicting field and value. The same rule applies to every other anticipated failure, each with its own specific code and cause.
+2. **Translate, do not leak.** Errors raised by lower layers (database driver exceptions, ORM errors, downstream HTTP errors) must be **caught and translated** into the error taxonomy below before reaching the client. A raw `UniqueViolation`, `IntegrityError`, or driver stack trace must never propagate to the response.
+3. **Distinguish anticipated from unanticipated.** Anticipated errors (4xx) are part of the API contract, are logged at WARN/INFO, and must not page on-call. Unanticipated errors (5xx) are logged at ERROR with stack trace and correlation ID, and trigger alerting (§13.3).
+
+#### Database Constraint → Error Translation
+
+Every database constraint defined in §10 must have an explicit translation to an API error. A constraint violation that is not translated here is a latent 500.
+
+| Constraint (from §10) | Trigger | Caught As | Translated To | Error Code | Message |
+|-----------------------|---------|-----------|---------------|------------|---------|
+| [e.g., `uq_users_email`] | [Insert/update with duplicate email] | [`UniqueViolation` / `ER_DUP_ENTRY`] | 409 | `EMAIL_ALREADY_EXISTS` | "An account with this email already exists" |
+| [e.g., `uq_resources_name_owner`] | [Create resource with name already owned by user] | [`UniqueViolation`] | 409 | `RESOURCE_ALREADY_EXISTS` | "A resource named '{name}' already exists" |
+| [e.g., `fk_orders_user_id`] | [Reference a non-existent user] | [`ForeignKeyViolation`] | 422 | `INVALID_REFERENCE` | "Referenced user does not exist" |
+| [e.g., `fk_orders_user_id` (on delete)] | [Delete a user that still has orders] | [`ForeignKeyViolation`] | 409 | `RESOURCE_IN_USE` | "Cannot delete: user has 3 active orders" |
+| [e.g., `ck_quantity_positive`] | [Insert negative quantity] | [`CheckViolation`] | 422 | `INVALID_QUANTITY` | "Quantity must be greater than 0" |
+
+[Add one row for every UNIQUE, FOREIGN KEY, CHECK, and NOT NULL constraint in §10 that is reachable from an external request.]
+
 #### Error Taxonomy
 
 | Error Category | HTTP Status | Error Code Pattern | Retry Strategy | User-Facing Message |
@@ -457,6 +480,24 @@ Define a comprehensive, consistent error handling approach across all layers.
 | [e.g., Payment Gateway] | 3 | [Exponential: 100ms, 500ms, 2s] | [5 failures in 60s → open for 30s] | [5s] | [Queue for retry, notify user of delay] |
 | [e.g., Email Service] | 2 | [Fixed: 1s] | [10 failures in 60s → open for 60s] | [10s] | [Queue for async retry, log failure] |
 | [e.g., Database] | 1 | [None] | [N/A — fail fast] | [5s] | [Return 503, alert ops team] |
+
+### 7.7 Error Catalog & Traceability
+
+This is the single source of truth for every anticipated failure in the feature. Each row links a concrete trigger to the exact response the client receives and the test that verifies it. `code-forge:review` (dimension D8) cross-references implementation against this catalog — an error code that an endpoint can produce but that is absent here is an untracked failure, and any code path returning 500 for a row listed here is a contract violation.
+
+**Completeness rule:** every alternative/error flow in the SRS (`AF-*`), every business rule guard in §7.5, every validation rule in §7.3, and every constraint in §7.6's translation table must appear as at least one row below. There must be **no anticipated failure** that lacks a specific, non-500 entry.
+
+| Error Code | HTTP | Trigger (source: SRS AF / BR / validation / constraint) | Endpoint(s) | User-Facing Message | Retryable | Test Case |
+|------------|------|---------------------------------------------------------|-------------|---------------------|-----------|-----------|
+| `RESOURCE_ALREADY_EXISTS` | 409 | Unique business key collision (constraint `uq_...`, SRS AF-2) | `POST /api/v1/resources` | "A resource named '{name}' already exists" | No | TC-RES-007 |
+| `VALIDATION_ERROR` | 400 | Field fails §7.3 rule (e.g., name length) | `POST,PUT /api/v1/resources` | Field-specific message | No | TC-RES-002 |
+| `INVALID_REFERENCE` | 422 | FK target does not exist (constraint `fk_...`) | `POST /api/v1/resources` | "Referenced {entity} does not exist" | No | TC-RES-011 |
+| `RESOURCE_IN_USE` | 409 | Delete blocked by dependents (FK on delete) | `DELETE /api/v1/resources/{id}` | "Cannot delete: {n} dependents exist" | No | TC-RES-014 |
+| `NOT_FOUND` | 404 | Target id absent (SRS AF-1) | `GET,PUT,DELETE /api/v1/resources/{id}` | "Resource not found" | No | TC-RES-005 |
+| `STATE_TRANSITION_INVALID` | 409 | State guard fails (§7.5 state machine) | `POST /api/v1/resources/{id}/actions` | "Cannot {action}: resource is {state}" | No | TC-RES-019 |
+| `FORBIDDEN` | 403 | Caller lacks permission (§11.2) | All authenticated endpoints | "You don't have permission" | No | TC-RES-009 |
+
+[Add one row per anticipated failure. The `Test Case` column must reference real IDs from the test-cases document once generated; until then, mark `(pending)` — but never leave a known failure out of this table.]
 
 ---
 
@@ -551,14 +592,16 @@ flowchart LR
 
 ### 9.1 API Overview
 
-| Endpoint | Method | Description | Auth Required |
-|----------|--------|-------------|---------------|
-| `/api/v1/resources` | GET | List resources with pagination | Yes |
-| `/api/v1/resources` | POST | Create a new resource | Yes |
-| `/api/v1/resources/{id}` | GET | Get a resource by ID | Yes |
-| `/api/v1/resources/{id}` | PUT | Update a resource | Yes |
-| `/api/v1/resources/{id}` | DELETE | Delete a resource | Yes |
-| `/api/v1/resources/{id}/actions` | POST | Perform an action on a resource | Yes |
+The **Possible Error Codes** column enumerates every anticipated non-2xx response each endpoint can return. Every code listed here must have a matching row in §7.7 Error Catalog. Listing `500` here is prohibited — 500 is an unanticipated fault, not part of an endpoint's contract.
+
+| Endpoint | Method | Description | Auth Required | Possible Error Codes |
+|----------|--------|-------------|---------------|----------------------|
+| `/api/v1/resources` | GET | List resources with pagination | Yes | `VALIDATION_ERROR`, `UNAUTHORIZED` |
+| `/api/v1/resources` | POST | Create a new resource | Yes | `VALIDATION_ERROR`, `UNAUTHORIZED`, `FORBIDDEN`, `RESOURCE_ALREADY_EXISTS`, `INVALID_REFERENCE` |
+| `/api/v1/resources/{id}` | GET | Get a resource by ID | Yes | `UNAUTHORIZED`, `FORBIDDEN`, `NOT_FOUND` |
+| `/api/v1/resources/{id}` | PUT | Update a resource | Yes | `VALIDATION_ERROR`, `UNAUTHORIZED`, `FORBIDDEN`, `NOT_FOUND`, `RESOURCE_ALREADY_EXISTS` |
+| `/api/v1/resources/{id}` | DELETE | Delete a resource | Yes | `UNAUTHORIZED`, `FORBIDDEN`, `NOT_FOUND`, `RESOURCE_IN_USE` |
+| `/api/v1/resources/{id}/actions` | POST | Perform an action on a resource | Yes | `VALIDATION_ERROR`, `UNAUTHORIZED`, `FORBIDDEN`, `NOT_FOUND`, `STATE_TRANSITION_INVALID` |
 
 ### 9.2 Detailed API Specifications
 

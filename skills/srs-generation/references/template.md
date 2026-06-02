@@ -151,6 +151,8 @@ graph TD
   2. [The system shall return error response E — for agents: "return 422 with JSON {error_code, message, field, constraint} enabling programmatic retry decisions"]
   3. [The flow returns to step M]
 
+> **Error-flow rule:** Every operation error must report the **real, specific cause** of the failure. Each error flow specifies a distinct, diagnosable outcome — exactly which condition failed and the response the actor receives, with a message that names the actual cause (which field, which rule, which entity, which state) — never a vague "the operation failed" or a generic server error. Enumerate each *anticipated* failure as its own distinguishable flow. Failure types to cover wherever they apply: invalid input, a uniqueness violation (a record that already exists), a missing referenced entity, an invalid state transition, insufficient permission, resource-not-found, and any business-rule violation specific to this requirement. The goal is that the actor always learns precisely what went wrong and why, so the downstream tech-design can map each cause to a specific error code (never a generic 500).
+
 **Postconditions:**
 - [State of the system after successful completion of the main flow]
 - [Observable side effects, e.g., database record created, notification sent]
