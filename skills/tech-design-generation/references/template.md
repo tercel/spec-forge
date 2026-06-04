@@ -62,13 +62,15 @@
 
 [Define the conditions that must be true for this feature to be considered complete. Each criterion should be testable — a QA engineer must be able to write a test case directly from it. Map each AC to a user scenario from §3.5 above where applicable.]
 
-| AC-ID | Criterion | Scenario | Verification Method |
-|-------|-----------|----------|---------------------|
-| AC-001 | [e.g., User can reset password using a valid reset link within 15 minutes of requesting it] | US-01 | [e.g., Integration test: POST /auth/reset-password with valid token → new password works] |
-| AC-002 | [e.g., Reset link expires after 15 minutes; expired token returns 401] | US-01 | [e.g., Unit test: token TTL = 900s; integration test: expired token rejected] |
-| AC-003 | [e.g., System returns identical response whether email exists or not (prevents user enumeration)] | US-01 | [e.g., Integration test: unknown email returns same 200 response as known email] |
-| AC-004 | [e.g., Paginated user list response schema is identical across all pages — same field names, types, and order; no fields appear or disappear between pages] | US-03 | [e.g., Integration test: compare JSON schema of page 1 vs page N; assert structural equality] |
-| AC-005 | [e.g., Cursor-based pagination is idempotent — re-requesting the same cursor returns the same result set if no underlying data changed] | US-03 | [e.g., Integration test: freeze data, request same cursor twice, assert byte-identical response bodies] |
+> **This table propagates down into every feature spec's Acceptance Criteria and becomes the standard `code-forge:review`'s Acceptance Gate reconciles against when no SRS/test-cases exist.** Tag every AC with a Priority (P0/P1/P2). For every P0 behavior, do NOT stop at the happy path — add its boundary, error, and negative criteria as their own rows. A happy-path-only AC set is rejected by the §3.6 quality check (it is the primary cause of "passes review but is only a demo").
+
+| AC-ID | Priority | Criterion | Scenario | Verification Method |
+|-------|----------|-----------|----------|---------------------|
+| AC-001 | P0 | [happy path — e.g., User can reset password using a valid reset link within 15 minutes of requesting it] | US-01 | [e.g., Integration test: POST /auth/reset-password with valid token → new password works] |
+| AC-002 | P0 | [boundary/error for the SAME behavior — e.g., Reset link expires after 15 minutes; expired token returns 401] | US-01 | [e.g., Unit test: token TTL = 900s; integration test: expired token rejected] |
+| AC-003 | P0 | [negative — e.g., System returns identical response whether email exists or not (prevents user enumeration)] | US-01 | [e.g., Integration test: unknown email returns same 200 response as known email] |
+| AC-004 | P1 | [e.g., Paginated user list response schema is identical across all pages — same field names, types, and order; no fields appear or disappear between pages] | US-03 | [e.g., Integration test: compare JSON schema of page 1 vs page N; assert structural equality] |
+| AC-005 | P1 | [e.g., Cursor-based pagination is idempotent — re-requesting the same cursor returns the same result set if no underlying data changed] | US-03 | [e.g., Integration test: freeze data, request same cursor twice, assert byte-identical response bodies] |
 
 [Add one AC per meaningful user-facing behavior. For complex features, expect 5-15 criteria. Each AC in this table becomes the acceptance criteria entry in the corresponding feature spec.]
 

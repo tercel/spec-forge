@@ -9,7 +9,8 @@ Use this checklist to validate the Technical Design Document before finalizing. 
 - [ ] §3.5 User Scenarios are present with at least 1 concrete persona/goal/steps/success-condition (not generic placeholders), each row includes a Type column (Human or Agent)
 - [ ] If upstream PRD marks AI Agent as applicable (§10.1), at least one Agent scenario is present with programmatic steps and machine-verifiable success conditions
 - [ ] If no upstream PRD exists, a conscious decision about agent consumers is documented (either an Agent scenario is included, or a note explains why agents are not applicable)
-- [ ] §3.6 Acceptance Criteria table has at least 5 testable entries with AC-IDs, criteria, and verification methods
+- [ ] §3.6 Acceptance Criteria table has at least 5 testable entries with AC-IDs, a Priority (P0/P1/P2), criteria, and verification methods
+- [ ] §3.6 is not happy-path-only: every P0 behavior has at least one boundary/error criterion AND one negative criterion (a happy-path-only AC set is rejected — it is the primary cause of demo-not-product)
 - [ ] §3.7 Success Metrics has at least 2 measurable metrics with baselines, targets, and measurement methods
 - [ ] Architecture diagrams are included at the appropriate C4 levels (at minimum Context and Container)
 - [ ] At least two alternative solutions are described and compared
@@ -35,7 +36,7 @@ Use this checklist to validate the Technical Design Document before finalizing. 
 - [ ] Feature specs are generated in `docs/features/` for every component in §8.1 Component Overview
 - [ ] Feature spec overview file (`docs/features/overview.md`) is generated with dependency graph and execution order
 - [ ] Each feature spec contains implementation-level detail (method signatures, logic steps, field mappings), not just section headings
-- [ ] Each feature spec Acceptance Criteria section has at least 1 testable entry (not a placeholder)
+- [ ] Each feature spec Acceptance Criteria table carries Priority, Criterion, Expected Result, and Verification Method per row (not a placeholder), and for every P0 behavior covers happy + boundary/error + negative — so `code-forge:review`'s Acceptance Gate can map each P0/P1 row to exactly one test
 - [ ] Each feature spec File Structure uses real source paths and file extensions, not placeholders
 - [ ] Each feature spec Test Module names the exact test file path and lists specific methods to test
 - [ ] Feature specs have NO numeric IDs, order prefixes, or sequence numbers in titles or filenames — ordering lives only in `overview.md`'s `#` column

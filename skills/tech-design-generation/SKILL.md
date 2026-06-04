@@ -217,9 +217,13 @@ For each component, create a feature spec at `docs/features/{component-name}.md`
 
 [Map back to AC-IDs from tech-design §3.6 where applicable. Add component-specific criteria not covered at the feature level.]
 
-| AC-ID | Criterion | Verification Method |
-|-------|-----------|---------------------|
-| AC-{nnn} | {Specific, testable condition that must be true for this component to be done} | {Unit test / Integration test / Manual — be specific about what to call and what to assert} |
+> **This table is the acceptance standard.** When no SRS or test-cases document exists, `code-forge:review`'s Acceptance Gate reconciles every **P0/P1** row here against a named passing test and hard-blocks merge on any P0 row with no passing test. Therefore every row must be (a) a single mechanically-testable condition with a concrete Expected Result, (b) tagged with a Priority, and (c) the set must cover — for every P0 behavior — not just the happy path but its boundary, error, and negative conditions. A happy-path-only AC set is the #1 cause of "passes review but is only a demo" and is rejected by the Step 6 quality check.
+
+| AC-ID | Priority | Criterion | Expected Result | Verification Method |
+|-------|----------|-----------|-----------------|---------------------|
+| AC-{nnn} | P0 | {Given … When … — a single testable happy-path condition} | {Exact observable outcome: return value / status code / persisted state} | {Unit / Integration / E2E — name what to call and what to assert} |
+| AC-{nnn} | P0 | {boundary or error condition for the SAME behavior — invalid input, limit exceeded, missing precondition} | {Specific rejection / error code / message — never "fails"} | {…} |
+| AC-{nnn} | P1 | {negative — what must NOT happen for this component} | {Behavior that should NOT occur is absent} | {…} |
 
 ## Error Handling
 
