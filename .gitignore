@@ -1,0 +1,7 @@
+# Python bytecode cache (scripts set sys.dont_write_bytecode, but guard anyway)
+__pycache__/
+*.py[cod]
+*$py.class
+
+# OS / editor cruft
+.DS_Store
