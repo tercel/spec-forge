@@ -2,6 +2,8 @@
 
 Use this checklist to validate every generated PRD before delivering it to the user. Each item must pass or be explicitly marked as intentionally skipped with a justification.
 
+**Adapt to the project profile — do not force irrelevant sections.** Items covering profile-dependent ceremony (market sizing, competitive landscape, feasibility GO/NO-GO verdict, Gantt timeline, risk matrix) are not hard-required for every PRD. When a section does not apply to the project profile — e.g., a small internal feature — mark it **N/A** with a one-line reason and the corresponding item passes. The evidence-count targets below (competitors, demand sources, personas) are aspirational, not floors: documenting the real evidence that exists — even a single competitor, source, or persona — passes; fabricating more to hit a number fails. Honestly flagging thin evidence and recommending a validation phase is always an acceptable, first-class outcome, never overridden by a count.
+
 ---
 
 ## 1. Completeness Check
@@ -9,22 +11,22 @@ Use this checklist to validate every generated PRD before delivering it to the u
 - [ ] Document Information section is fully filled in (PRD ID, version, author, reviewers, date, status)
 - [ ] Revision History table has at least one entry for the initial draft
 - [ ] Executive Summary is present and provides a concise overview of the problem, solution, and impact
-- [ ] Market Research section includes market sizing (TAM/SAM/SOM) with cited sources
-- [ ] Competitive Landscape table lists at least 2 competitors with strengths, weaknesses, and differentiation analysis
+- [ ] Market Research section includes market sizing (TAM/SAM/SOM) with cited sources, or is marked N/A with a one-line reason when the project profile does not warrant it (e.g., a small internal feature)
+- [ ] Competitive Landscape documents every real competitor with strengths, weaknesses, and differentiation analysis — two or more where they exist, but a single genuine competitor or the status-quo alternative (doing nothing, a manual workaround) is acceptable when that is the honest picture; no invented competitors to hit a count, and N/A with a reason is acceptable when the profile does not warrant the section
 - [ ] Value Proposition is clearly stated with evidence of real demand (not a pseudo-requirement)
-- [ ] Evidence of Real Demand table includes at least 3 types of validation evidence (user research, surveys, support tickets, analytics, market validation, or revenue estimates)
+- [ ] Evidence of Real Demand documents the validation evidence that actually exists (user research, surveys, support tickets, analytics, market validation, or revenue estimates) — three or more types where available; when evidence is thin, the section honestly flags it and recommends a validation phase (this escape hatch passes the check; fabricating evidence to reach a count fails it)
 - [ ] "What Happens If We Don't Build This?" section explicitly states the cost of inaction with specific numbers
 - [ ] Feasibility Analysis covers all three dimensions: technical, business, and resource feasibility
 - [ ] Feasibility Verdict provides a clear GO / CONDITIONAL GO / NO-GO recommendation
 - [ ] Consumer Types table (§10.1) is present with explicit Yes/No and justification for both Human User and AI Agent
-- [ ] Human Personas are defined with name, role, demographics, needs, and pain points (minimum two personas if Human User is applicable)
+- [ ] Human Personas are defined with name, role, demographics, needs, and pain points — two or more where the evidence supports them, but a single evidence-grounded persona is acceptable rather than an invented second (if Human User is applicable)
 - [ ] If AI Agent is marked "Yes" in §10.1: at least one Agent Persona is defined with Agent Type, Integration Pattern, Context Constraints, Needs, and Failure Modes
 - [ ] If AI Agent is marked "No" in §10.1: the justification explains why agents are not a target consumer (not just left blank)
 - [ ] User Stories are written for every persona (human and agent), each with at least two acceptance criteria
 - [ ] Agent User Stories (if applicable) have machine-verifiable acceptance criteria — not UI-dependent conditions
 - [ ] Functional Requirements table lists all identified requirements with IDs, descriptions, priorities, **Priority Rationale**, and statuses — every row must include a rationale that answers "why this tier and not the one above or below"; rows with a bare P0/P1/P2 and no justification fail this check
 - [ ] Success Metrics are defined with target values, measurement methods, and current baselines
-- [ ] Timeline and Milestones section includes a Gantt chart or equivalent schedule with key dates
+- [ ] Timeline and Milestones section includes a Gantt chart or equivalent schedule with key dates, or is marked N/A with a one-line reason when the project profile does not warrant a formal timeline (e.g., a small internal feature)
 - [ ] Risk Assessment Matrix is present with at least two identified risks and their mitigation strategies
 
 ## 2. Quality Check
@@ -39,7 +41,7 @@ Use this checklist to validate every generated PRD before delivering it to the u
 - [ ] Requirements are testable -- each can be verified with a clear pass/fail condition
 - [ ] User Stories follow the canonical format: "As a [user type], I want [action] so that [benefit]"
 - [ ] Success Metrics have specific numeric targets, not vague qualifiers (no "improve", "increase", or "better" without a number)
-- [ ] Mermaid diagrams are included for user journey, feature architecture, and timeline
+- [ ] Mermaid diagrams are included for user journey, feature architecture, and timeline (the timeline/Gantt diagram may be omitted when the Timeline section is marked N/A for the project profile)
 - [ ] Document does not contain vague or ambiguous language ("good performance", "fast response", "user-friendly", "easy to use", "seamless", "intuitive")
 
 ## 3. Consistency Check

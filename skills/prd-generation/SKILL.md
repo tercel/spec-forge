@@ -32,7 +32,7 @@ Before writing a single line, scan the project to build situational awareness.
 
 @../shared/project-context.md
 
-Execute the Project Context Protocol (PC.1 through PC.3) to determine:
+Execute the Project Context Protocol. Prefer its **PC.0 fast path** — resolve `<sf_scripts>` (see `@../shared/scripts.md`) and run `python3 "<sf_scripts>/sf-scan.py" --root "<project_root>"`, which returns the `frameworks` and `signals` (languages, DB/auth signals, test command) plus the existing-doc inventory as `documents` and `document_index` (prior PRDs, technical designs, or ADRs with their declared IDs) in one pass. Fall back to the manual PC.1–PC.3 scan only if `python3` is unavailable or the script is not found. Use the scan output as the starting inventory, then apply the judgement the script does not:
 1. **Project structure and existing documentation** (PC.1)
 2. **Tech stack and framework** (PC.2)
 3. **Project profile** (PC.3) — Web API, CLI Tool, Frontend, etc.
@@ -65,9 +65,9 @@ If a usable existing PRD already covers most of what the user is asking for, the
 
 ---
 
-### Step 2 -- Clarify Questions
+### Step 2 -- Clarify Only What You Cannot Infer
 
-After scanning, present the user with targeted clarifying questions. Good questions surface missing context that cannot be inferred from the codebase. Typical areas to probe include:
+First infer every answer you can from the scanned project context, any existing docs, and the user's request — and state those inferences as explicit assumptions the user can correct. Then ask the user **only** the questions whose answers materially change the PRD and cannot be inferred. The areas that genuinely tend to need the user:
 
 - The target user segment and their primary pain points.
 - Business objectives and how success will be measured.
@@ -75,11 +75,11 @@ After scanning, present the user with targeted clarifying questions. Good questi
 - Stakeholders who must review or approve the PRD.
 - Dependencies on other teams, services, or third-party systems.
 
-Do not proceed to structuring until the user has answered enough questions to fill the core sections of the template.
+Do not march through a fixed questionnaire or re-ask anything the scan or existing docs already answer; a strong scan often makes most questions unnecessary. Proceed to structuring once you have enough — from inference plus targeted answers — to fill the core sections; capture any remaining unknowns as open questions rather than blocking on them.
 
 ### Step 3 -- Structure Design
 
-Using the answers from Step 2 and the context from Step 1, decide which sections of the template are relevant and how deep each section needs to be. Not every PRD requires every section at maximum depth. A small feature enhancement may need a lighter treatment than a net-new product launch. Map the user's input to the template sections defined in `references/template.md` and plan the Mermaid diagrams that will be included.
+Using the answers from Step 2 and the context from Step 1, decide which sections of the template are relevant and how deep each section needs to be. **No forcing irrelevant sections — adapt to the actual project profile.** Not every PRD requires every section at maximum depth: a small internal feature does not need TAM/SAM/SOM market sizing, a full competitive landscape, a GO/NO-GO feasibility verdict, or a Gantt timeline the way a net-new product launch does. Sections that do not apply to the project profile should be omitted or explicitly marked **N/A** with a one-line reason, rather than filled with placeholder ceremony. Do not delete template sections wholesale — mark the inapplicable ones N/A so the structure stays legible. Map the user's input to the template sections defined in `references/template.md` and plan the Mermaid diagrams that will be included.
 
 ### Step 4 -- Content Generation
 
@@ -87,7 +87,13 @@ Write the PRD by filling in each section of the template. Follow the writing gui
 
 ### Step 5 -- Quality Check
 
-Validate the completed PRD against every item in `references/checklist.md`. Fix any issues before presenting the final document to the user. Summarize the checklist results so the user can see what passed and whether any items were intentionally skipped (with justification).
+Run the structural gate with the script, then apply judgement with the checklist:
+
+```bash
+python3 "<sf_scripts>/sf-verify-doc.py" "<prd.md>" --strict
+```
+
+This deterministically confirms the title, expected sections, ID format/uniqueness, and the absence of leftover template placeholders. Fix everything it flags. Then load `references/checklist.md` and evaluate the items the script cannot judge — evidence quality, competitive-analysis honesty, whether each section is applicable to the project profile. The document is only written to disk once the structural gate passes and the judgement items hold. Summarize the checklist results so the user can see what passed and whether any items were intentionally skipped (with justification). (If `python3` is unavailable, run every checklist item by hand.)
 
 ## Key Sections and Writing Guidelines
 
@@ -99,9 +105,9 @@ The PRD template contains twenty sections. The following guidelines apply when w
 
 **Product Overview and Background.** Provide enough context so that a new team member can understand why this initiative exists. Reference prior PRDs or design documents when they exist in the repository.
 
-**Market Research and Analysis.** This section proves that the product addresses a real market opportunity, not an imagined one. Include market sizing (TAM/SAM/SOM) with cited sources — never fabricate market data. Map the competitive landscape with at least two competitors, honestly acknowledging their strengths. Clearly articulate what differentiates this product. Include industry trends that support the initiative's timing. This section should answer: "Is there a real market for this?"
+**Market Research and Analysis.** This section proves that the product addresses a real market opportunity, not an imagined one. Include market sizing (TAM/SAM/SOM) with cited sources — **never fabricate market data**. Map the competitive landscape, honestly acknowledging each competitor's strengths. Aim for at least two competitors, but treat that as a target, not a floor: if only one genuine competitor exists — or the only real alternative is the status quo (doing nothing, a manual workaround, an existing internal tool) — document that single real competitor rather than inventing others to hit a number. Clearly articulate what differentiates this product. Include industry trends that support the initiative's timing. This section should answer: "Is there a real market for this?"
 
-**Value Proposition and Validation.** This is the anti-pseudo-requirement section. State the value proposition in one sentence. Then provide hard evidence of real demand from at least three sources: user interviews, survey data, support ticket patterns, usage analytics, beta test results, or revenue impact estimates. Include a "What happens if we don't build this?" subsection that quantifies the cost of inaction. If sufficient evidence does not exist, the PRD should honestly flag this and recommend a validation phase before committing engineering resources.
+**Value Proposition and Validation.** This is the anti-pseudo-requirement section. State the value proposition in one sentence. Then document the hard evidence of real demand that actually exists — drawing on user interviews, survey data, support ticket patterns, usage analytics, beta test results, or revenue impact estimates. Aim for three or more independent sources, but treat that as a target, not a hard floor: document the real evidence you have rather than inventing more to reach a count — one solid, honestly labelled data point beats three fabricated ones. Include a "What happens if we don't build this?" subsection that quantifies the cost of inaction. When the evidence is thin, the first-class response is to say so: honestly flag the insufficient evidence and recommend a validation phase before committing engineering resources. That path is always acceptable and is never overridden by the source-count target.
 
 **Feasibility Analysis.** Assess technical feasibility (technology readiness, infrastructure, POC status), business feasibility (revenue model, ROI, strategic alignment), and resource feasibility (team availability, skills, budget, timeline). Conclude with a clear GO / CONDITIONAL GO / NO-GO verdict. A well-reasoned NO-GO saves more resources than a poorly justified GO. Do not rubber-stamp everything as GO.
 
@@ -109,7 +115,7 @@ The PRD template contains twenty sections. The following guidelines apply when w
 
 **Goals and Non-Goals.** Goals must be specific, measurable, and time-bound. Non-goals are equally important; they tell the team what is explicitly out of scope so energy is not wasted on tangential work.
 
-**User Personas.** Define at least two personas in table format. Each persona should have a name, role, demographic summary, core needs, and pain points. Personas must be referenced later in user stories.
+**User Personas.** Define the personas the evidence actually supports, in table format. Aim for at least two, but treat that as a target, not a floor: if only one real user type is grounded in the evidence, define that one persona rather than inventing a second to hit a number. Each persona should have a name, role, demographic summary, core needs, and pain points. Personas must be referenced later in user stories.
 
 **User Stories and Acceptance Criteria.** Every user story follows the canonical format: "As a [user type], I want [action] so that [benefit]." Each story must have at least two acceptance criteria written as testable conditions.
 

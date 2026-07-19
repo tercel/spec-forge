@@ -118,7 +118,7 @@ Check if `ideas/` exists in the project root. If not:
 
 Extract idea name from arguments. Convert to kebab-case.
 
-If no name provided, list existing ideas:
+If no name provided, list existing ideas. To gather them, prefer `python3 "<sf_scripts>/sf-scan.py" --root "<project_root>" --docs-only` (resolve `<sf_scripts>` per `@../shared/scripts.md`) — its `documents` include each idea draft with its type and status; fall back to reading each `ideas/*/state.json` by hand if `python3` is unavailable or the script is not found.
 
 ```
 Your Ideas:
@@ -173,23 +173,25 @@ This is the first session for a brand new idea. The goal is to understand the us
 
 #### 2.1 Open-Ended Discovery
 
-Use `AskUserQuestion` with open questions. Ask 2-3 at a time, adapt follow-ups based on answers.
+Use `AskUserQuestion` with open questions. **Ask only what you cannot already infer** from the idea draft (if one exists) or the context the user has given — a single rich answer may satisfy several Draft Validation Checklist dimensions at once. Do NOT march through a fixed sequence; pull from the optional prompt bank below in whatever order fits the conversation, asking a few at a time and adapting follow-ups, and stop once you can fill in the draft.
 
-**Round 1 — The Spark:**
+The prompts below are grouped by theme for convenience — they are **optional prompts, not a locked sequence of rounds.** Skip any whose answer you already have.
+
+**The Spark:**
 - What's the idea? Describe it however you like (one sentence or a paragraph)
 - What triggered this idea? (a pain point you experienced, something you saw, a user complaint, data you noticed?)
 
-**Round 2 — The Problem:**
+**The Problem:**
 - What specific problem does this solve? Can you describe a concrete scenario where someone suffers without this?
 - Who suffers from this problem? How often? How severely?
 - What happens if this is NOT built? (Plant this question early — it's the core anti-pseudo-requirement check)
 
-**Round 3 — The Landscape:**
+**The Landscape:**
 - What existing solutions have you seen? (competitors, workarounds, manual processes)
 - What do they get wrong? Why are they insufficient?
 - If good solutions exist, why build another one?
 
-**Round 4 — The Shape:**
+**The Shape:**
 - What would the simplest version look like? (MVP)
 - What are you most uncertain about?
 
@@ -462,9 +464,9 @@ Possible answers and their implications:
 - "We miss a business opportunity" → **Opportunity cost** — quantify it. How big is the opportunity?
 
 ##### Check 3: Target User Reality
-> "Can you name 3-5 specific people (or specific types of people) who would use this in the first week?"
+> "Who concretely would use this in the first week — can you name 3-5 specific people or types, or point to a stronger demand signal in their place?"
 
-If the user cannot name concrete early adopters, the target user definition is too vague.
+The goal is evidence quality, not hitting a headcount. Naming 3-5 concrete early adopters is one way to pass; a single strong demand signal (a paying-customer waitlist, a pile of support tickets, a signed LOI) can pass on its own even when naming individuals is awkward. If neither concrete adopters nor a strong signal exists, the target user definition is too vague.
 
 ##### Check 4: Differentiation Test
 > "If a user is already using {competitor/workaround}, why would they switch to this?"
@@ -492,7 +494,7 @@ Validation Summary:
   Overall: [VALIDATED / NEEDS WORK / NOT VALIDATED]
 ```
 
-**VALIDATED**: All checks pass with at least Moderate strength → idea can proceed to `ready`
+**VALIDATED**: Weighing the five checks as dimensions to reason about — not a rigid all-must-hit-Moderate tally — the evidence quality is strong enough to proceed. A single dimension backed by a strong demand signal can carry a softer answer elsewhere, but no amount of enthusiasm substitutes for problem evidence → idea can proceed to `ready`
 
 **NEEDS WORK**: Some checks are Weak → specific guidance on what to research or rethink next
 

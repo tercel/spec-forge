@@ -9,11 +9,11 @@ Use this checklist to validate the Technical Design Document before finalizing. 
 - [ ] §3.5 User Scenarios are present with at least 1 concrete persona/goal/steps/success-condition (not generic placeholders), each row includes a Type column (Human or Agent)
 - [ ] If upstream PRD marks AI Agent as applicable (§10.1), at least one Agent scenario is present with programmatic steps and machine-verifiable success conditions
 - [ ] If no upstream PRD exists, a conscious decision about agent consumers is documented (either an Agent scenario is included, or a note explains why agents are not applicable)
-- [ ] §3.6 Acceptance Criteria table has at least 5 testable entries with AC-IDs, a Priority (P0/P1/P2), criteria, and verification methods
+- [ ] §3.6 Acceptance Criteria table has enough testable entries to cover the feature's real scenarios (not a fixed floor) — each with an AC-ID, a Priority (P0/P1/P2), criteria, and verification methods
 - [ ] §3.6 is not happy-path-only: every P0 behavior has at least one boundary/error criterion AND one negative criterion (a happy-path-only AC set is rejected — it is the primary cause of demo-not-product)
-- [ ] §3.7 Success Metrics has at least 2 measurable metrics with baselines, targets, and measurement methods
+- [ ] §3.7 Success Metrics has enough measurable metrics to cover the feature's real outcomes (not a fixed floor), each with baselines, targets, and measurement methods
 - [ ] Architecture diagrams are included at the appropriate C4 levels (at minimum Context and Container)
-- [ ] At least two alternative solutions are described and compared
+- [ ] Where a genuine design decision exists, alternative solutions are described and compared; where there is only one reasonable approach, an explicit "no meaningful alternative — rationale: …" is stated (no forced straw-man alternative)
 - [ ] Technology stack table is complete with language, framework, runtime versions, and rationale for each choice
 - [ ] Naming conventions are defined for code (files, classes, functions, variables), API (URLs, params, fields), and database (tables, columns, indexes)
 - [ ] Parameter validation rules matrix covers every external input with type, min/max, pattern, default, and error messages

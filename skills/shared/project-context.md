@@ -6,6 +6,34 @@
 
 ---
 
+#### PC.0 Fast Path (preferred): run the scan script
+
+The mechanical half of this protocol — globbing the tree, reading build files,
+matching framework signatures, finding the test command, enumerating existing
+docs, and pulling requirement IDs out of them — is done in one pass by the
+script layer (`skills/shared/scripts.md`). Resolve `<sf_scripts>` and run:
+
+```bash
+python3 "<sf_scripts>/sf-scan.py" --root "<project_root>"
+```
+
+Parse the JSON and use it directly:
+- `primary_language`, `languages`, `frameworks`, `signals` (database/auth/
+  external_api), `test.framework`, `test.command`, `source_tree` → PC.2 / PC.5.
+- `documents` + `document_index` (existing prd/srs/tech-design/feature/idea
+  docs, with idea `status` and each doc's `declared_ids`) → PC.1 upstream
+  detection and the doc-first enumeration.
+
+Then apply **judgement** the script deliberately does not: label the project
+**profile** (PC.3) and recognise the **architecture pattern** (PC.4) from the
+facts. The script is a facts collector, not an analyst — verify anything you
+rely on.
+
+**Fallback:** if `python3` is unavailable or the script is not found, perform
+the equivalent scan by hand using PC.1–PC.5 below. Switch silently.
+
+---
+
 #### PC.1 Project Discovery
 
 Scan the project to build basic awareness:
@@ -24,7 +52,10 @@ Scan: package.json, pyproject.toml, Cargo.toml, go.mod, build.gradle, pom.xml,
       requirements.txt, composer.json, Gemfile, mix.exs
 ```
 
-Extract:
+Extract (the framework/tool names below are **illustrative, not an exhaustive
+list** — `sf-scan.py` emits the raw dependency names; identify the framework
+from those dependencies and the code's idioms even when it is unlisted or newer
+than this file):
 - **Primary language** and version
 - **Project framework** (Express, FastAPI, Spring Boot, Gin, Actix-web, React, Vue, Click, Cobra, etc.)
 - **Database** (PostgreSQL, MySQL, MongoDB, SQLite, Redis, etc.) — from ORM/driver dependencies

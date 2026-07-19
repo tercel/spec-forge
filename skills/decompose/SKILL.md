@@ -8,7 +8,8 @@ description: >
 instructions: >
   Follow the workflow below exactly. This skill is typically invoked inside a sub-agent
   by the spec-forge chain orchestrator (Step D.1) or via /spec-forge:decompose.
-  Keep the interview lightweight (3-5 rounds). Do NOT perform demand validation (that is
+  Keep the interview lightweight — ask only what you cannot already infer from the scan and
+  the user's description, not a fixed number of rounds. Do NOT perform demand validation (that is
   /idea's job) or deep research (that is /prd's job). Focus only on scope boundaries and
   dependencies.
 ---
@@ -19,7 +20,7 @@ Analyze project scope and determine whether to treat it as a single feature or s
 
 ## Core Principles
 
-1. **Lightweight**: 3-5 rounds of questions, not a deep investigation
+1. **Lightweight**: a brief interview, not a deep investigation — ask only what you cannot already infer
 2. **Boundary-focused**: Only care about scope boundaries and dependencies
 3. **No demand validation**: That is /idea's responsibility
 4. **No deep research**: That is /prd's responsibility
@@ -33,17 +34,17 @@ Scan the project to understand what exists:
 
 @../shared/project-context.md
 
-Execute PC.1 (Project Discovery) and PC.3 (Project Profile):
+Execute PC.1 (Project Discovery) and PC.3 (Project Profile). Prefer the fast path — resolve `<sf_scripts>` (see `@../shared/scripts.md`) and run `python3 "<sf_scripts>/sf-scan.py" --root "<project_root>"`, which returns the project structure, languages, frameworks, DB/auth signals, and the existing-doc inventory in one pass. Fall back to the manual PC.1/PC.3 scan only if `python3` is unavailable or the script is not found — switch to the fallback silently.
 
-1. Project structure, README, existing docs (PC.1)
-2. Project profile — Web API, CLI, Frontend, etc. (PC.3)
+1. Project structure, README, existing docs (PC.1) — read from the scan's document inventory and source-tree fields
+2. Project profile — Web API, CLI, Frontend, etc. (PC.3) — the scan gives the raw signals; you label the profile
 3. Check if `ideas/{feature-name}/draft.md` exists — if found, read it for context on scope
 
 The project profile informs the decomposition: a monorepo with multiple apps has different split criteria than a single-purpose API. Summarize what you learned in 2-3 sentences. Do not present this to the user — it is internal context for the interview.
 
 ### Step 2: Scope Interview
 
-Use AskUserQuestion to understand project boundaries. Ask 3-5 rounds of questions, adapting based on answers.
+Use AskUserQuestion to understand project boundaries. Ask only what you cannot already infer from the scan and the user's description, adapting based on answers — there is no fixed number of rounds.
 
 **Round 1 — The Shape:**
 - What are the main functional areas or modules of this project? (e.g., "auth, payments, notifications" or "it's a single API endpoint")
@@ -71,7 +72,7 @@ Based on the interview, determine: **single** or **multi-split**.
 | Multiple distinct systems (backend + frontend + pipeline) | Multi-split |
 | Repeated "and also..." in scope description | Multi-split |
 | No single clear purpose — hard to name in one phrase | Multi-split |
-| Would produce 10+ PRD requirement groups | Multi-split |
+| Materially more scope than one Tech Design + Feature Specs can cohesively cover | Multi-split |
 | Single cohesive system with tightly coupled components | Single |
 | Fully specifiable in a few paragraphs | Single |
 | No architectural decisions needed at the boundary level | Single |
@@ -83,13 +84,13 @@ Based on the interview, determine: **single** or **multi-split**.
 - Clear interfaces — well-defined inputs and outputs
 - Each split is substantial enough for its own Tech Design + Feature Specs
 
-**Rationale requirement:** After reaching a verdict, you MUST produce a formal Split Rationale block (see Step 4a / 4b). Do not present the verdict without justification. The rationale must name which heuristics fired with project-specific evidence, and explicitly state why the alternative verdict was rejected.
+**Rationale requirement:** After reaching a verdict, give a **one-to-two-sentence justification that names the deciding factor** (the coupling, scope, or boundary that settled it) — do not present the verdict without justification. Expand to the full ✓/✗ Split Rationale block (see Step 4a / 4b) **only when the verdict is genuinely close, or when the user pushes back** and wants to see the reasoning; for a clear-cut call the short justification is enough.
 
 ### Step 4a: Single Feature Verdict
 
 If the project is a single feature:
 
-1. Produce the Split Rationale block (required before informing the user):
+1. State the verdict with a one-to-two-sentence justification naming the deciding factor, e.g. "Single feature — the components are tightly coupled around one data model and the whole thing is specifiable in a few paragraphs, so splitting would be premature." **Only if the verdict was close, or the user pushes back**, expand to the full Split Rationale block:
 
 ```
 Split Rationale:
@@ -115,7 +116,7 @@ Split Rationale:
 
 If the project should be split:
 
-1. Produce the Split Rationale block (required before presenting the breakdown):
+1. State the verdict with a one-to-two-sentence justification naming the deciding factor (what makes the project too broad to treat as one feature — e.g. "the auth subsystem and payment pipeline share no code paths and deploy independently"). **Only if the verdict was close, or the user pushes back**, expand to the full Split Rationale block:
 
 ```
 Split Rationale:

@@ -53,6 +53,14 @@ Use `AskUserQuestion` to ask:
 
 Scan the documentation landscape and build a complete inventory.
 
+**Fast path (preferred):** resolve `<sf_scripts>` (see `@../shared/scripts.md`) and run
+
+```bash
+python3 "<sf_scripts>/sf-scan.py" --root "<project_root>" --docs-only
+```
+
+Use its `documents` / `document_index` fields as the starting enumeration — the discovered markdown files plus the requirement IDs each declares — so you do not have to glob and count by hand. The script enumerates; **you still judge each document's TYPE** (the categories below) and its quality. **Fallback:** if `python3` is unavailable or the script is not found, glob and enumerate by hand as described below.
+
 1. **Glob for all markdown files** in the docs directory (and README at root)
 2. **Categorize each document** by type:
    - `api` — API reference documentation
@@ -64,7 +72,7 @@ Scan the documentation landscape and build a complete inventory.
    - `reference` — Data models, type mappings, glossaries
    - `meta` — READMEs, indexes, navigation docs
    - `other` — Doesn't fit above categories
-3. **Read each document** (or at least the first 200 lines for very large files) to understand its content and structure
+3. **Read each document** — read enough of each to extract its metadata and claims; for very large files read strategically (headings + relevant sections) rather than a fixed prefix. (The sf-scan enumeration above already supplies the file list and declared IDs, so a fixed first-200-lines metadata pass is unnecessary.)
 4. **Record metadata** for each document:
    - File path
    - Category
@@ -145,6 +153,14 @@ Check documents against each other for contradictions and coherence:
 
 ### Step 5: Quality Assessment
 
+**Fast path (preferred) for the structural half of Completeness:** resolve `<sf_scripts>` (see `@../shared/scripts.md`) and run, per document,
+
+```bash
+python3 "<sf_scripts>/sf-verify-doc.py" "<file>" --type unknown
+```
+
+Audit runs on arbitrary external doc collections, not spec-forge's own doc types, so pass `--type unknown` to run only the type-agnostic checks — non-empty + titled, well-formed/unique IDs, and no leftover template placeholders — instead of expecting spec-forge sections. Use its findings for the deterministic part of the Completeness dimension below (TBD/TODO markers, placeholder text, empty sections). Whether a doc is *missing sections* for its own purpose stays a model judgement. **Fallback:** if `python3` is unavailable or the script is not found, check these by hand.
+
 Evaluate each document (or document category) on quality dimensions:
 
 | Dimension | What to Check |
@@ -185,7 +201,9 @@ Write the findings report to `{project-docs-path}/audit-report.md` (or a user-sp
 | Minor    |   {n} | {which areas} |
 | Info     |   {n} | {which areas} |
 
-## Document Health Matrix
+## Document Health Matrix (optional)
+
+Grade a document only where the letter grade drives a priority action; otherwise summarize its health in prose. The A–D boundaries are undefined, so do not force a grade onto every document just to fill the table — a clear sentence beats pseudo-precision. Include only the rows worth grading.
 
 | Document | Completeness | Accuracy | Clarity | Currency | Overall |
 |----------|-------------|----------|---------|----------|---------|

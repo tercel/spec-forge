@@ -32,7 +32,7 @@ Before writing a single requirement, scan the project to build context:
 
 @../shared/project-context.md
 
-Execute the Project Context Protocol (PC.1 through PC.3) to establish the technical landscape — programming languages, frameworks, project profile, existing APIs, data stores. This ensures requirements are grounded in the real project environment rather than written in a vacuum. The detected project profile (PC.3) determines which non-functional requirement categories are most relevant (e.g., database-backed projects need data integrity NFRs; CLI tools need usability NFRs).
+Execute the Project Context Protocol. Prefer its **PC.0 fast path** — resolve `<sf_scripts>` (see `@../shared/scripts.md`) and run `python3 "<sf_scripts>/sf-scan.py" --root "<project_root>"`, which returns the languages, frameworks, DB/auth signals, test command, and the existing-doc inventory (including any upstream `prd.md` with its declared IDs) in one pass. Fall back to the manual PC.1–PC.3 scan only if the script is unavailable. Then apply judgement the script does not: label the project profile (PC.3) and pick which non-functional requirement categories are most relevant (e.g., database-backed projects need data integrity NFRs; CLI tools need usability NFRs).
 
 ### Step 1.5: Doc-First Discipline (Mandatory)
 
@@ -58,11 +58,11 @@ If a usable existing SRS already covers most of what the user is asking for, the
 
 ### Step 2: Find the Upstream PRD
 
-The most critical input to any SRS is the Product Requirements Document. The skill automatically searches for a matching PRD file (following the `docs/<feature-name>/prd.md` naming convention) and reads it thoroughly when found. The PRD provides the product vision, user stories, feature definitions, success metrics, and scope boundaries that the SRS must formalize into precise, testable requirements. If no PRD is found, the skill proceeds but flags that traceability to product-level requirements will be limited.
+The most critical input to any SRS is the Product Requirements Document. The `sf-scan.py` inventory from Step 1 already reports any `docs/<feature-name>/prd.md` (under `document_index.prd`) and the requirement IDs it declares; read that PRD thoroughly. The PRD provides the product vision, user stories, feature definitions, success metrics, and scope boundaries that the SRS must formalize into precise, testable requirements. If no PRD is found, proceed but flag that traceability to product-level requirements will be limited.
 
-### Step 3: Clarify Questions
+### Step 3: Clarify Only What You Cannot Infer
 
-The skill asks the user targeted clarification questions covering functional scope, performance targets, security needs, data requirements, integration points, availability and reliability expectations, compatibility constraints, and regulatory or compliance obligations. These questions fill gaps that the PRD may not address at the level of detail an SRS demands -- for example, specific response-time thresholds, concurrent-user targets, or data-retention policies.
+First infer every answer you can from the PRD, the scanned project context, and any existing SRS — and state those inferences as explicit assumptions the user can correct. Then ask the user **only** the questions whose answers materially change the requirements and cannot be inferred: typically specific NFR thresholds (response-time targets, concurrent-user capacity, data-retention policies), regulatory obligations, and integration contracts. Do not march through a fixed questionnaire or re-ask anything the upstream docs already answer; a strong scan often makes most questions unnecessary.
 
 ### Step 4: Generate the SRS
 
@@ -70,11 +70,23 @@ Using the template at `references/template.md`, the skill generates the full SRS
 
 ### Step 5: Traceability
 
-If an upstream PRD was found, the skill builds a requirements traceability matrix (RTM) that maps every PRD feature or user story to one or more SRS requirements. This matrix ensures complete coverage -- no PRD item should be left without a corresponding SRS requirement -- and provides downstream documents (Technical Design, Test Plan) with a clear chain of custody for every requirement.
+If an upstream PRD was found, build a requirements traceability matrix (RTM) that maps every PRD feature or user story to one or more SRS requirements, with a coverage status (Fully / Partially / Not Covered). Let the script layer do the coverage math: after the SRS is drafted, run
+
+```bash
+python3 "<sf_scripts>/sf-trace.py" matrix --upstream "<prd.md>" --downstream "<srs.md>"
+```
+
+and use its `uncovered_upstream` (PRD IDs with no SRS requirement — coverage gaps to close) and `orphan_downstream_refs` (SRS references to PRD IDs that do not exist — dangling links to fix). The script computes the coverage; you decide whether each gap is intentional (out of scope) or a real omission. Fall back to building the matrix by hand if the script is unavailable.
 
 ### Step 6: Quality Check
 
-Before finalizing, the skill loads the checklist at `references/checklist.md` and evaluates the generated document against every item. Any failed check triggers revision. The document is only written to disk once all checklist items pass.
+Run the structural gate with the script, then apply judgement with the checklist:
+
+```bash
+python3 "<sf_scripts>/sf-verify-doc.py" "<srs.md>" --strict
+```
+
+This deterministically confirms the title, recommended IEEE 830 sections, ID format/uniqueness (a heading plus its ID table row count as one definition), and the absence of leftover template placeholders. Fix everything it flags. Then load `references/checklist.md` and evaluate the items the script cannot judge — requirement unambiguity, testability, whether each NFR target has a real threshold rationale. The document is only written to disk once the structural gate passes and the judgement items hold. (If `python3` is unavailable, run every checklist item by hand.)
 
 ## Requirement ID Conventions
 
@@ -83,7 +95,7 @@ Every requirement receives a unique identifier that encodes its type and module 
 - **Functional Requirements**: `FR-<MODULE>-<NNN>` where `<MODULE>` is a short uppercase label for the feature module (e.g., AUTH, CART, SEARCH, NOTIFY) and `<NNN>` is a zero-padded sequential number. Examples: FR-AUTH-001, FR-CART-012, FR-SEARCH-003.
 - **Non-Functional Requirements**: `NFR-<CATEGORY>-<NNN>` where `<CATEGORY>` identifies the quality attribute (e.g., PERF, SEC, REL, AVL, MNT, PRT, USB) and `<NNN>` is a zero-padded sequential number. Examples: NFR-PERF-001, NFR-SEC-003, NFR-REL-002.
 
-These IDs are used throughout the document -- in the requirements traceability matrix, in cross-references between related requirements, and in downstream documents such as technical designs and test plans. Consistent ID formatting is essential for automated traceability and search.
+These IDs are used throughout the document -- in the requirements traceability matrix, in cross-references between related requirements, and in downstream documents such as technical designs and test plans. Consistent ID formatting is essential for automated traceability and search. When extending an existing SRS, allocate the next free number deterministically instead of guessing: `python3 "<sf_scripts>/sf-trace.py" next-id --prefix FR --module AUTH --existing "<srs.md>"` returns the next unused `FR-AUTH-NNN` (respecting existing zero-padding), which avoids collisions and reuse.
 
 ## Functional Requirements Writing Standards
 

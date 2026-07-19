@@ -60,8 +60,10 @@ Use `AskUserQuestion` to understand the user's goals:
 
 Scan all documents in the target path(s):
 
-1. **Glob for all markdown files** recursively
-2. **Read every document** (first 300 lines for large files) to understand content
+**Fast path (preferred):** resolve `<sf_scripts>` (see `@../shared/scripts.md`) and run `python3 "<sf_scripts>/sf-scan.py" --root "<root>" --docs-only` to enumerate every markdown document with its path, word count, and any declared requirement IDs in one pass. Use that inventory as the deterministic starting point. **Fallback:** if `python3` is unavailable or the script is not found, glob for all markdown files recursively by hand. Either way, sf-scan is only a facts collector on an arbitrary doc collection — the model still judges each document's TYPE (below), its themes, and its conflicts. Switch to the manual fallback silently.
+
+1. **Enumerate all markdown files** recursively — path, per-file word count, and declared IDs come from the sf-scan inventory above (glob by hand only in the fallback)
+2. **Read enough of each document** to extract its metadata and claims; for large files read strategically (headings + relevant sections) rather than a fixed prefix
 3. **Extract metadata** for each document:
    - File path and directory position
    - Title (first H1 or filename)
@@ -140,12 +142,12 @@ Theme Clusters:
 
 #### 3.3 Cross-Reference Map
 
-Build a document relationship map:
+Build a document relationship map. Pull the deterministic input first: run `python3 "<sf_scripts>/sf-trace.py" ids <file...>` to extract the requirement IDs each document declares, and use those exact IDs as the input to the reference map rather than eyeballed mentions. Then apply judgement:
 - Which docs reference each other?
 - Which docs should reference each other but don't?
 - Are there isolated documents with no connections?
 
-Generate a Mermaid graph showing document relationships.
+Generate a Mermaid graph showing document relationships. (Fall back to reading the declared IDs by hand if the script is unavailable; conflict and theme judgement always stays with the model.)
 
 ### Step 4: Conflict & Contradiction Detection
 

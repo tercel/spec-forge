@@ -23,7 +23,7 @@ A Technical Design Document (TDD) is the engineering blueprint that translates p
 
 The Google Design Doc tradition emphasizes that design documents are not just about documenting a decision after the fact -- they are a tool for thinking through a problem rigorously before committing to code. The RFC (Request for Comments) tradition adds the dimension of structured peer review, ensuring that designs benefit from collective expertise. Uber and Meta engineering standards contribute a focus on scalability, operational readiness, and production-grade thinking from day one.
 
-This skill combines all three traditions. Every generated Technical Design Document presents at least two alternative solutions, evaluates them against explicit criteria, and documents the rationale behind the chosen approach. The document covers architecture, API design, data modeling, security, performance, observability, and deployment -- everything an engineering team needs to move from design to implementation with confidence.
+This skill combines all three traditions. Every generated Technical Design Document evaluates genuine alternative solutions against explicit criteria wherever a real design decision exists, and documents the rationale behind the chosen approach. The document covers architecture, API design, data modeling, security, performance, observability, and deployment -- everything an engineering team needs to move from design to implementation with confidence.
 
 ## Seven-Step Workflow
 
@@ -37,7 +37,7 @@ Before writing anything, perform a thorough scan of the current project to build
 
 @../shared/project-context.md
 
-Execute the full Project Context Protocol (PC.1 through PC.6):
+Execute the full Project Context Protocol. Prefer its **PC.0 fast path** — resolve `<sf_scripts>` (see `@../shared/scripts.md`) and run `python3 "<sf_scripts>/sf-scan.py" --root "<project_root>"`, which returns the languages, frameworks, DB/auth signals, test command, and the existing-doc inventory (including any upstream `prd.md`/`srs.md` with their declared IDs) in one pass — use its `documents`, `document_index`, `frameworks`, `signals`, and `test` fields directly. Fall back to the manual PC.1–PC.6 scan only if `python3` is unavailable:
 
 1. **PC.1 Project Discovery** — project structure, README, existing docs
 2. **PC.2 Tech Stack Detection** — language, framework, database, test framework, CI/CD
@@ -82,16 +82,16 @@ Search for matching upstream documents that feed into this design. Determine the
 - **Idea-first mode**: Idea draft found at `ideas/<feature-name>/draft.md`, no PRD/SRS → §3.5 User Scenarios, §3.6 Acceptance Criteria, and §3.7 Success Metrics are derived from the idea draft's problem statement, MVP scope, and demand validation results. If the idea draft scenarios are vague or generic, ask clarifying questions to make them concrete enough for §3.5.
 - **Standalone mode**: No upstream documents → these sections are populated from user clarification answers
 
-**Upstream mode search:**
-1. **Search for PRD files** matching `docs/*/prd.md` related to the feature being designed. Read all found PRD documents to extract product goals, user stories, and success metrics.
-2. **Search for SRS files** matching `docs/*/srs.md` related to the feature. Read all found SRS documents to extract functional requirements (FR-XXX-NNN), non-functional requirements (NFR-XXX-NNN), data models, and interface definitions.
+**Upstream mode search:** The `sf-scan.py` inventory from Step 1 already reports any upstream `docs/*/prd.md` and `docs/*/srs.md` (under `document_index`) with the requirement IDs each declares — use it instead of re-scanning for these files by hand. Then:
+1. **Read all found PRD documents** to extract product goals, user stories, and success metrics.
+2. **Read all found SRS documents** to extract functional requirements (FR-XXX-NNN), non-functional requirements (NFR-XXX-NNN), data models, and interface definitions.
 3. **Summarize upstream context** including the requirement IDs that this design must address.
 
 If no PRD/SRS found, check for idea draft at `ideas/<feature-name>/draft.md`.
 
-### Step 3 -- Clarify Questions
+### Step 3 -- Clarify Only What You Cannot Infer
 
-Present the user with targeted clarifying questions. These questions fill gaps that cannot be inferred from the codebase or upstream documents. Typical areas include:
+First infer every answer you can from the upstream PRD/SRS, the idea draft, the scanned project context, and any existing tech-design or ADRs — and state those inferences as explicit assumptions the user can correct. Then ask the user **only** the questions whose answers materially change the design and cannot be inferred. Do not march through a fixed questionnaire or re-ask anything the upstream docs or scan already answer; a strong scan often makes most questions unnecessary. Typical areas that genuinely need input when they cannot be inferred:
 
 - Architecture preference and any mandated patterns to follow.
 - Technical constraints or forbidden technology choices.
@@ -103,13 +103,13 @@ Present the user with targeted clarifying questions. These questions fill gaps t
 - Timeline constraints that might affect technical decisions.
 - **Agent consumers**: Are there programmatic consumers for this system (API clients, automation tools, other services integrating programmatically)? If yes, describe their integration patterns (REST API, async events, webhooks, SDK) and key workflows. Agent-facing systems need explicit API contracts, machine-verifiable response schemas, and structured error codes designed for programmatic consumption — not just human-friendly error messages.
 
-Do not proceed to generation until the user has answered enough questions to inform the core design sections.
+Where the idea draft or upstream docs leave a core design section (e.g., §3.5 User Scenarios) vague or generic, ask the one focused question that makes it concrete — generalizing the idea-first rule above. But a section you can populate confidently from the scan and upstream docs needs no question at all; proceed to generation once the material gaps are closed rather than gathering answers you already have.
 
 ### Step 4 -- Generate Design
 
 Using the template at `references/template.md`, generate the complete Technical Design Document. Key requirements for this step:
 
-- Present at least two alternative solutions with a structured comparison matrix.
+- Present genuine alternative solutions with a structured comparison matrix wherever a real design decision exists; where only one approach is viable, state that explicitly ("no meaningful alternative — rationale: …") rather than inventing a straw-man second option.
 - Recommend one solution and provide explicit rationale for the decision.
 - Use Mermaid syntax for all diagrams following the C4 model levels.
 - Design APIs with complete endpoint specifications, request/response schemas, and error codes.
@@ -118,6 +118,8 @@ Using the template at `references/template.md`, generate the complete Technical 
 - Set specific, measurable performance targets with caching and optimization strategies.
 - Plan observability with logging, monitoring, and alerting.
 - Define deployment strategy with environments, CI/CD pipeline, and rollback procedures.
+
+**No forcing irrelevant sections — adapt to the actual project profile.** Populate only the sections this project's profile actually calls for, and omit the ones it does not rather than filling them with placeholder content. A stateless CLI or a pure library has no database design, no circuit-breaker/retry policy for external dependencies, and no blue-green deployment or rollback plan — mark those sections not applicable with a one-line reason instead of manufacturing filler. (This governs what you *fill in*; do not delete sections from the template — it stays complete.)
 
 ### Step 5 -- Traceability
 
@@ -128,11 +130,25 @@ If upstream documents (PRD and SRS) were found:
 - Verify that all FR and NFR items from the SRS are addressed somewhere in the design.
 - Document any requirements that are intentionally deferred with justification.
 
+Let the script layer do the coverage math: after the design is drafted, run
+
+```bash
+python3 "<sf_scripts>/sf-trace.py" matrix --upstream "<srs.md>" --downstream "<tech-design.md>"
+```
+
+and use its `uncovered_upstream` (SRS FR/NFR IDs with no design reference — coverage gaps to close) and `orphan_downstream_refs` (design references to requirement IDs that do not exist — dangling links to fix). The script computes the coverage; you decide whether each uncovered requirement is intentionally deferred or a real omission. Fall back to building the matrix by hand if the script is unavailable.
+
 This traceability ensures no requirements fall through the cracks between specification and design.
 
 ### Step 6 -- Quality Check
 
-Validate the completed tech-design document AND all generated feature specs in `docs/features/` against every item in `references/checklist.md`. Fix any issues before presenting the final document to the user. Summarize the checklist results so the user can see what passed and whether any items were intentionally skipped with justification.
+Run the structural gate with the script, then apply judgement with the checklist:
+
+```bash
+python3 "<sf_scripts>/sf-verify-doc.py" "<tech-design.md>" --strict
+```
+
+This deterministically confirms the title, recommended sections, ID format/uniqueness, and the absence of leftover template placeholders. Fix everything it flags. Then load `references/checklist.md` and evaluate the items the script cannot judge — architecture trade-off soundness, decision rationale, whether each performance target has a real threshold, whether the design actually addresses every requirement. Validate both the completed tech-design document AND all generated feature specs in `docs/features/`. Summarize the checklist results so the user can see what passed and whether any items were intentionally skipped with justification. The document is only written to disk once the structural gate passes and the judgement items hold. (If `python3` is unavailable, run every checklist item by hand.)
 
 ### Step 7 -- Feature Spec Generation
 
@@ -269,7 +285,7 @@ Create or update `docs/features/overview.md`:
 | 1 | [{name}](./{name}.md) | {one-line} | {deps or "—"} | {P0/P1/P2} | draft |
 | 2 | [{name}](./{name}.md) | {one-line} | {deps or "—"} | {P0/P1/P2} | draft |
 
-> The `#` column defines the canonical execution order based on the dependency graph. Features with no dependencies come first. This is the ONLY place where feature ordering is assigned — individual feature specs must NOT contain order numbers or numeric IDs.
+> The `#` column defines the canonical execution order based on the dependency graph. Features with no dependencies come first. This is the ONLY place where feature ordering is assigned.
 
 ## Execution Order
 
@@ -289,7 +305,7 @@ For system-level concerns (solution design, API specifications, security, perfor
 When filling Depends On / Blocks fields and building the execution order in overview.md:
 
 1. Parse component dependencies from the Component Overview table and from component interaction diagrams
-2. Use each component's slug (its filename without `.md`) as the stable cross-reference identifier — do NOT assign numeric IDs, order prefixes, or sequence numbers to feature specs. Execution order is defined exclusively in the `#` column of the Features table in `docs/features/overview.md`.
+2. Use each component's slug (its filename without `.md`) as the stable cross-reference identifier. Execution order is defined exclusively in the `#` column of the Features table in `docs/features/overview.md`.
 3. Cross-reference with SRS requirement IDs from the Traceability Matrix (§18, Appendix D — Requirements Traceability) to fill SRS Refs (leave empty if no upstream SRS exists)
 4. Derive priority from the requirement priorities (P0 requirements → P0 feature)
 
@@ -305,6 +321,16 @@ Each feature spec should contain enough detail that an engineer (or code-forge:p
 - **Error conditions** and what exception/error to raise for each
 
 Do NOT include system-level concerns that belong in the main tech-design (API endpoint specifications, database schema, security design, deployment strategy, performance targets). Feature specs focus on **component internals**.
+
+#### 7.6 Verify Feature ↔ Component ↔ Overview Membership
+
+After the feature specs and `overview.md` are written, let the script cross-check the bookkeeping. **Fast path (preferred):** resolve `<sf_scripts>` and run
+
+```bash
+python3 "<sf_scripts>/sf-trace.py" chain --tech-design "<tech-design.md>" --features-dir "docs/features" --overview "docs/features/overview.md"
+```
+
+Use its output to catch the two most common bookkeeping gaps: feature specs under `docs/features/` that are not mentioned in the tech-design, and §8.1 Component Overview slugs that have no feature file. Reconcile every mismatch it reports — add the missing feature spec, or correct the §8.1 row. **Fallback:** if `python3` is unavailable or the script is not found, cross-check the §8.1 rows against the `docs/features/` files by hand.
 
 ## Architecture Diagram Standards -- C4 Model
 
@@ -386,7 +412,7 @@ Database design sections must include the following elements.
 
 ## Solution Comparison Methodology
 
-Every design document must evaluate at least two alternative solutions. The comparison follows a structured methodology.
+Every design document must evaluate genuine alternative solutions wherever a real design decision exists. Where only one approach is viable, record that explicitly with a short rationale ("no meaningful alternative — rationale: …") instead of manufacturing a straw-man second option. When real alternatives do exist, the comparison follows a structured methodology.
 
 1. **Describe each solution** with enough detail that a reader can understand its architecture, key technology choices, and implementation approach.
 2. **List pros and cons** for each solution, organized by technical merit, operational impact, and business alignment.
@@ -463,14 +489,4 @@ docs/features/{component-name}.md     — one per component
 docs/features/overview.md             — feature index with dependencies and execution order
 ```
 
-Feature specs contain the implementation-level detail (method signatures, logic steps, field mappings) that code-forge:plan consumes directly.
-
-## Automatic Upstream Document Scanning
-
-Before generating any Technical Design Document, the skill automatically searches for upstream PRD and SRS documents to ensure the design is grounded in established requirements.
-
-1. **Search for PRD files** using the pattern `docs/*/prd.md`. Read matching documents to extract product goals, user personas, feature requirements, and success metrics.
-2. **Search for SRS files** using the pattern `docs/*/srs.md`. Read matching documents to extract functional requirements, non-functional requirements, data models, and interface specifications.
-3. **Cross-reference upstream IDs** so that the design document can map components and decisions back to specific PRD and SRS requirement identifiers, maintaining full traceability across the documentation lifecycle.
-
-This scanning phase feeds directly into Steps 2 and 5 of the workflow and ensures every generated design reflects the actual requirements rather than assumptions.
+Feature specs contain the implementation-level detail (method signatures, logic steps, field mappings) that code-forge:plan consumes directly. Upstream PRD/SRS discovery that grounds the design in established requirements is handled once, in Step 2 (via the `sf-scan.py` inventory), and feeds Step 5 traceability.

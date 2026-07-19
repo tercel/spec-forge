@@ -53,11 +53,13 @@ Every test case set is organized across dimensions. The skill provides built-in 
 
 **Coverage Depth** (always applied):
 
-| Level | Name | Description | Minimum per testable unit |
+| Level | Name | Description | Baseline per unit (scale to risk) |
 |-------|------|-------------|--------------------------|
 | L1 | Happy Path | Basic correct behavior with valid inputs | 1 case |
 | L2 | Boundary & Error | Edge cases, invalid inputs, error handling | 2 cases |
 | L3 | Negative | Scenarios that should NOT trigger behavior | 1 case |
+
+The baseline column is what a branching, stateful, or security-relevant unit should get. Depth is **proportional to unit risk/complexity** — trivial units (a pure getter, a straight formatter) may take a justified lighter set, and high-risk units go beyond the baseline. See Step 5 for the scaling rule.
 
 **Test Category** (apply categories relevant to the project):
 
@@ -168,10 +170,12 @@ Extraction must go beyond listing function signatures. For each testable unit, c
 
 #### 2a. Project Scan (all modes)
 
+**Fast path (preferred):** resolve `<sf_scripts>` (see `@../shared/scripts.md`) and run `python3 "<sf_scripts>/sf-scan.py" --root "<project_root>"`. Its JSON gives the tech stack, `frameworks`, DB/auth `signals`, `test.framework`/`test.command`, `source_tree`, and the existing-doc inventory in one pass — use those directly and skip the manual globbing below. Fall back to the manual scan (silently) only when `python3` is unavailable. In every case the deep, unit-level extraction in 2b is yours to do; the script only supplies the surface facts.
+
 1. **Glob the project tree** to discover structure, source modules, and naming conventions.
 2. **Read the README** to understand the project's purpose and architecture.
 3. **Identify the tech stack** by scanning `package.json`, `pyproject.toml`, `Cargo.toml`, `go.mod`, etc.
-4. **Detect project frameworks** (not just test frameworks):
+4. **Detect project frameworks** (not just test frameworks). The names below are **illustrative, not an exhaustive list** — `sf-scan.py` emits the raw dependency names; recognize the framework from those and the code's idioms even when it is unlisted or newer than this file:
    - HTTP frameworks: Express, FastAPI, Spring Boot, Gin, NestJS, Koa, Hono, etc.
    - CLI frameworks: Click, Cobra, Commander, clap, argparse, etc.
    - Frontend frameworks: React, Vue, Svelte, Angular, etc.
@@ -238,8 +242,8 @@ For languages not listed above, apply the same four-layer extraction principle:
 
 After extraction, verify completeness:
 
-1. **File coverage**: Count source files scanned vs. total source files. If < 90% were scanned, investigate why (excluded patterns? binary files? generated code?)
-2. **Unit count sanity check**: Compare number of extracted units against project size. Rough heuristic: a typical source file has 2-8 testable units. If a 50-file project yields only 20 units, something was missed.
+1. **File coverage**: Count source files scanned vs. total source files. If a meaningful fraction went unscanned, investigate why (excluded patterns? binary files? generated code?) — treat this as a sanity signal, not a fixed pass/fail threshold.
+2. **Unit count sanity check**: Compare number of extracted units against project size. As a soft signal, a typical source file has a handful of testable units; if the extracted count is far lower than the source size would suggest, something was likely missed. Use judgement — dense or generated files legitimately break the ratio.
 3. **Module tree completeness** (Rust-specific): Verify every `mod` declaration in `lib.rs` has a corresponding scanned module file. Missing modules = missed API surface.
 4. **Re-export tracking** (Rust/TS): Verify all `pub use` / `export * from` chains were followed to their source.
 
@@ -292,9 +296,9 @@ Present the analysis results and ask the user to confirm:
 2. **Coverage Gaps** — list uncovered units, grouped by module
 3. **Detected Dimensions** — show the dimension matrix
 4. **Scope Question** — "Generate test cases for: (A) all uncovered units, (B) all units (including re-testing covered ones), (C) specific modules only?"
-5. **Business Logic Gaps** — "Are there any business rules, edge cases, or domain-specific behaviors that I can't infer from the code? (e.g., 'orders over $1000 require manager approval')"
+5. **Business Logic Gaps** — surface only the business rules, edge cases, or domain behaviors you genuinely **cannot** infer from the code (e.g., "orders over $1000 require manager approval"); state what you already inferred as assumptions the user can correct.
 
-Wait for user responses before proceeding.
+Ask only the questions whose answers actually change the generated cases and cannot be inferred from the scan — the scope choice usually does; anything the code or upstream specs already answer does not. Proceed on your inferred defaults (stated explicitly) rather than blocking when the answer is already clear.
 
 ### Step 5 — Generate Test Cases
 
@@ -302,10 +306,12 @@ Using the confirmed scope, dimensions, and user context, generate the test case 
 
 #### Generation Rules
 
-**Per testable unit, generate at minimum:**
+**Baseline per testable unit — scale to the unit's risk/complexity (see the Coverage Depth table):**
 - 1 × L1 (Happy Path) case
 - 2 × L2 (Boundary & Error) cases — at least one boundary, one error
 - 1 × L3 (Negative) case — something that should NOT happen
+
+This 1+2+1 baseline is what a branching, stateful, or security-relevant unit should get, and high-risk units go beyond it. A genuinely trivial unit (a pure getter, a straight passthrough) may take a justified lighter set — state the justification. Do not let laziness masquerade as "trivial": anything with a branch, an error path, or external state earns the full baseline.
 
 **For each auto-detected dimension, cross with coverage depth:**
 - If Auth Context dimension has 3 values × L1/L2/L3 = up to 9 cases per unit (prioritize, don't generate all blindly)
@@ -335,14 +341,15 @@ After generating all test cases, construct the coverage matrix:
 3. **Gap Analysis** — flag any cells with zero coverage
 4. **Statistics** — total cases, breakdown by priority, breakdown by category, breakdown by depth
 
-If upstream SRS/Tech Design documents exist, also build a **Requirements Traceability Matrix** mapping requirement IDs to test case IDs.
+If upstream SRS/Tech Design documents exist, also build a **Requirements Traceability Matrix** mapping requirement IDs to test case IDs. Let the script layer compute the coverage: run `python3 "<sf_scripts>/sf-trace.py" matrix --upstream "<srs.md>" --downstream "<test-cases.md>"` and use its `uncovered_upstream` (requirements with no test case — real coverage gaps to close) and `orphan_downstream_refs` (test references to requirement IDs that do not exist). You decide whether each gap is intentional; the script does the counting. Fall back to building the matrix by hand if the script is unavailable.
 
 ### Step 7 — Quality Check and Output
 
-1. Validate against `references/checklist.md`
-2. Fix any issues before finalizing
-3. Write output to `docs/<feature-name>/test-cases.md`
-4. Return: file path, summary, total TC count, coverage statistics
+1. Run the structural gate: `python3 "<sf_scripts>/sf-verify-doc.py" "<test-cases.md>" --strict` — it deterministically confirms the title, sections, TC ID format/uniqueness, and the absence of leftover placeholders. Fix everything it flags. (Run the checklist structural items by hand if `python3` is unavailable.)
+2. Validate the judgement items against `references/checklist.md` (concrete test data, non-vague expected results, risk-appropriate depth) — the parts the script cannot judge
+3. Fix any issues before finalizing
+4. Write output to `docs/<feature-name>/test-cases.md`
+5. Return: file path, summary, total TC count, coverage statistics
 
 ## Test Case Writing Standards
 
@@ -379,9 +386,9 @@ These shortcuts are strictly prohibited:
 
 1. **No placeholders** — use concrete values, not `[valid email]`
 2. **No mocking own dependencies** — test your own DB/file system/cache/queue for real; only mock external services you don't control
-3. **No happy-path-only** — every unit needs L1 + L2 + L3 coverage (minimum 1+2+1 = 4 cases per unit)
+3. **No happy-path-only** — every non-trivial unit gets the full L1 + L2 + L3 baseline (1+2+1); a genuinely trivial unit may take a justified lighter set, but "trivial" must be argued, not assumed (anything with a branch, error path, or external state is not trivial)
 4. **No vague expected results** — specify exact output (return value / status code / exit code / rendered content) AND state changes
-5. **No missing L3 cases** — every testable unit needs at least one "should NOT happen" case
+5. **No missing L3 for units that can misbehave** — every unit with a branch, guard, or "should NOT happen" condition needs at least one L3 negative case; skip L3 only for a unit that genuinely has no negative behavior to guard, and say why
 6. **No blind combination explosion** — prioritize combinations by risk, don't generate all permutations
 7. **No forcing irrelevant sections** — if project has no DB, skip Data Integrity; if no auth, skip auth tests. Adapt to actual project profile
 8. **No omitting coverage matrix** — the matrix is a required output, it proves completeness

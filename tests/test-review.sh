@@ -43,8 +43,8 @@ assert_file_contains "$PROJECT_DIR/skills/review/SKILL.md" "Actionability" \
   "SKILL.md has Actionability check"
 assert_file_contains "$PROJECT_DIR/skills/review/SKILL.md" "Auto-Fix" \
   "SKILL.md has Auto-Fix section"
-assert_file_contains "$PROJECT_DIR/skills/review/SKILL.md" "Maximum iterations" \
-  "SKILL.md defines max iterations"
+assert_file_contains "$PROJECT_DIR/skills/review/SKILL.md" "Convergence" \
+  "SKILL.md defines a convergence-based iteration policy (no fixed max)"
 assert_file_contains "$PROJECT_DIR/skills/review/SKILL.md" "REVIEW" \
   "SKILL.md uses REVIEW comment marker for unknowns"
 

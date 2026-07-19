@@ -73,7 +73,8 @@ Keep context small.
 2. Read only the child `SKILL.md` matching the user's request.
 3. When a child skill references `skills/shared/project-context.md`, read it if the workflow needs code/project awareness.
 4. When a child skill references `skills/shared/doc-first.md`, apply it before generating or editing docs.
-5. Read generation references, templates, or checklists only when that child skill explicitly needs them.
+5. When a child skill invokes the script layer, read `skills/shared/scripts.md` once to resolve `<sf_scripts>`; do not read the scripts' source unless you need to debug them.
+6. Read generation references, templates, or checklists only when that child skill explicitly needs them.
 
 Do not bulk-load every child skill. Do not read every reference folder just because
 the suite is complex.
@@ -106,6 +107,26 @@ project exists. It produces a concise summary of:
 
 For the full chain, scan project context once and reuse the summary across stages
 instead of repeatedly rescanning the same repository.
+
+## Script Layer
+
+spec-forge ships a small layer of deterministic Python 3 (standard-library-only)
+helpers under `skills/shared/scripts/` that absorb the mechanical, token-heavy
+bookkeeping the skills used to do by hand — project + document scanning
+(`sf-scan.py`), configuration/directory resolution (`sf-config.py`), document
+structure/ID validation (`sf-verify-doc.py`), and traceability/coverage math
+(`sf-trace.py`). The division of labour: **the scripts keep the record-keeping;
+the model keeps the reasoning** (requirement quality, architecture trade-offs,
+conflict judgement). Every skill that calls a script keeps a silent manual
+fallback for when `python3` is unavailable.
+
+How to locate and invoke the scripts, and which one does what:
+
+`skills/shared/scripts.md`
+
+Prefer the fast path (run the script, use its JSON) over re-deriving the same
+facts by hand. Never restate a script's algorithm in prose — the script is the
+single source of truth so the two cannot drift.
 
 ## Document Discipline
 

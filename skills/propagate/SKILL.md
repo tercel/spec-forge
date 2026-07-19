@@ -12,13 +12,7 @@ description: >
 
 ## ⚡ Execution Entry Point (READ THIS FIRST)
 
-**When this skill is loaded, you MUST immediately begin executing the Workflow below — do not wait, do not summarize, do not ask "what should I do now". Skills are operational manuals, not reference documents.** Read Step 1 (Determine Source Doc), perform it, then Steps 2, 3, 4, ... in order, until the workflow completes or you reach an `AskUserQuestion` checkpoint.
-
-If the harness shows you `Successfully loaded skill · N tools allowed`, that message means **the SKILL.md content was injected into your context** — it does NOT mean the skill has run. Skills do not "run" autonomously; you run them by executing the Detailed Steps below.
-
-If you find yourself about to say "the skill didn't produce output", "skill 仍未输出", "falling back to manual propagation", "回退到手动 propagate", or anything similar, **STOP**. You have misunderstood how skills work. Go directly to Step 1 and start executing.
-
-The first user-visible action of this skill should be either (a) the output of Step 1 (resolved source doc + change scope), or (b) an `AskUserQuestion` if Step 1 needs disambiguation. Never an apology, never a fallback, never silence.
+**Begin executing Step 1 immediately; never fall back to a manual workflow or stop to ask what to do.**
 
 ---
 
@@ -158,6 +152,8 @@ SEARCH_TERMS:
 
 **Offload to a sub-agent** so the grep output stays out of the main context.
 
+**Deterministic assist:** the ID-shaped SEARCH_TERMs (FR-XXX-NNN, NFR-XXX-NNN, REQ-NNN) can be extracted and located mechanically — `python3 "<sf_scripts>/sf-trace.py" ids <file...>` (resolve `<sf_scripts>` via `@../shared/scripts.md`) pulls the exact IDs each doc declares, and `python3 "<sf_scripts>/sf-scan.py" --root "<root>" --docs-only` gives the doc inventory those terms are located across. Feed those to the sub-agent as the deterministic starting point; the STALE vs STILL_VALID vs AMBIGUOUS judgement (Step 4) stays with the model. Fall back to grep by hand if the scripts are unavailable.
+
 Spawn an `Agent` tool call:
 - `subagent_type`: `"general-purpose"`
 - `description`: `"Discover downstream references"`
@@ -208,7 +204,7 @@ SUMMARY:
 
 ### Step 4: Per-Downstream Impact Analysis (Parallel Sub-agents)
 
-For each entry in `DOWNSTREAM_REPORT.DOC_REFERENCES` (and optionally `CODE_REFERENCES`), spawn a sub-agent to determine **what specific changes the downstream needs**. Use parallel `Agent` tool calls — one per downstream file — but cap at **8 parallel sub-agents at a time** to avoid overwhelming the orchestrator.
+For each entry in `DOWNSTREAM_REPORT.DOC_REFERENCES` (and optionally `CODE_REFERENCES`), spawn a sub-agent to determine **what specific changes the downstream needs**. Fan out per-downstream in parallel — one `Agent` tool call per downstream file — batching to stay within your tool-call budget.
 
 **Each sub-agent receives:**
 - The downstream file path
@@ -326,7 +322,7 @@ For each accepted change from Step 5:
 
 After all changes are applied:
 
-1. **Re-run the discovery (Step 3) on the updated downstreams.** Any concept marked REMOVED or RENAMED in `CONCEPTS_REPORT` that still appears in any downstream file is a propagation gap — display it as `STILL_STALE` and ask the user to address it manually.
+1. **Re-run the discovery (Step 3) on the updated downstreams.** This is a mechanical re-grep, not hand work — re-run the same search (the discovery sub-agent, or `python3 "<sf_scripts>/sf-scan.py"` / `sf-trace.py ids` for ID-shaped terms) and compare before/after hit counts. Any concept marked REMOVED or RENAMED in `CONCEPTS_REPORT` that still appears in any downstream file is a propagation gap — display it as `STILL_STALE` and ask the user to address it manually.
 
 2. **If scope includes `code`:** run the project's test suite (auto-detect from build config). If tests fail, surface the failures. The propagation may have broken something — the user must decide whether to fix forward or revert.
 
@@ -387,8 +383,6 @@ To apply the proposed changes, re-run without --dry-run:
 ## Common Mistakes
 
 - **Skipping Step 2 (concept extraction).** Without an explicit list of changed concepts, the discovery sub-agent has nothing to grep for and the propagation collapses to a manual review.
-- **Running impact analysis sequentially instead of in parallel.** Step 4 fans out per-downstream — running serially is needlessly slow on large projects.
-- **Rewriting downstream files instead of editing surgically.** The downstream file contains content unrelated to the propagation. `Edit` is the only safe tool. Never `Write`.
 - **Touching code in `--scope docs` mode.** When the user specified `docs`, the skill must not modify any code files even if they reference stale concepts. Code-side updates are out of scope.
 - **Treating AMBIGUOUS as HIGH-confidence and silently applying.** When the impact analyzer says LOW / AMBIGUOUS, the user must decide. Auto-applying these defeats the safety of the workflow.
 - **Forgetting Step 7 verification.** After applying, the same grep that found the references should now find zero. If it doesn't, the propagation is incomplete.

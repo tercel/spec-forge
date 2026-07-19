@@ -28,9 +28,18 @@ These rules apply to **every** spec-forge document generation — PRD, SRS, tech
 
 #### Pre-Generation Checklist (run before writing any new spec content)
 
-Before generating or modifying spec content, answer all five questions in order:
+The **enumeration** half of this checklist is mechanical — let the script layer
+do it: `python3 "<sf_scripts>/sf-scan.py" --root "<project_root>" --docs-only`
+returns every existing doc, its type, and the requirement IDs it declares (see
+`skills/shared/scripts.md`). Use that inventory to answer the questions below;
+fall back to `Glob`/`Grep` by hand only if the script is unavailable.
 
-1. **What documents exist?** List every `.md` file in `docs/`, `specs/`, `design/`, `ideas/`, and adjacent locations. Read the relevant ones at section level. If `spec-forge:analyze` was recently run, use its landscape report instead of re-scanning.
+Then answer these questions — but scale the depth to what the scan found. On a
+**greenfield** project whose scan returns no overlapping docs, note "no existing
+coverage" and proceed; do not manufacture ceremony. When the scan **does**
+surface overlapping docs, all five must be answered before you write:
+
+1. **What documents exist?** From the scan inventory (or a `Glob` of `docs/`, `specs/`, `design/`, `ideas/`, and adjacent locations). Read the relevant ones at section level. If `spec-forge:analyze` was recently run, use its landscape report instead of re-scanning.
 2. **What does the project already say about this topic?** Grep for the topic's keywords, related terms, requirement IDs, component names. List every existing mention with file:line.
 3. **Reuse, extend, or new?** For each section/requirement/decision you are about to write, decide:
    - **REUSE** — the existing document already says this correctly. Do not duplicate; reference it.
