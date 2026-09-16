@@ -53,8 +53,8 @@ assert_file_contains "$PROJECT_DIR/commands/spec-forge.md" "review cool-feature"
   "Orchestrator has review in argument table"
 assert_file_contains "$PROJECT_DIR/commands/spec-forge.md" "spec-forge:review" \
   "Orchestrator routes to spec-forge:review skill"
-assert_file_contains "$PROJECT_DIR/commands/spec-forge.md" "Stage 4 — Review" \
-  "Orchestrator has Review as Stage 4 in chain"
+assert_file_contains "$PROJECT_DIR/commands/spec-forge.md" "Stage 6 — Review" \
+  "Orchestrator has Review as the final generation stage in chain"
 
 # ── Headless Tests (require claude CLI) ─────────────────────────────
 

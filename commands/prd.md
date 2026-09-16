@@ -1,6 +1,6 @@
 ---
 allowed-tools: Read, Glob, Grep, Write, AskUserQuestion, Task
-description: "Use when writing a PRD, product spec, or product requirements — follows Google/Amazon/Stripe methodologies"
+description: "Use when writing a PRD or business case — is this worth building, for whom, at what priority (Google/Amazon/Stripe methodologies)"
 argument-hint: <product/feature name>
 ---
 
@@ -78,6 +78,8 @@ Follow every instruction completely. Generate market research with cited sources
 
 CRITICAL: Follow the Anti-Shortcut Rules and anti-pseudo-requirement principle strictly. Do not fabricate market data, skip competitive analysis, rubber-stamp feasibility, use vague language, or skip the "What happens if we don't build this?" analysis.
 
+CRITICAL — stay inside the PRD's scope. This document answers "is this worth building, for whom, and at what priority". It is **not** the delivery contract. Do NOT write field-level input rules, state machines, error codes, permission matrices, or Given/When/Then acceptance criteria — those belong to the SRS, and duplicating them here creates two sources of truth that drift on the first requirement change. Do NOT draw a solution architecture diagram; that is the tech design's job. §12 lists business capabilities, not system behaviors: if a row needs more than two sentences, it belongs in the SRS.
+
 ## Output
 1. Write the document to `docs/{slug}/prd.md`
 2. Return: file path, 3-5 sentence summary of the PRD, feature count by priority (P0/P1/P2)
@@ -88,8 +90,9 @@ CRITICAL: Follow the Anti-Shortcut Rules and anti-pseudo-requirement principle s
 
 After the sub-agent returns, present the result to the user and suggest:
 
-1. **Generate SRS**: Run `/spec-forge:srs` to formalize this PRD into a Software Requirements Specification with traceable functional and non-functional requirements (on-demand, for compliance/audit).
-2. **Generate Tech Design**: Run `/spec-forge:tech-design` to design the technical architecture. This also auto-generates feature specs in `docs/features/` for code-forge consumption.
-3. **Ready to implement?** If the [code-forge](https://github.com/tercel/code-forge) plugin is installed, use `/code-forge:plan @docs/{slug}/prd.md` to break down into implementation tasks and execute them. If not, consider breaking the PRD into development tasks manually.
+1. **Generate the SRS** (required next step): Run `/spec-forge:srs {slug}` to turn this business case into the delivery contract — `FR-*`/`NFR-*` requirements with input field rules, state machines, permission matrix, error catalogue, and machine-verifiable acceptance criteria. Each `PRD-*-NNN` capability decomposes into one or more `FR-*-NNN` requirements.
+2. **Then the tech design**: Run `/spec-forge:tech-design {slug}` once the SRS exists. It also auto-generates feature specs in `docs/features/` for code-forge consumption.
 
-> **Note**: PRD is an on-demand document — it is NOT part of the default spec-forge auto chain (`idea → decompose → tech-design`). Use it when you need stakeholder alignment or formal product documentation.
+> **Do not hand a PRD to implementation.** A PRD states capabilities and priorities, not system behavior — planning from it means the implementer invents the unstated details and nobody can settle afterwards whether the result is correct. It also carries internal go/no-go reasoning that should not ship to an external vendor. Generate the SRS first, then hand off from the tech design: `/code-forge:plan @docs/features/`.
+
+> **Note**: the PRD is a *conditional* stage of the spec-forge chain (`[idea] → [decompose] → [prd] → srs → tech-design → review`). Run it for a new product, or when a go/no-go decision, budget approval, or stakeholder alignment is still outstanding. Skip it when the decision to build is already made — a PRD written after the decision is ceremony, and its market sizing and feasibility verdict are the parts most prone to fabrication when no real evidence backs them.

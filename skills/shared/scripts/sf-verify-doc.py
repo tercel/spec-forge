@@ -40,12 +40,13 @@ import sf_common as sf
 DOC_SCHEMAS = {
     "prd": {
         "id_prefixes": ["PRD"],
-        "recommended": ["Overview", "Problem", "Goal", "User", "Requirement", "Metric"],
+        "recommended": ["Overview", "Problem", "Goal", "User", "Capability Scope", "Metric"],
     },
     "srs": {
         "id_prefixes": ["FR"],
-        "recommended": ["Introduction", "Overall Description", "Functional Requirement",
-                        "Non-Functional", "Traceability"],
+        "recommended": ["Introduction", "Scope Boundaries", "Overall Description",
+                        "Functional Requirement", "State Machine", "Permission Matrix",
+                        "Error Catalogue", "Non-Functional", "Traceability", "Acceptance"],
     },
     "tech-design": {
         "id_prefixes": [],

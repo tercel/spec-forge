@@ -3,11 +3,13 @@ name: spec-forge
 description: >
   Professional specification system for Codex. Use when the user asks to create,
   improve, review, audit, analyze, or propagate product/software documentation,
-  including ideas, PRDs, SRS documents, technical designs, architecture/RFC docs,
-  feature specs, test cases, documentation audits, document landscape analysis,
-  and full idea-to-spec chains. Supports complex multi-skill orchestration:
-  idea -> decompose -> tech-design + feature specs -> review, with optional PRD,
-  SRS, test-cases, audit, analyze, and propagate workflows.
+  including requirements documents to hand to an implementation team or vendor,
+  SRS/functional/non-functional requirements, PRDs and business cases, ideas,
+  technical designs, architecture/RFC docs, feature specs, test cases,
+  documentation audits, document landscape analysis, and full idea-to-spec
+  chains. The chain's spine is a delivery-grade requirements spec followed by a
+  technical design, handed off to code-forge for implementation:
+  [idea] -> [decompose] -> [prd] -> srs -> tech-design -> review.
 version: 1.0
 subcommands:
   - idea
@@ -34,15 +36,24 @@ Use this skill when the user asks for any of the following:
 
 - Start or refine an idea before specs: use `skills/idea/SKILL.md`
 - Split a large project into sub-features: use `skills/decompose/SKILL.md`
-- Write a PRD or product requirements document: use `skills/prd-generation/SKILL.md`
-- Write an SRS, requirements spec, or functional/non-functional requirements: use `skills/srs-generation/SKILL.md`
+- Write a PRD, business case, or product definition — "is this worth building": use `skills/prd-generation/SKILL.md`
+- Write the requirements a team will be held to — a requirements spec, an SRS, functional/non-functional requirements, **a requirements document to hand to an implementation team or vendor**: use `skills/srs-generation/SKILL.md`
 - Write a technical design, architecture doc, design doc, or RFC: use `skills/tech-design-generation/SKILL.md`
 - Generate test cases, QA coverage, or a test case matrix: use `skills/test-cases-generation/SKILL.md`
 - Review spec-forge documents for quality and consistency: use `skills/review/SKILL.md`
 - Audit project docs against code: use `skills/audit/SKILL.md`
 - Analyze a document ecosystem for themes, conflicts, gaps, redundancy, or staleness: use `skills/analyze/SKILL.md`
 - Propagate an upstream doc change downstream: use `skills/propagate/SKILL.md`
-- Run the full chain for a feature: orchestrate `idea -> decompose -> tech-design -> review`
+- Run the full chain for a feature: orchestrate `[idea] -> [decompose] -> [prd] -> srs -> tech-design -> review -> handoff to code-forge`
+
+**Routing the ambiguous "write me a requirements document".** When the user says
+"需求文档", "requirements doc", or "spec" without qualifying it, the deciding
+question is whether the decision to build has already been made. If it has — the
+user knows what they want and needs it specified precisely enough to implement
+against — route to **SRS**. If it has not — the user is making a case, seeking
+approval, or sizing an opportunity — route to **PRD**. When genuinely unclear,
+ask that one question rather than guessing; producing the wrong document wastes
+the entire generation.
 
 Also treat slash-like requests as aliases:
 
@@ -96,7 +107,7 @@ For generation workflows that need grounding in the actual codebase, use:
 
 `skills/shared/project-context.md`
 
-Apply it before PRD, SRS, tech-design, decompose, and test-cases work when the
+Apply it before SRS, PRD, tech-design, decompose, and test-cases work when the
 project exists. It produces a concise summary of:
 
 - Project profile
@@ -144,31 +155,46 @@ Minimum pre-write checklist:
 
 ## Full Chain
 
-When the user asks for `/spec-forge <name>` or "run the full spec-forge chain",
-execute this sequence:
+The chain has one mandatory spine — **a delivery-grade requirements specification, then a technical design** — with everything else conditional on what the project actually needs. When the user asks for `/spec-forge <name>` or "run the full spec-forge chain", execute this sequence:
 
-1. **Idea**: Use `skills/idea/SKILL.md`.
+1. **Idea** *(conditional)*: Use `skills/idea/SKILL.md`.
+   - Run when the demand itself is unvalidated: the user is exploring, the problem is fuzzy, or there is no evidence anyone needs this.
+   - Skip when the user already knows what they want built.
    - Goal: validate demand and produce `ideas/{name}/draft.md`.
-   - If a ready or graduated idea already exists, reuse it.
-   - If the idea is still exploring/refining, warn the user before continuing.
+   - If a ready or graduated idea already exists, reuse it. If the idea is still exploring/refining, warn the user before continuing.
 
-2. **Decompose**: Use `skills/decompose/SKILL.md`.
-   - Goal: decide single feature vs multi-split project.
+2. **Decompose** *(conditional)*: Use `skills/decompose/SKILL.md`.
+   - Run when the scope plausibly covers several independently specifiable sub-features.
+   - Skip for a single coherent feature.
    - Multi-split output: `docs/project-{name}.md` with a first-line `FEATURE_MANIFEST` block.
 
-3. **Tech Design + Feature Specs**: Use `skills/tech-design-generation/SKILL.md`.
+3. **PRD** *(conditional)*: Use `skills/prd-generation/SKILL.md`.
+   - Run for a new product, a new product line, or anything needing a go/no-go decision, budget approval, or stakeholder alignment before commitment.
+   - Skip when the decision to build is already made and the work is a well-understood feature — go straight to the SRS. A PRD written after the decision is ceremony.
+   - Output: `docs/{name}/prd.md` — business case and product definition.
+
+4. **SRS** *(mandatory)*: Use `skills/srs-generation/SKILL.md`.
+   - **This is the spine of the chain.** It is the delivery contract: the document an implementation team — an external vendor, another team, or code-forge — is held to.
+   - Output: `docs/{name}/srs.md` with `FR-*`/`NFR-*` requirements, input field rules, state machines, permission matrix, error catalogue, acceptance criteria, and change control.
+   - If `docs/{name}/prd.md` exists, trace every capability into requirements. If only `ideas/{name}/draft.md` exists, derive scope and requirements from it. If neither exists, work from the user's request and state the assumptions explicitly.
+   - Never skip this stage to reach the tech design faster. A design built on unstated requirements produces code whose correctness nobody can settle.
+
+5. **Tech Design** *(mandatory)*: Use `skills/tech-design-generation/SKILL.md`.
    - Single feature output: `docs/{name}/tech-design.md`.
    - Multi-split output: one tech design per sub-feature.
-   - The tech-design workflow also generates implementation-facing feature specs under `docs/features/`.
-   - If `ideas/{name}/draft.md` exists, use it for user scenarios, acceptance criteria, success metrics, scope, and goals.
+   - Also generates one implementation-facing feature spec under `docs/features/` per component in §8.1, plus `docs/features/overview.md` with the dependency graph and execution order.
+   - Every component must trace to the `FR-*`/`NFR-*` requirements it satisfies, and every requirement must be satisfied by at least one component.
 
-4. **Review**: Use `skills/review/SKILL.md`.
-   - Review generated tech designs and `docs/features/*.md`.
-   - Auto-fix only where the review skill permits it.
-   - Leave review comments where domain knowledge is missing.
+6. **Review** *(mandatory)*: Use `skills/review/SKILL.md`.
+   - Review the SRS, the tech design, and any `docs/features/*.md`.
+   - Auto-fix only where the review skill permits it. Leave review comments where domain knowledge is missing.
 
-PRD, SRS, and test cases are optional on-demand outputs, not required stages in
-the default full chain.
+7. **Handoff**: Report the handoff command rather than running it.
+   - `/code-forge:plan @docs/features/` when feature specs were generated.
+   - `/code-forge:plan @docs/{name}/tech-design.md` for a single-component design.
+   - Implementation and test generation belong to code-forge. spec-forge owns requirements and design; code-forge owns implementation and verification. Tests are derived from the SRS acceptance criteria by `code-forge:tdd` — spec-forge does not produce a separate test document in the chain.
+
+Test cases, audit, analyze, and propagate are on-demand outputs, not stages in the default chain.
 
 ## Single-Skill Routes
 
@@ -187,19 +213,38 @@ Read `skills/decompose/SKILL.md`.
 Use for deciding whether a project is one feature or several independently
 specifiable sub-features. If multi-split, generate `docs/project-{name}.md`.
 
-### PRD
+### PRD — the business case
 
 Read `skills/prd-generation/SKILL.md`.
 
-Use for product requirements, stakeholder alignment, product strategy, market
-context, personas, user stories, priorities, success metrics, and timelines.
+Answers **"is this worth building, for whom, and at what priority"**. Market
+context, competitive landscape, demand validation, feasibility go/no-go,
+personas, user stories, capability scope, success metrics, milestones, risks.
+Read by stakeholders *before* commitment and largely frozen once the decision is
+made. Optional: skip it when the decision to build is already settled.
 
-### SRS
+Deliberately **not** in the PRD: field-level rules, state machines, error codes,
+Given/When/Then acceptance criteria, solution architecture. Those are the SRS's
+and tech design's job. A PRD row that needs more than two sentences is a system
+behavior in the wrong document.
+
+### SRS — the delivery contract
 
 Read `skills/srs-generation/SKILL.md`.
 
-Use for formal functional/non-functional requirements, requirement IDs,
-interfaces, data requirements, acceptance criteria, and traceability matrices.
+Answers **"exactly what must be built, and how do we settle whether it was"**.
+This is the document an implementation team — an external vendor, another team,
+or code-forge — is held to, and the mandatory spine of the chain. Formal
+`FR-*`/`NFR-*` requirements with main/alternative flows, **input field rules**,
+**state machines including illegal-transition handling**, **permission matrix**,
+**error catalogue with degradation behavior**, machine-verifiable acceptance
+criteria, interface and data requirements, traceability, and **acceptance and
+change control**.
+
+Unlike the PRD, it keeps evolving through delivery — which is exactly why the
+two are separate files. A requirement change must not require touching market
+sizing, and internal go/no-go reasoning must not ship to an implementation
+vendor.
 
 ### Tech Design
 
@@ -250,8 +295,8 @@ concepts and updates them surgically or reports unresolved stale references.
 Default locations:
 
 - Ideas: `ideas/{name}/`
-- PRD: `docs/{name}/prd.md`
-- SRS: `docs/{name}/srs.md`
+- PRD (business case, optional): `docs/{name}/prd.md`
+- SRS (delivery contract, mandatory): `docs/{name}/srs.md`
 - Tech design: `docs/{name}/tech-design.md`
 - Feature specs: `docs/features/*.md`
 - Test cases: `docs/{name}/test-cases.md` or the path specified by the child skill
@@ -270,4 +315,5 @@ Before finishing a spec-forge task:
 - Mention the exact files changed or generated.
 - For generation tasks, note whether project context and existing docs were scanned.
 - For review/audit/analyze tasks, summarize findings by severity and cite the report path.
-- For chain tasks, summarize which stages completed and which optional stages remain.
+- For chain tasks, summarize which stages completed, which conditional stages were skipped and why, and state the `/code-forge:plan` handoff command.
+- For a full chain, confirm the SRS exists and passed its structural gate. The SRS is the chain's spine; a chain that reached a tech design without one is incomplete, not merely abbreviated.

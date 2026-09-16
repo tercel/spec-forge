@@ -39,9 +39,9 @@ Once installed, the following commands are available in OpenCode:
 - `/spec-forge:idea <name>` — Interactive brainstorming and demand validation
 - `/spec-forge:decompose <name>` — Decompose project into sub-features
 - `/spec-forge:tech-design <name>` — Generate Tech Design + Feature Specs
-- `/spec-forge <name>` — Run full chain (Idea → Decompose → Tech Design + Feature Specs)
-- `/spec-forge:prd <name>` — Generate PRD (on-demand, for stakeholders)
-- `/spec-forge:srs <name>` — Generate SRS (on-demand, for compliance)
+- `/spec-forge <name>` — Run full chain ([Idea] → [Decompose] → [PRD] → SRS → Tech Design → Review)
+- `/spec-forge:srs <name>` — Generate SRS — the delivery contract handed to implementers (the chain's mandatory spine)
+- `/spec-forge:prd <name>` — Generate PRD — business case, when a go/no-go decision is still open
 - `/spec-forge:test-cases <name>` — Generate Test Plan (on-demand, for QA)
 
 ## Uninstall

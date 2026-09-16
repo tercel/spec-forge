@@ -1,5 +1,35 @@
 # Release Notes
 
+## v0.22.0 — Requirements as the Delivery Contract
+
+**Release Date**: 2026-09-16
+
+The chain previously ran `Idea → Decompose → Tech Design + Feature Specs → Review`, with PRD and SRS as optional side documents. That meant the default path reached a technical design without ever producing a requirements document an implementation team could be held to. This release makes the SRS the mandatory spine and re-cuts the PRD/SRS boundary so the two documents stop overlapping.
+
+### Changes
+
+- **Chain restructured**: `[Idea] → [Decompose] → [PRD] → SRS → Tech Design → Review → handoff to code-forge`. Bracketed stages are conditional; **SRS and Tech Design are mandatory**. Skipping the SRS to reach the design faster produces a design resting on unstated requirements.
+- **SRS is now the delivery contract**, with six sections added that distinguish a contract from a description:
+  - **§3.2 Scope Boundaries** — explicit in-scope/out-of-scope tables plus interpretation precedence. An empty out-of-scope table now fails review.
+  - **Input Field Rules** (per functional requirement) — type, required, exact constraints, default, boundary/rejection behavior naming an error code.
+  - **§5.4 State Machines** — legal transitions *and* illegal-transition handling. A state machine with only the legal paths fails review.
+  - **§5.5 Permission Matrix** — role × operation × data scope, with the 403-vs-404 denial behavior stated as a deliberate security decision.
+  - **§5.6 Error Catalogue** — every anticipated failure as a distinct diagnosable code, plus degradation behavior per dependency.
+  - **§10 Acceptance and Change Control** — acceptance definition, environment, change procedure, change request log, and approval.
+- **NFRs now require a Verification method** (Test / Demonstration / Inspection / Analysis, with environment and conditions). A target with no agreed way to measure it cannot be accepted or disputed.
+- **PRD re-scoped to the business case.** §12 "Functional Requirements Overview" became **§12 Capability Scope** (business capabilities, not system behaviors) with a new §12.1 for deferred capabilities. User stories now carry a one-line Success signal and a `Covered by` FR list instead of duplicated acceptance criteria. §14 Feature Architecture was removed — solution architecture belongs to the tech design. Sections renumbered 1–19.
+- **ID hierarchy clarified**: `PRD-<MOD>-NNN` (business capability) → one-to-many → `FR-<MODULE>-NNN` (system behavior). Two levels of one traceability chain, not competing schemes. Issued IDs are contract references and are never renumbered or reused.
+- **Tech design is SRS-first**: reads `srs.md` as the authoritative requirements source, carries the out-of-scope table through to §3.4, and requires bidirectional coverage — every component names the requirements it satisfies, every requirement is placed or reported.
+- **Review covers the SRS** with a new §3.1a Contract Integrity pass, run first since a defect there propagates downstream. Cross-document checks added for requirement coverage, scope-boundary carry-through, and error-catalogue realization.
+- **Test documents left out of the chain.** Tests are derived from the SRS acceptance criteria by `code-forge:tdd`. spec-forge owns requirements and design; code-forge owns implementation and verification. `/spec-forge:test-cases` remains available on demand.
+- **`sf-verify-doc.py` schema updated** to gate the new SRS sections and the PRD's Capability Scope.
+
+### Migration
+
+Existing `prd.md` and `srs.md` files keep their paths and IDs — nothing needs renaming. Regenerating a PRD moves its functional-requirement detail into §12 Capability Scope granularity and drops §14; regenerating an SRS adds the six contractual sections. Documents generated before this release still validate, but will warn on the newly recommended sections.
+
+---
+
 ## v0.12.2 — Skill Review & Consistency Fixes
 
 **Release Date**: 2026-03-10

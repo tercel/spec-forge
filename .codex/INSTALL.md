@@ -51,9 +51,9 @@ Once installed, the following commands are available in Codex:
 - `/spec-forge:idea <name>` — Interactive brainstorming and demand validation
 - `/spec-forge:decompose <name>` — Decompose project into sub-features
 - `/spec-forge:tech-design <name>` — Generate Tech Design + Feature Specs
-- `/spec-forge <name>` — Run full chain (Idea → Decompose → Tech Design + Feature Specs → Review)
-- `/spec-forge:prd <name>` — Generate PRD (on-demand, for stakeholders)
-- `/spec-forge:srs <name>` — Generate SRS (on-demand, for compliance)
+- `/spec-forge <name>` — Run full chain ([Idea] → [Decompose] → [PRD] → SRS → Tech Design → Review)
+- `/spec-forge:srs <name>` — Generate SRS — the delivery contract handed to implementers (the chain's mandatory spine)
+- `/spec-forge:prd <name>` — Generate PRD — business case, when a go/no-go decision is still open
 - `/spec-forge:test-cases <name>` — Generate test cases with coverage matrix (on-demand, for QA)
 - `/spec-forge:review <name>` — Review generated specs for quality and consistency
 - `/spec-forge:audit [path]` — Audit project docs against code

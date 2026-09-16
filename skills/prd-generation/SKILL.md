@@ -97,7 +97,9 @@ This deterministically confirms the title, expected sections, ID format/uniquene
 
 ## Key Sections and Writing Guidelines
 
-The PRD template contains twenty sections. The following guidelines apply when writing each one.
+The PRD template contains nineteen sections. The following guidelines apply when writing each one.
+
+**Where the PRD stops.** The PRD is the *business case and product definition*: why this is worth building, for whom, what is in scope, at what priority, by when, and how success is measured. It is a decision document read by stakeholders before commitment, and it is largely frozen once the decision is made. It is **not** the delivery contract. The precise system behavior that an implementer is held to — field-level input rules, state machines, permission matrices, error codes, Given/When/Then acceptance criteria, interface contracts — lives in the SRS (`docs/{feature}/srs.md`), which continues to evolve through delivery. Keeping the two separate is what allows a requirement to change without touching market sizing, and what keeps internal go/no-go reasoning out of a document handed to an implementation vendor. When you catch yourself writing a testable condition in the PRD, that content belongs in the SRS.
 
 **Document Information and Revision History.** Fill in all metadata fields. Use the current date. Set the initial version to `0.1` and the status to `Draft`. The revision history table must have at least one entry corresponding to the initial draft.
 
@@ -117,9 +119,9 @@ The PRD template contains twenty sections. The following guidelines apply when w
 
 **User Personas.** Define the personas the evidence actually supports, in table format. Aim for at least two, but treat that as a target, not a floor: if only one real user type is grounded in the evidence, define that one persona rather than inventing a second to hit a number. Each persona should have a name, role, demographic summary, core needs, and pain points. Personas must be referenced later in user stories.
 
-**User Stories and Acceptance Criteria.** Every user story follows the canonical format: "As a [user type], I want [action] so that [benefit]." Each story must have at least two acceptance criteria written as testable conditions.
+**User Stories.** Every user story follows the canonical format: "As a [user type], I want [action] so that [benefit]." Each story carries a one-sentence **Success signal** — the observable outcome that tells us the story is satisfied — and a **Covered by** field listing the `FR-<MODULE>-NNN` requirements that implement it (or `TBD (SRS pending)` when the SRS does not exist yet). Do **not** write Given/When/Then acceptance criteria here; that precision is the SRS's job and duplicating it creates two sources of truth that drift on the first requirement change.
 
-**Functional Requirements Overview.** List requirements in a table. Each row gets a unique ID following the naming convention described below, a short feature name, a description, a priority, a **Priority Rationale**, and a status. The Priority Rationale must answer "why this tier and not the one above or below" — referencing user impact, business consequence, or the presence/absence of an acceptable workaround. Never assign a priority without this justification; undefended priorities are flagged during the quality check.
+**Capability Scope.** List **business capabilities**, not system behaviors. Each row gets a unique ID following the naming convention described below, a capability name, the user-facing outcome, a priority, a **Priority Rationale**, and a status. If a row needs more than two sentences to describe, it is a system behavior and belongs in the SRS. The Priority Rationale must answer "why this tier and not the one above or below" — referencing user impact, business consequence, or the presence/absence of an acceptable workaround. Never assign a priority without this justification; undefended priorities are flagged during the quality check. §12.1 additionally records capabilities that were considered and deferred — distinct from §9.2 Non-Goals, which are things the product will never do.
 
 **Success Metrics.** Every metric must have a target value and a measurement method. Include the current baseline when known. Tie metrics back to the goals defined earlier.
 
@@ -129,13 +131,13 @@ The PRD template contains twenty sections. The following guidelines apply when w
 
 ## Mermaid Diagrams
 
-Mermaid diagrams make the PRD scannable and visually informative. This skill uses three types of diagrams.
+Mermaid diagrams make the PRD scannable and visually informative. This skill uses two types of diagrams.
 
-**User Journey Flowcharts.** Use `graph TD` or `graph LR` to show the step-by-step path a user takes through the feature. Include decision nodes for branching logic and clearly label happy-path versus error-path flows.
+**User Journey Flowcharts.** Use `graph TD` or `graph LR` to show the step-by-step path a user takes through the feature. Include decision nodes for branching logic and clearly label happy-path versus error-path flows. This is the correct level of visual detail for a PRD.
 
-**Feature Architecture Diagrams.** Use `graph TD` to show the high-level component relationships: which services, APIs, data stores, and external systems interact. This is not a detailed system design; it is a conceptual map that helps non-engineers understand the moving parts.
+**Gantt Charts for Timelines.** Use `gantt` to lay out phases, milestones, and dependencies over time. Include sections for design, development, testing, and launch. Mark critical-path items. These are the *business-expected* dates; the engineering task breakdown is the tech design's §16, not this.
 
-**Gantt Charts for Timelines.** Use `gantt` to lay out phases, milestones, and dependencies over time. Include sections for design, development, testing, and launch. Mark critical-path items.
+**Do not draw a solution architecture diagram.** Components, services, data stores, and their data flows belong to the technical design (`docs/{feature}/tech-design.md` §6). A PRD that prescribes architecture pre-commits engineering decisions before the trade-offs have been analysed, and adds a third diagram that must then be kept in sync with the SRS and the tech design.
 
 All Mermaid code blocks must use the ` ```mermaid ` fence so they render correctly in GitHub, GitLab, and most Markdown viewers.
 
@@ -154,6 +156,14 @@ PRD-<MODULE>-<NNN>
 Examples: `PRD-AUTH-001`, `PRD-PAY-012`, `PRD-DASH-003`.
 
 This convention ensures IDs are grep-friendly, sort-friendly, and unambiguous across multiple PRDs in the same repository.
+
+**Relationship to SRS IDs.** `PRD-<MOD>-NNN` and `FR-<MODULE>-NNN` are two levels of the same traceability chain, not competing numbering schemes:
+
+- `PRD-<MOD>-NNN` identifies a **business capability** — a scope-and-priority decision. One per row in §12.
+- `FR-<MODULE>-NNN` identifies a **system behavior** — the delivery contract. Defined in the SRS.
+- The relationship is **one-to-many**: one PRD capability decomposes into several FR requirements. The SRS's traceability matrix (§9) maps them, and `sf-trace.py matrix --upstream prd.md --downstream srs.md` computes the coverage.
+
+Never renumber an issued `PRD-<MOD>-NNN`: the SRS, the tech design, and any downstream plan reference it. If a capability is split, keep the original ID for one part and allocate new IDs for the rest; if it is dropped, retire the ID rather than reusing it.
 
 ## Feature Prioritization
 

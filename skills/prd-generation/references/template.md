@@ -181,17 +181,16 @@ Before defining personas, identify **who or what** will consume this feature. No
 
 ## 11. User Stories
 
+> **Scope of this section.** User stories here express *user intent* and the *outcome that signals success* — they are the product-side statement of what users need. They deliberately do **not** carry field-level rules, boundary values, error codes, or Given/When/Then acceptance criteria. Those are the delivery contract and belong to the SRS (`docs/{feature}/srs.md`), where each story is decomposed into `FR-<MODULE>-<NNN>` requirements with machine-verifiable acceptance criteria. Writing precise AC in both documents creates two sources of truth that drift the moment a requirement changes.
+
 ### US-001: [Short title]
 
 **As a** [human user type from the personas above],
 **I want** [action or capability],
 **so that** [benefit or outcome].
 
-**Acceptance Criteria:**
-
-- [ ] [Testable condition 1 that must be true for this story to be considered complete]
-- [ ] [Testable condition 2]
-- [ ] [Testable condition 3]
+**Success signal:** [The observable outcome that tells us this story is satisfied — e.g., "the user completes checkout without contacting support". One sentence, outcome-level, not a test case.]
+**Covered by:** [FR-[MOD]-NNN, ...  — fill in once the SRS exists; leave as `TBD (SRS pending)` otherwise]
 
 ### US-002: [Short title]
 
@@ -199,10 +198,8 @@ Before defining personas, identify **who or what** will consume this feature. No
 **I want** [action or capability],
 **so that** [benefit or outcome].
 
-**Acceptance Criteria:**
-
-- [ ] [Testable condition 1]
-- [ ] [Testable condition 2]
+**Success signal:** [Observable outcome, one sentence]
+**Covered by:** [FR-[MOD]-NNN, ...]
 
 ### US-003: [Short title — Agent story, if applicable]
 
@@ -212,22 +209,24 @@ Before defining personas, identify **who or what** will consume this feature. No
 **I want** [programmatic action — e.g., "call the project metadata endpoint with a single GET request"],
 **so that** [outcome — e.g., "I can populate my context window with project structure without multiple round-trips"].
 
-**Acceptance Criteria:**
-
-- [ ] [Machine-verifiable condition — e.g., "Response is valid JSON with a deterministic schema (no field order variation)"]
-- [ ] [Idempotency/reliability condition — e.g., "Identical requests within 60s return identical responses"]
+**Success signal:** [Observable outcome — e.g., "the agent populates its context in one round-trip instead of four"]
+**Covered by:** [FR-[MOD]-NNN, ...]
 
 [Add additional user stories as needed. Every persona (human and agent) should be represented by at least one user story.]
 
-## 12. Functional Requirements Overview
+## 12. Capability Scope
 
-| ID            | Feature                  | Description                                                   | Priority | Priority Rationale                                                                 | Status      |
+> **Granularity contract.** This table lists **business capabilities**, not system behaviors. A `PRD-<MOD>-NNN` row answers "what can the user do, and does it make the cut for this release" — it is the scope-and-priority decision. It does **not** specify how the system behaves: no field rules, no state transitions, no error handling. Each capability is decomposed one-to-many into `FR-<MODULE>-NNN` requirements in the SRS, which is where the delivery contract lives.
+>
+> Rule of thumb: if a row needs more than two sentences to describe, it is a system behavior and belongs in the SRS, not here.
+
+| ID            | Capability               | User-facing outcome                                           | Priority | Priority Rationale                                                                 | Status      |
 |---------------|--------------------------|---------------------------------------------------------------|----------|------------------------------------------------------------------------------------|-------------|
-| PRD-[MOD]-001 | [Feature name]           | [Describe what this feature does and why it is needed]        | P0       | [Why P0 — e.g., "core action the product is built around; product cannot function without this"] | Proposed    |
-| PRD-[MOD]-002 | [Feature name]           | [Describe what this feature does and why it is needed]        | P0       | [Why P0 — e.g., "required for legal compliance; launching without this creates regulatory liability"] | Proposed    |
-| PRD-[MOD]-003 | [Feature name]           | [Describe what this feature does and why it is needed]        | P1       | [Why P1 not P0 — e.g., "significantly improves retention but manual workaround exists in v1"] | Proposed    |
-| PRD-[MOD]-004 | [Feature name]           | [Describe what this feature does and why it is needed]        | P1       | [Why P1 not P2 — e.g., "user research showed 65% of surveyed users cited this as important"] | Proposed    |
-| PRD-[MOD]-005 | [Feature name]           | [Describe what this feature does and why it is needed]        | P2       | [Why P2 — e.g., "nice-to-have polish; deferred because no user has requested this explicitly"] | Proposed    |
+| PRD-[MOD]-001 | [Capability name]        | [What the user can now do that they could not before]         | P0       | [Why P0 — e.g., "core action the product is built around; product cannot function without this"] | Proposed    |
+| PRD-[MOD]-002 | [Capability name]        | [What the user can now do that they could not before]         | P0       | [Why P0 — e.g., "required for legal compliance; launching without this creates regulatory liability"] | Proposed    |
+| PRD-[MOD]-003 | [Capability name]        | [What the user can now do that they could not before]         | P1       | [Why P1 not P0 — e.g., "significantly improves retention but manual workaround exists in v1"] | Proposed    |
+| PRD-[MOD]-004 | [Capability name]        | [What the user can now do that they could not before]         | P1       | [Why P1 not P2 — e.g., "user research showed 65% of surveyed users cited this as important"] | Proposed    |
+| PRD-[MOD]-005 | [Capability name]        | [What the user can now do that they could not before]         | P2       | [Why P2 — e.g., "nice-to-have polish; deferred because no user has requested this explicitly"] | Proposed    |
 
 **Priority Legend:**
 
@@ -236,6 +235,14 @@ Before defining personas, identify **who or what** will consume this feature. No
 - **P2 -- Nice to Have:** Enhancement that can be deferred to a subsequent release.
 
 > **Priority Rationale requirement:** Every row must include a Priority Rationale. A priority without justification is an undefended assumption. The rationale must answer "why this tier and not the tier above or below" — it must reference user impact, business consequence, or the existence/absence of an acceptable workaround.
+
+### 12.1 Out of Scope for This Release
+
+[List capabilities that were considered and explicitly excluded. This is different from §9.2 Non-Goals: Non-Goals are things the product will never do; these are things it will do *later*. Naming them here prevents them from being silently assumed by the delivery team.]
+
+| Excluded capability | Why excluded now | Revisit when |
+|---------------------|------------------|--------------|
+| [Capability]        | [e.g., "depends on the billing migration landing first"] | [e.g., "Q3, after billing v2 ships"] |
 
 ## 13. User Journey
 
@@ -270,44 +277,9 @@ graph TD
 
 [Replace the diagram above with the actual user journey for your feature. Include branching paths for error handling, edge cases, and alternative flows. Remove the Agent Path subgraph if AI Agent is not applicable.]
 
-## 14. Feature Architecture
+> **Architecture belongs downstream.** Do not draw a component/service/data-store architecture diagram in the PRD. Solution architecture is the technical design's job (`docs/{feature}/tech-design.md` §6 Architecture Design). A PRD that prescribes architecture pre-commits engineering decisions before the trade-offs have been analysed, and creates a third diagram that has to be kept in sync with the SRS and the tech design. The §13 user journey above is the correct level of visual detail for this document.
 
-[Provide a high-level view of how the feature's components interact. This is not a detailed system design; it is a conceptual map showing services, APIs, data stores, and external systems involved.]
-
-```mermaid
-graph TD
-    subgraph Client
-        A[Web Application]
-        B[Mobile Application]
-    end
-
-    subgraph Backend Services
-        C[API Gateway]
-        D[Feature Service]
-        E[Notification Service]
-    end
-
-    subgraph Data Layer
-        F[(Primary Database)]
-        G[(Cache)]
-    end
-
-    subgraph External
-        H[Third-Party API]
-    end
-
-    A --> C
-    B --> C
-    C --> D
-    D --> F
-    D --> G
-    D --> E
-    D --> H
-```
-
-[Replace the diagram above with the actual architecture for your feature. Label each component clearly and show the direction of data flow.]
-
-## 15. Success Metrics
+## 14. Success Metrics
 
 | Metric                        | Type    | Target Value       | Measurement Method                     | Current Baseline   |
 |-------------------------------|---------|--------------------|----------------------------------------|--------------------|
@@ -319,7 +291,7 @@ graph TD
 
 [Ensure every metric ties back to a goal defined in Section 9. If a metric does not support a stated goal, reconsider whether it belongs here.]
 
-## 16. Timeline & Milestones
+## 15. Timeline & Milestones
 
 [Outline the major phases and milestones for delivering this feature. The Gantt chart below provides a visual timeline.]
 
@@ -351,7 +323,7 @@ gantt
 
 [Replace the dates and durations above with actuals for your project. Mark critical-path items and external dependencies.]
 
-## 17. Risk Assessment Matrix
+## 16. Risk Assessment Matrix
 
 | Risk ID       | Description                                      | Likelihood (H/M/L) | Impact (H/M/L) | Mitigation Strategy                                | Owner           |
 |---------------|--------------------------------------------------|---------------------|-----------------|-----------------------------------------------------|-----------------|
@@ -362,7 +334,7 @@ gantt
 
 [Assess each risk honestly. High-likelihood, high-impact risks should have robust mitigation plans and clearly assigned owners.]
 
-## 18. Dependencies
+## 17. Dependencies
 
 [List all internal and external dependencies that could affect the delivery of this feature.]
 
@@ -376,7 +348,7 @@ gantt
 - [Dependency 1: Describe the third-party service, API, or vendor dependency and any contractual or technical constraints]
 - [Dependency 2: Describe the external dependency]
 
-## 19. Open Questions
+## 18. Open Questions
 
 [List all unresolved questions that need answers before the PRD can be finalized or implementation can begin.]
 
@@ -386,7 +358,7 @@ gantt
 | 2  | [Describe the open question]                                  | [Person/Team]   | YYYY-MM-DD | Pending    |
 | 3  | [Describe the open question]                                  | [Person/Team]   | YYYY-MM-DD | Pending    |
 
-## 20. Appendix
+## 19. Appendix
 
 [Include any supplementary material that supports the PRD but does not belong in the main sections.]
 

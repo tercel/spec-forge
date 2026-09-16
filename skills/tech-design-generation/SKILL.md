@@ -78,14 +78,17 @@ If a usable existing tech-design already covers most of what the user is asking 
 
 Search for matching upstream documents that feed into this design. Determine the operating mode:
 
-- **Upstream mode**: PRD and/or SRS found → design will trace to formal requirement IDs. If BOTH an idea draft and a PRD exist, the PRD takes precedence as the source of truth (it is a formalized version of the idea). Read the idea draft only for supplementary context that the PRD may not cover.
+- **SRS-first mode (preferred)**: `docs/<feature-name>/srs.md` found → the SRS is the authoritative statement of *what* must be built, and this design answers *how*. Populate §3.5 User Scenarios from its functional requirement flows, §3.6 Acceptance Criteria from its FR acceptance criteria, §3.4 Scope from its §3.2 Scope Boundaries (carry the out-of-scope table through verbatim — an exclusion that silently disappears between the requirements and the design is how out-of-scope work gets built), and derive §3.7 Success Metrics from its NFR targets. If a PRD also exists, read it for the product intent *behind* the requirements, not to re-derive the requirements themselves.
+- **PRD-only mode**: PRD found, no SRS → the design will trace to `PRD-*` capability IDs, which are coarser than `FR-*` requirements. Flag this to the user: a design built on capabilities rather than specified requirements is making implicit decisions about system behavior that nobody has agreed to. Recommend running `/spec-forge:srs <feature-name>` first.
 - **Idea-first mode**: Idea draft found at `ideas/<feature-name>/draft.md`, no PRD/SRS → §3.5 User Scenarios, §3.6 Acceptance Criteria, and §3.7 Success Metrics are derived from the idea draft's problem statement, MVP scope, and demand validation results. If the idea draft scenarios are vague or generic, ask clarifying questions to make them concrete enough for §3.5.
-- **Standalone mode**: No upstream documents → these sections are populated from user clarification answers
+- **Standalone mode**: No upstream documents → these sections are populated from user clarification answers, and every inference is recorded as an explicit stated assumption.
 
-**Upstream mode search:** The `sf-scan.py` inventory from Step 1 already reports any upstream `docs/*/prd.md` and `docs/*/srs.md` (under `document_index`) with the requirement IDs each declares — use it instead of re-scanning for these files by hand. Then:
-1. **Read all found PRD documents** to extract product goals, user stories, and success metrics.
-2. **Read all found SRS documents** to extract functional requirements (FR-XXX-NNN), non-functional requirements (NFR-XXX-NNN), data models, and interface definitions.
-3. **Summarize upstream context** including the requirement IDs that this design must address.
+**Upstream search:** The `sf-scan.py` inventory from Step 1 already reports any upstream `docs/*/prd.md` and `docs/*/srs.md` (under `document_index`) with the requirement IDs each declares — use it instead of re-scanning for these files by hand. Then:
+1. **Read all found SRS documents** to extract functional requirements (FR-XXX-NNN), non-functional requirements (NFR-XXX-NNN), input field rules, state machines, permission matrix, error catalogue, data models, and interface definitions. These are the constraints the design must satisfy, not suggestions.
+2. **Read all found PRD documents** to extract product goals, capability priorities, and success metrics — the intent behind the requirements.
+3. **Summarize upstream context** including every requirement ID this design must address.
+
+**Requirement coverage is bidirectional and checked.** Every component in §8.1 names the `FR-*`/`NFR-*` requirements it satisfies, and every requirement in the SRS is satisfied by at least one component. Report any requirement you cannot place rather than silently dropping it — an unplaced requirement is either a gap in the design or a requirement that should be renegotiated, and both need to be visible. The SRS's error catalogue and state machines map directly onto the design's error handling and state management; if the design cannot express one of them, that is a finding, not a detail to smooth over.
 
 If no PRD/SRS found, check for idea draft at `ideas/<feature-name>/draft.md`.
 

@@ -1,7 +1,7 @@
 {
   "name": "spec-forge",
-  "description": "Generate and maintain professional software specifications — from idea validation to PRD, SRS, technical design, feature specs, test cases, review, audit, analysis, and propagation — based on industry standards.",
-  "version": "0.21.0",
+  "description": "Generate and maintain professional software specifications — a delivery-grade requirements spec you can hand to an implementation team, plus idea validation, business case, technical design, feature specs, test cases, review, audit, analysis, and propagation — based on industry standards.",
+  "version": "0.23.0",
   "author": {
     "name": "tercel",
     "url": "https://github.com/tercel",
@@ -27,6 +27,10 @@
     "propagate",
     "knowledge mapping",
     "document analysis",
-    "test cases"
+    "test cases",
+    "requirements specification",
+    "acceptance criteria",
+    "delivery contract",
+    "vendor handoff"
   ]
 }

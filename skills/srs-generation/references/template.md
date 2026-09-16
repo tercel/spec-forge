@@ -24,9 +24,28 @@
 
 [Describe the purpose of this SRS document. Identify the software product to be produced by name. Explain what the software product will do and, if necessary, what it will not do. Describe the intended audience for this document -- developers, testers, project managers, and stakeholders who need to understand the detailed requirements.]
 
-### 3.2 Scope
+### 3.2 Scope Boundaries
 
-[Describe the scope of the software product covered by this SRS. Include the product name, what the product will do, and the benefits, objectives, and goals of the product. Describe the application of the software, including relevant benefits, objectives, and goals. Be consistent with the scope defined in the upstream PRD if one exists.]
+[Describe the scope of the software product covered by this SRS. Include the product name, what the product will do, and the benefits, objectives, and goals of the product. Be consistent with the scope defined in the upstream PRD if one exists.]
+
+**In scope.** Everything the implementer is obligated to deliver under this specification:
+
+| # | In scope | Governed by |
+|---|----------|-------------|
+| 1 | [Deliverable capability stated in one sentence] | FR-[MOD]-001 … FR-[MOD]-00N |
+| 2 | [Deliverable capability] | FR-[MOD]-0NN |
+
+**Out of scope.** Everything a reader might reasonably assume is included but is not. Each row is an explicit exclusion, not an omission:
+
+| # | Out of scope | Why excluded | Who owns it instead |
+|---|--------------|--------------|---------------------|
+| 1 | [e.g., "Migration of pre-2024 historical records"] | [e.g., "handled by the separate data-migration project"] | [e.g., "Platform team, tracked in DATA-441"] |
+| 2 | [e.g., "Mobile native client"] | [e.g., "web-responsive only for this release"] | [e.g., "deferred, no owner yet"] |
+| 3 | [e.g., "SSO with customer-hosted identity providers"] | [e.g., "only Google and GitHub OAuth in this phase"] | [e.g., "backlog item AUTH-88"] |
+
+> **Why this section is mandatory.** Ambiguity about what is *not* included is the single most common source of delivery disputes. An empty or hand-waved out-of-scope table means every reader fills the gap with their own assumption, and those assumptions only surface at acceptance time. If genuinely nothing is excluded, state that explicitly with a one-line justification rather than leaving the table empty.
+
+**Interpretation precedence.** When this document and any other artefact disagree, the order of precedence is: (1) this SRS, (2) the upstream PRD, (3) the technical design, (4) verbal or chat agreements — which are not binding until reflected here via §10.3 change control.
 
 ### 3.3 Definitions, Acronyms, and Abbreviations
 
@@ -134,6 +153,16 @@ graph TD
 - [Condition that must be true before this requirement can be exercised]
 - [Another precondition]
 
+**Input Field Rules:**
+
+| Field | Type | Required | Constraints | Default | Boundary / rejection behavior |
+|-------|------|----------|-------------|---------|-------------------------------|
+| [e.g., `email`] | string | Yes | [e.g., RFC 5322 format, max 254 chars, lowercased before storage] | — | [e.g., "> 254 chars → reject with `VAL_TOO_LONG`; malformed → `VAL_FORMAT`"] |
+| [e.g., `quantity`] | integer | Yes | [e.g., 1 ≤ n ≤ 999] | — | [e.g., "0 or negative → `VAL_RANGE`; 1000+ → `VAL_RANGE`; non-integer → `VAL_TYPE`"] |
+| [e.g., `nickname`] | string | No | [e.g., 2–32 chars, Unicode letters/digits/underscore] | `null` | [e.g., "empty string is treated as absent, not as a validation error"] |
+
+> **Mandatory for any requirement that accepts input.** Every field an actor can supply gets a row. State the *exact* rule, not a category: "max 254 characters" not "reasonable length"; "1 ≤ n ≤ 999" not "a positive number". The rejection behavior column must name the specific error from the §5.6 Error Catalogue so that validation is verifiable rather than negotiable. Omit this block only for requirements that take no input (e.g., a scheduled job with no parameters), and say so explicitly rather than deleting the heading silently.
+
 **Main Flow:**
 1. [The actor performs action X — for agents: "The agent sends POST /api/v1/resource with JSON body {fields}"]
 2. [The system validates input Y]
@@ -183,6 +212,14 @@ graph TD
 **Preconditions:**
 - [Precondition]
 
+**Input Field Rules:**
+
+| Field | Type | Required | Constraints | Default | Boundary / rejection behavior |
+|-------|------|----------|-------------|---------|-------------------------------|
+| [field] | [type] | [Yes/No] | [exact rule — a value or range, never a category] | [value or —] | [condition → `ERROR_CODE` from §5.6] |
+
+[If this requirement accepts no input, replace the table with: **N/A — this requirement takes no actor-supplied input.**]
+
 **Main Flow:**
 1. [Step 1]
 2. [Step 2]
@@ -196,8 +233,8 @@ graph TD
 - [Postcondition]
 
 **Acceptance Criteria:**
-- [ ] [Testable criterion]
-- [ ] [Testable criterion]
+- [ ] [Given ... When ... Then ... — testable criterion]
+- [ ] [Given ... When ... Then ... — testable criterion]
 
 ---
 
@@ -220,7 +257,81 @@ graph TD
 
 > Note: A dash (--) indicates that the operation is not applicable or is intentionally not supported for that entity. Ensure every cell is accounted for -- missing operations should be a deliberate decision, not an oversight.
 
+### 5.4 State Machines
+
+[For every entity that has a lifecycle — order, subscription, ticket, document, job — specify the complete state machine. Omit this section only if no entity in the system has more than one state, and say so explicitly.]
+
+#### 5.4.1 [Entity name] state machine
+
+```mermaid
+stateDiagram-v2
+    [*] --> Draft
+    Draft --> Submitted: submit (FR-[MOD]-001)
+    Submitted --> Approved: approve (FR-[MOD]-002)
+    Submitted --> Rejected: reject (FR-[MOD]-003)
+    Rejected --> Draft: revise (FR-[MOD]-004)
+    Approved --> Fulfilled: fulfil (FR-[MOD]-005)
+    Approved --> Cancelled: cancel (FR-[MOD]-006)
+    Fulfilled --> [*]
+    Cancelled --> [*]
+```
+
+**Legal transitions:**
+
+| From | To | Trigger | Actor / permission | Guard condition | Governed by |
+|------|----|---------|--------------------|-----------------|-------------|
+| Draft | Submitted | [submit] | [Owner] | [e.g., "all required fields present"] | FR-[MOD]-001 |
+| Submitted | Approved | [approve] | [Reviewer] | [e.g., "reviewer ≠ submitter"] | FR-[MOD]-002 |
+
+**Illegal transition handling:**
+
+| Attempted transition | System behavior | Error code | Actor-visible message |
+|----------------------|-----------------|------------|-----------------------|
+| [e.g., Draft → Approved] | [e.g., "reject, no state change, no side effects"] | [e.g., `STATE_INVALID_TRANSITION`] | [e.g., "A draft must be submitted before it can be approved."] |
+| [e.g., Fulfilled → Cancelled] | [e.g., "reject; cancellation after fulfilment requires the refund flow"] | [e.g., `STATE_TERMINAL`] | [e.g., "This order is already fulfilled. Use Request refund instead."] |
+
+> **Mandatory rule.** Specifying only the legal transitions is half a state machine. Every transition *not* listed in the legal table must have a defined rejection behavior — silence here means the implementer picks a behavior and acceptance testing discovers it. State explicitly whether an illegal transition is idempotent-ignored or hard-rejected, and whether any side effects (notifications, audit entries) fire on rejection.
+
+### 5.5 Permission Matrix
+
+[Specify which role may perform which operation, on which data scope. One row per role, one column per operation group.]
+
+| Role | Create | Read | Update | Delete | Approve | Data scope |
+|------|--------|------|--------|--------|---------|------------|
+| [e.g., Owner] | ✅ | ✅ | ✅ | ✅ | ❌ | [e.g., "own records only"] |
+| [e.g., Reviewer] | ❌ | ✅ | ❌ | ❌ | ✅ | [e.g., "all records in own team"] |
+| [e.g., Admin] | ✅ | ✅ | ✅ | ✅ | ✅ | [e.g., "all records, all tenants"] |
+| [e.g., Unauthenticated] | ❌ | ❌ | ❌ | ❌ | ❌ | — |
+
+**Data scope definitions:**
+
+| Scope | Meaning |
+|-------|---------|
+| [e.g., own records] | [e.g., "records where `owner_id` equals the authenticated principal"] |
+| [e.g., own team] | [e.g., "records whose `team_id` is in the principal's team membership set"] |
+
+> **Denial behavior.** State the response for an unauthorized attempt, and be deliberate about information disclosure: does the system return `403 Forbidden` (revealing the record exists) or `404 Not Found` (concealing it)? This is a security decision, not an implementation detail — specify it here rather than leaving it to the implementer.
+
+### 5.6 Error Catalogue
+
+[Every error an actor can observe, with its code, trigger condition, user-facing message, and recovery path. The tech design maps these to transport-level status codes; this table defines the contract.]
+
+| Error code | Trigger condition | Actor-visible message | Recovery / degradation | Raised by |
+|------------|-------------------|-----------------------|------------------------|-----------|
+| `VAL_FORMAT` | [Input fails format validation] | [e.g., "Enter a valid email address."] | [e.g., "actor corrects input and retries"] | FR-[MOD]-001 |
+| `VAL_RANGE` | [Numeric input outside the declared bounds] | [e.g., "Quantity must be between 1 and 999."] | [e.g., "actor corrects input and retries"] | FR-[MOD]-001 |
+| `DUP_CONFLICT` | [Uniqueness constraint violated] | [e.g., "An account with this email already exists."] | [e.g., "offer sign-in or password reset"] | FR-[MOD]-002 |
+| `STATE_INVALID_TRANSITION` | [Transition not permitted from current state] | [Name the current state and the required precondition] | [e.g., "actor performs the prerequisite action first"] | §5.4 |
+| `PERM_DENIED` | [Actor lacks the required permission] | [e.g., "You do not have permission to approve this request."] | [e.g., "actor requests access from an admin"] | §5.5 |
+| `DEP_UNAVAILABLE` | [A required downstream dependency is unreachable] | [e.g., "Payment processing is temporarily unavailable. Your cart has been saved."] | [**Degradation:** state what still works, whether the operation is queued for retry, and the retry window] | FR-[MOD]-00N |
+
+> **No generic failures.** `INTERNAL_ERROR` is not an acceptable entry for any *anticipated* condition. Every failure mode enumerated in an alternative flow must appear here as a distinct, diagnosable code. A catalogue that collapses distinct causes into one code makes the failure untestable and pushes diagnosis onto the actor.
+>
+> **Degradation is a requirement, not a nicety.** For every dependency this feature relies on, specify what happens when it is unavailable: fail closed, fail open, serve stale data (and how stale is acceptable), or queue for retry (and for how long). Leaving this unspecified means the behavior under partial outage is whatever the implementation happens to do.
+
 ## 6. Non-Functional Requirements
+
+> **Every NFR carries four fields that make it acceptable rather than aspirational:** a **Metric** (what is measured), a **Target** (the exact threshold), a **Threshold Rationale** (why that number and not a higher or lower one), and a **Verification** method — one of **Test**, **Demonstration**, **Inspection**, or **Analysis**, naming the environment and conditions under which the measurement is taken. An NFR with a target but no agreed verification method cannot be accepted or disputed on any objective basis; it is a wish, not a requirement. See §10.1 for how these feed acceptance.
 
 ### 6.1 Performance Requirements
 
@@ -235,6 +346,7 @@ graph TD
 | **Target**               | [e.g., < 200ms]                                         |
 | **Threshold Rationale**  | [Why this specific target — e.g., "200ms is the threshold beyond which users perceive lag (Nielsen 1993); our primary competitor achieves ~180ms p95, so matching is table stakes for launch"] |
 | **Measurement**          | [e.g., Application Performance Monitoring (APM) tool]   |
+| **Verification**         | [Test / Demonstration / Inspection / Analysis + conditions — e.g., "Test: k6 load run at 500 RPS sustained 10 min against staging with production-equivalent data volume"] |
 
 **Description:**
 [The system shall ... Describe the performance requirement with specific, measurable targets.]
@@ -465,11 +577,67 @@ erDiagram
 > - "Partially Covered" items require a note explaining what aspects are not yet specified.
 > - "Not Covered" items must include a justification (e.g., deferred to a future release, out of scope).
 
-## 10. Appendix
+## 10. Acceptance and Change Control
+
+### 10.1 Definition of Acceptance
+
+**The acceptance criteria in this document are the acceptance contract.** A requirement is accepted when every one of its Given/When/Then acceptance criteria is demonstrably satisfied, and not before. No separate acceptance document supersedes this one.
+
+| Requirement class | Accepted when | Verified by |
+|-------------------|---------------|-------------|
+| Functional (FR-*) | [e.g., "every AC passes against the delivered build in the agreed environment"] | [e.g., "automated test evidence + reviewer walkthrough"] |
+| Non-functional (NFR-*) | [e.g., "the measured value meets the §6 target using the stated measurement method"] | [e.g., "load-test report against the agreed baseline environment"] |
+| Interface (§8) | [e.g., "contract tests pass against the published schema with no undocumented deviation"] | [e.g., "contract test suite"] |
+
+**Verification methods.** Every acceptance criterion is verified by one of: **Test** (automated or scripted execution), **Demonstration** (operator-run walkthrough), **Inspection** (code or configuration review), or **Analysis** (modelling or calculation where direct measurement is impractical). Tag each NFR with its method in §6 — an NFR with no stated verification method is not acceptable, because there is no agreed way to settle whether it was met.
+
+### 10.2 Acceptance Environment and Preconditions
+
+| Item | Specification |
+|------|---------------|
+| Environment | [e.g., "staging, with production-equivalent data volume"] |
+| Test data | [e.g., "anonymised production snapshot, ≥ 100k records"] |
+| Dependencies available | [e.g., "payment sandbox, email sandbox, identity provider test tenant"] |
+| Acceptance window | [e.g., "10 business days from delivery notification"] |
+| Defect classification | [e.g., "Blocker = blocks acceptance; Major = fix before go-live; Minor = fix in the following release"] |
+
+> State these explicitly. "Works on my machine" disputes are almost always disagreements about the acceptance environment that nobody wrote down.
+
+### 10.3 Change Control Procedure
+
+Requirements change. What must not change silently is the *contract*. Any modification to a requirement in this document follows this procedure:
+
+1. **Raise** — the change is logged in the Change Request Log (§10.4) with a requestor and date.
+2. **Impact assessment** — the assessor states the affected requirement IDs, the downstream documents affected (tech design, feature specs, plans), and the delivery impact (scope, schedule, cost).
+3. **Decision** — approved, rejected, or deferred, with the decision maker named.
+4. **Propagate** — on approval, this SRS is edited **in place** (never a `srs-v2.md`), the version in §1 and §2 is incremented, and downstream documents are updated. Run `/spec-forge:propagate` to find downstream references to the changed IDs.
+5. **Re-baseline** — the revised requirement re-enters acceptance; previously accepted requirements are not re-opened unless the change touches them.
+
+**Requirement ID stability.** An issued `FR-*` or `NFR-*` ID is a contract reference. It is never silently renumbered or repurposed. Split a requirement → the original ID stays with one part, new parts get new IDs. Remove a requirement → the ID is retired, never reused.
+
+### 10.4 Change Request Log
+
+| CR ID  | Description                        | Requestor      | Date       | Affected IDs        | Impact assessment            | Status     | Decided by     |
+|--------|------------------------------------|----------------|------------|---------------------|------------------------------|------------|----------------|
+| CR-001 | [Describe the change request]     | [Name]         | YYYY-MM-DD | [FR-MOD-001, ...]   | [Scope / schedule / cost]    | Pending    | [Name]         |
+
+### 10.5 Approval
+
+This specification is baselined when the signatories below approve it. Changes after baselining follow §10.3.
+
+| Role | Name | Approved | Date |
+|------|------|----------|------|
+| Requirements owner | [Name] | ☐ | YYYY-MM-DD |
+| Delivery lead | [Name] | ☐ | YYYY-MM-DD |
+| [Additional approver, e.g., Security] | [Name] | ☐ | YYYY-MM-DD |
+
+> Omit this subsection for internal work with no formal sign-off gate, but state that it was omitted deliberately rather than deleting the heading.
+
+## 11. Appendix
 
 ### A. Supporting Diagrams
 
-[Include any additional diagrams that help clarify the requirements -- sequence diagrams, state machine diagrams, activity diagrams, or data flow diagrams.]
+[Include any additional diagrams that help clarify the requirements -- sequence diagrams, activity diagrams, or data flow diagrams. Entity state machines belong in §5.4, not here.]
 
 ### B. Open Questions
 
@@ -478,12 +646,8 @@ erDiagram
 | OQ-1 | [Describe the open question]                        | [Name]         | YYYY-MM-DD | Open       | --                           |
 | OQ-2 | [Describe the open question]                        | [Name]         | YYYY-MM-DD | Resolved   | [Describe the resolution]    |
 
+> An open question that blocks a requirement must be flagged on that requirement, not only listed here. Unresolved questions attached to a P0 requirement block baselining.
+
 ### C. Glossary
 
 [Include any additional terms not covered in Section 3.3 that are used in this document.]
-
-### D. Change Request Log
-
-| CR ID  | Description                        | Requestor      | Date       | Status     | Impact Assessment            |
-|--------|------------------------------------|----------------|------------|------------|------------------------------|
-| CR-001 | [Describe the change request]     | [Name]         | YYYY-MM-DD | Pending    | [Describe impact on SRS]     |

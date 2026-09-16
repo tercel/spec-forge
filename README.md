@@ -6,17 +6,17 @@ Generate industry-standard specifications — from early-stage brainstorming to 
 
 ## Overview
 
-Software projects need clear specifications. spec-forge covers the full journey from idea to implementation-ready documents:
+Software projects need clear specifications. spec-forge covers the journey from idea to implementation-ready documents, with one thing at its centre: **a requirements specification precise enough to hand to an implementation team and settle acceptance against.**
 
 | Command | Description | Standards |
 |---------|-------------|-----------|
+| `/spec-forge:srs <name>` | **Software Requirements Specification — the delivery contract** | IEEE 830, ISO/IEC/IEEE 29148 |
+| `/spec-forge:tech-design <name>` | Technical Design Document + auto-generated feature specs | Google Design Doc, RFC Template |
+| `/spec-forge <name>` | **Full chain** — `[Idea] → [Decompose] → [PRD] → SRS → Tech Design → Review` | All of the above |
+| `/spec-forge:prd <name>` | Product Requirements Document — the business case (conditional) | Google PRD, Amazon PR/FAQ |
 | `/spec-forge:idea <name>` | Interactive brainstorming — explore and refine ideas | — |
 | `/spec-forge:decompose <name>` | Decompose project into sub-features | — |
-| `/spec-forge:tech-design <name>` | Technical Design Document + auto-generated feature specs | Google Design Doc, RFC Template |
-| `/spec-forge <name>` | **Full chain** — auto-run Idea → Decompose → Tech Design + Feature Specs → Review | All of the above |
 | `/spec-forge:review <name>` | Review generated specs for quality & consistency, auto-fix issues | — |
-| `/spec-forge:prd <name>` | Product Requirements Document (on-demand) | Google PRD, Amazon PR/FAQ |
-| `/spec-forge:srs <name>` | Software Requirements Specification (on-demand) | IEEE 830, ISO/IEC/IEEE 29148 |
 | `/spec-forge:test-cases <name>` | Test Cases with coverage matrix (on-demand) | Multi-dimensional coverage |
 | `/spec-forge:audit [path]` | Audit docs for quality, completeness & code alignment | — |
 | `/spec-forge:analyze [path]` | Analyze document collection — map themes, find conflicts & gaps | — |
@@ -25,8 +25,9 @@ Software projects need clear specifications. spec-forge covers the full journey 
 
 ## Features
 
-- **Idea to Spec**: Brainstorm interactively, then graduate ideas into architecture docs + feature specs
-- **Full Chain Mode**: One command runs the streamlined chain (Idea → Decompose → Tech Design + Feature Specs → Review)
+- **Delivery-grade requirements**: The SRS is written to be handed to an implementation team — explicit scope boundaries, field-level input rules, state machines with illegal-transition handling, permission matrix, error catalogue with degradation behavior, and acceptance and change control
+- **Idea to Spec**: Brainstorm interactively, then graduate ideas into requirements, architecture docs, and feature specs
+- **Full Chain Mode**: One command runs `[Idea] → [Decompose] → [PRD] → SRS → Tech Design → Review`, then hands off to code-forge
 - **Standalone or Chained**: Use any command on its own, or run the full chain for traceability
 - **Industry Standards**: Templates grounded in Google, Amazon, Stripe, IEEE, and ISTQB best practices
 - **Automatic Context Scanning**: Scans your project structure, README, and existing docs before generation
@@ -60,7 +61,7 @@ Status flow: `exploring` → `researching` → `refining` → `ready` → `gradu
 Run the streamlined specification chain in one command:
 
 ```bash
-/spec-forge user-login              # Auto: Idea → Decompose → Tech Design + Feature Specs
+/spec-forge user-login              # Auto: [Idea] → [Decompose] → [PRD] → SRS → Tech Design → Review
 ```
 
 - Detects existing documents and resumes from where you left off
@@ -80,31 +81,45 @@ Analyze project scope and split into sub-features if needed:
 - Generates `docs/project-{name}.md` manifest for multi-split projects
 - Automatically invoked as Stage 2 when running `/spec-forge <name>` full chain (after Idea, before Tech Design)
 
-### `/spec-forge:prd <name>`
+### `/spec-forge:srs <name>` — the delivery contract
 
-Generates a Product Requirements Document including:
+**This is the document you hand to whoever builds it.** It is the mandatory spine of the chain, and what acceptance is settled against.
+
+- Functional requirements with structured IDs (FR-XXX-NNN) — main flow, alternative flows, preconditions, postconditions
+- **Scope boundaries** with an explicit out-of-scope table — ambiguity about what is *not* included is the most common source of delivery disputes
+- **Input field rules** per requirement — type, required, exact constraints, default, boundary/rejection behavior. "Max 254 characters", never "reasonable length"
+- **State machines** including illegal-transition handling — specifying only the legal transitions leaves the implementer to invent the rest
+- **Permission matrix** — role × operation × data scope, with the 403-vs-404 denial behavior stated as a deliberate security decision
+- **Error catalogue** — every anticipated failure as a distinct diagnosable code, plus the degradation behavior for each dependency
+- Non-functional requirements (NFR-XXX-NNN) with target, measurement method, **verification method**, and threshold rationale
+- Machine-verifiable acceptance criteria in Given/When/Then form
+- Data model, data dictionary, and external interface requirements
+- **Acceptance and change control** — what acceptance means, in which environment, and how the contract may change
+- Requirements traceability matrix (PRD → SRS, when a PRD exists)
+
+**Standalone**: When no upstream PRD is found, asks additional questions to compensate.
+
+**Reference**: IEEE 830, ISO/IEC/IEEE 29148, Amazon Technical Specifications
+
+### `/spec-forge:prd <name>` — the business case
+
+Answers *is this worth building*, for whom, at what priority. A decision document read before commitment — **conditional**, not every project needs one.
+
 - Problem statement and product vision
+- Market research, competitive landscape, and demand validation (anti-pseudo-requirement)
+- Feasibility analysis with an honest GO / CONDITIONAL GO / NO-GO verdict
 - User personas and user stories
-- Feature requirements with P0/P1/P2 prioritization
+- Capability scope with P0/P1/P2 prioritization and priority rationale
 - Success metrics (KPI/OKR)
 - User journey maps (Mermaid)
 - Timeline and milestones (Mermaid Gantt)
 - Risk assessment matrix
 
+**Run it** for a new product, or when a go/no-go decision, budget approval, or stakeholder alignment is still outstanding. **Skip it** when the decision to build is already made — go straight to the SRS. A PRD written after the decision is ceremony.
+
+**Deliberately not in the PRD**: field-level rules, state machines, error codes, Given/When/Then acceptance criteria, solution architecture. Those belong to the SRS and tech design — duplicating them creates two sources of truth that drift on the first requirement change.
+
 **Reference**: Google PRD, Amazon Working Backwards (PR/FAQ), Stripe Product Spec
-
-### `/spec-forge:srs <name>`
-
-Generates a Software Requirements Specification including:
-- Functional requirements with structured IDs (FR-XXX-NNN)
-- Non-functional requirements (NFR-XXX-NNN)
-- Data model and data dictionary
-- External interface requirements
-- Requirements traceability matrix (PRD → SRS, when PRD exists)
-
-**Standalone**: When no upstream PRD is found, asks additional questions to compensate.
-
-**Reference**: IEEE 830, ISO/IEC/IEEE 29148, Amazon Technical Specifications
 
 ### `/spec-forge:tech-design <name>`
 
@@ -116,7 +131,7 @@ Generates a Technical Design Document including:
 - Security, performance, and observability design
 - Deployment and rollback strategy
 
-**Standalone**: When no upstream PRD/SRS is found, asks additional questions to compensate.
+**SRS-first**: Reads `docs/<name>/srs.md` as the authoritative requirements source. Every component names the FR/NFR requirements it satisfies, and every requirement is satisfied by at least one component — unplaced requirements are reported rather than silently dropped. Falls back to asking compensating questions when no upstream SRS exists.
 
 **Reference**: Google Design Doc, RFC Template, Uber/Meta Engineering Standards
 
@@ -186,49 +201,53 @@ Analyze a collection of documents to understand the knowledge landscape:
 ```
 /spec-forge:idea cool-feature              # Brainstorm (iterative, multi-session)
     ↓ (graduated)
-/spec-forge cool-feature                   # Idea → Decompose → Tech Design + Feature Specs → Review
+/spec-forge cool-feature                   # [Idea] → [Decompose] → [PRD] → SRS → Tech Design → Review
     ↓
-/code-forge:plan @docs/features/<component-name>.md   # Break into tasks and execute
+/code-forge:plan @docs/features/           # Break into tasks and execute
 ```
 
-**Quick path** (skip idea stage):
+**Quick path** (decision already made, skip idea and PRD):
 ```
+/spec-forge:srs cool-feature               # The delivery contract
 /spec-forge:tech-design cool-feature       # Tech Design + auto-generated feature specs
-/spec-forge:review cool-feature            # Review specs before implementation
-/code-forge:plan @docs/features/<component-name>.md   # Generate implementation plan
+/spec-forge:review cool-feature            # Review before implementation
+/code-forge:plan @docs/features/           # Generate implementation plan
 ```
+
+**Handing work to an implementation team or vendor**: give them `docs/<name>/srs.md`. It carries the scope boundaries, the field rules, the acceptance criteria, and the change procedure. Keep `prd.md` internal — it contains go/no-go reasoning and market analysis that is not theirs to act on.
 
 ### Document Traceability
 
-**Default auto chain** (idea → decompose → tech-design):
+The chain is two levels of one traceability chain, not competing numbering schemes. `PRD-*-NNN` identifies a **business capability** (a scope-and-priority decision); `FR-*-NNN` identifies a **system behavior** (the delivery contract). The relationship is one-to-many.
+
 ```
-Idea Draft ──────────────────────────────→ Tech Design ──→ Feature Specs
-(ideas/<name>/draft.md)                   §3.5/§3.6/§3.7    docs/features/
-                                           populated from      auto-generated
-                                           idea draft          in Step 7
+[Idea Draft]  ──→  [PRD]      ──→   SRS        ──→  Tech Design  ──→  Feature Specs
+ideas/<name>/      docs/<name>/     docs/<name>/    docs/<name>/      docs/features/
+  draft.md           prd.md           srs.md         tech-design.md     *.md
+                   PRD-MOD-NNN      FR-MOD-NNN       components         auto-generated
+demand             capabilities     system behavior  trace to           in Step 7
+validation         + priority       + acceptance     FR/NFR IDs
+                                                          ↓
+                                          /code-forge:plan @docs/features/
 ```
 
-**With optional upstream docs** (on-demand PRD/SRS add traceability):
-```
-PRD (optional) ──→ SRS (optional) ──→ Tech Design ──→ Feature Specs
-/spec-forge:prd     /spec-forge:srs     §3.5/§3.6/§3.7    docs/features/
-                                         traced to           auto-generated
-                                         FR/NFR IDs          in Step 7
-```
+Brackets mark conditional stages. The SRS and tech design are not optional: skipping the SRS to reach the design faster produces a design resting on unstated requirements, and code whose correctness nobody can settle.
+
+**Coverage is checked, not assumed**: `sf-trace.py matrix --upstream prd.md --downstream srs.md` reports PRD capabilities with no requirement covering them and SRS references to PRD IDs that do not exist. The same check runs from SRS to tech design.
 
 ## Output
 
 Each feature gets its own directory under `docs/`:
-- `docs/<feature-name>/tech-design.md` (always generated)
+- `docs/<feature-name>/srs.md` — **the delivery contract** (always generated by the chain)
+- `docs/<feature-name>/tech-design.md` — architecture and design (always generated by the chain)
+- `docs/<feature-name>/prd.md` — business case (conditional; generated when a go/no-go decision is still open)
 
 Auto-generated feature specs go to `docs/features/`:
 - `docs/features/overview.md` (feature index + dependency graph)
 - `docs/features/<component-name>.md` (per-component implementation spec)
 
 On-demand documents (when explicitly requested):
-- `docs/<feature-name>/prd.md`
-- `docs/<feature-name>/srs.md`
-- `docs/<feature-name>/test-cases.md`
+- `docs/<feature-name>/test-cases.md` — a standalone QA coverage matrix. Not part of the chain: tests are derived from the SRS acceptance criteria by `code-forge:tdd`. spec-forge owns requirements and design; code-forge owns implementation and verification.
 
 For decomposed projects, a manifest is also generated:
 - `docs/project-<project-name>.md`

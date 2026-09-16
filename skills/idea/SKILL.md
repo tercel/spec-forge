@@ -6,7 +6,7 @@ description: >
   drafts. Includes anti-pseudo-requirement checks, competitive research, demand evidence gathering,
   and "What if we don't build this?" analysis. Supports pause/resume across sessions, stores ideas
   in the project's ideas/ directory, and graduates validated ideas into the spec-forge auto
-  chain (idea → decompose → tech-design + feature specs).
+  chain ([idea] → [decompose] → [prd] → srs → tech-design → review).
 instructions: >
   Follow the workflow below exactly. This is an interactive, multi-session skill.
   Ideas are stored in the project's ideas/ directory. By default, suggest adding ideas/
@@ -548,15 +548,14 @@ Idea '{idea-name}' is ready for formal specification!
   Draft: ideas/{idea-name}/draft.md
 
 To start the spec chain:
-  /spec-forge {idea-name}         Full chain (Idea → Decompose → Tech Design + Feature Specs)
+  /spec-forge {idea-name}         Full chain ([Idea] → [Decompose] → [PRD] → SRS → Tech Design → Review)
 
-Optional (on-demand):
-  /spec-forge:prd {idea-name}     PRD (for stakeholders)
-  /spec-forge:srs {idea-name}     SRS (for compliance/audit)
-  /spec-forge:test-cases {idea-name} Test cases with coverage matrix
+Or run a single stage:
+  /spec-forge:srs {idea-name}     Requirements spec — the delivery contract (the chain's spine)
+  /spec-forge:prd {idea-name}     Business case — only if a go/no-go decision is still open
 ```
 
-Note: The actual `graduated` status is set by the `/spec-forge` chain command after it successfully generates the tech-design.
+Note: The actual `graduated` status is set by the `/spec-forge` chain command after it successfully generates the downstream specs.
 
 #### 3.3f: Park
 
@@ -584,7 +583,7 @@ Idea '{idea-name}' parked.
 | `researching` | Investigating market, competitors, user needs |
 | `refining` | Direction clear and validated, converging on specifics |
 | `ready` | Validated and ready for formal specification |
-| `graduated` | Tech Design has been generated from this idea |
+| `graduated` | Formal specs (SRS and tech design) have been generated from this idea |
 | `parked` | Intentionally set aside, can resume anytime |
 
 ## Draft Validation Checklist

@@ -182,7 +182,7 @@ END_MANIFEST -->
 **FEATURE_MANIFEST rules:**
 - **CRITICAL**: Must be the VERY FIRST thing in the file — no YAML front-matter, no headings, no blank lines before the `<!-- FEATURE_MANIFEST` comment. The spec-forge chain parser reads from the top and will fail to recognize the manifest if anything precedes it.
 - One sub-feature per line, kebab-case (e.g., `user-auth`, `payment-processing`)
-- Names become directory names under `docs/` — each sub-feature gets `docs/{name}/tech-design.md`
+- Names become directory names under `docs/` — each sub-feature gets its own `docs/{name}/srs.md` and `docs/{name}/tech-design.md`
 - This block is machine-parseable; the rest of the file is for humans
 
 ### Step 5: Summary
@@ -193,7 +193,7 @@ Display the result:
 ```
 Scope analysis complete: {name}
   Verdict: Single feature
-  Next: Running spec chain (Tech Design + Feature Specs)
+  Next: Running spec chain (SRS → Tech Design → Review)
 ```
 
 **If multi-split:**

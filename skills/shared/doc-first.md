@@ -24,7 +24,9 @@ These rules apply to **every** spec-forge document generation — PRD, SRS, tech
    Each requirement, decision, term, metric, or component must have exactly **one** authoritative location. Other documents may reference it, but must not restate its content. If you find the same concept defined in two places with even slightly different wording, you have a bug — pick one location as authoritative and replace the other with a reference. Inconsistency is worse than duplication, but duplication causes inconsistency.
 
 4. **Upstream → downstream propagation is the author's responsibility.**
-   Project documents form a chain: Idea → PRD → SRS → Tech Design → Feature Specs → Test Cases → README. When you change an upstream document, you are responsible for either (a) updating every downstream document the change touches, or (b) running `/spec-forge:propagate` to discover and resolve the staleness systematically. Never leave the chain partially updated — partial updates are how docs lose the trust of the team.
+   Project documents form a chain: Idea → PRD → **SRS** → Tech Design → Feature Specs → implementation. When you change an upstream document, you are responsible for either (a) updating every downstream document the change touches, or (b) running `/spec-forge:propagate` to discover and resolve the staleness systematically. Never leave the chain partially updated — partial updates are how docs lose the trust of the team.
+
+   The SRS deserves particular care here because it is the delivery contract: an `FR-*`/`NFR-*` ID is a contract reference that the tech design, the feature specs, any code-forge plan, and possibly a signed agreement all point at. Changing a requirement means following §10.3 change control — log it, assess the downstream impact, edit the SRS in place, bump its version, and propagate. Renumbering an issued ID severs every one of those references at once.
 
 #### Pre-Generation Checklist (run before writing any new spec content)
 
