@@ -1,8 +1,12 @@
 # Release Notes
 
-## v0.22.0 — Requirements as the Delivery Contract
+> Entries are keyed by **release date**, not version number. The version lives in
+> `.claude-plugin/plugin.json` and nowhere else, so bumping it never requires
+> editing this file — add a dated entry here when there is something worth
+> telling users, and bump the version there when you publish. Cross-references
+> between entries use dates for the same reason.
 
-**Release Date**: 2026-09-16
+## 2026-09-16 — Requirements as the Delivery Contract
 
 The chain previously ran `Idea → Decompose → Tech Design + Feature Specs → Review`, with PRD and SRS as optional side documents. That meant the default path reached a technical design without ever producing a requirements document an implementation team could be held to. This release makes the SRS the mandatory spine and re-cuts the PRD/SRS boundary so the two documents stop overlapping.
 
@@ -30,23 +34,19 @@ Existing `prd.md` and `srs.md` files keep their paths and IDs — nothing needs 
 
 ---
 
-## v0.12.2 — Skill Review & Consistency Fixes
-
-**Release Date**: 2026-03-10
+## 2026-03-10 — Skill Review & Consistency Fixes
 
 ### Fixes
 
 - **plugin.json keywords**: Added missing keywords for newer capabilities (idea, analyze, audit, feature specs, knowledge mapping, document analysis).
 - **README.md**: Fixed idea status flow to include all 6 statuses (`exploring → researching → refining → ready → graduated`, plus `parked`). Fixed code-forge example paths to use component names instead of feature names.
 - **generation-instructions.md**: Fixed `overview.md` generation instruction to "Create or update" (merge) instead of "Create" (overwrite), preventing data loss in multi-split projects.
-- **tech-design SKILL.md**: Removed residual `/spec-forge:feature` references (command was deleted in v0.12.0).
+- **tech-design SKILL.md**: Removed residual `/spec-forge:feature` references (command was deleted in the 2026-03-09 release).
 - **Orchestrator**: Unified variable naming — `feature_name` → `argument` across all routes for consistency with the routing table.
 
 ---
 
-## v0.12.0 — Feature Spec Ordering & No-Prefix Rule
-
-**Release Date**: 2026-03-09
+## 2026-03-09 — Feature Spec Ordering & No-Prefix Rule
 
 ### Changes
 
@@ -55,9 +55,7 @@ Existing `prd.md` and `srs.md` files keep their paths and IDs — nothing needs 
 
 ---
 
-## v0.11.0 — Audit & Analyze Skills
-
-**Release Date**: 2026-03-08
+## 2026-03-08 — Audit & Analyze Skills
 
 ### New Features
 
@@ -67,9 +65,7 @@ Existing `prd.md` and `srs.md` files keep their paths and IDs — nothing needs 
 
 ---
 
-## v0.10.0 — Rationale Requirements
-
-**Release Date**: 2026-03-07
+## 2026-03-07 — Rationale Requirements
 
 ### Changes
 
@@ -80,9 +76,7 @@ Existing `prd.md` and `srs.md` files keep their paths and IDs — nothing needs 
 
 ---
 
-## v0.9.0 — Streamlined Auto Chain & Feature Spec Generation
-
-**Release Date**: 2026-02-28
+## 2026-02-28 — Streamlined Auto Chain & Feature Spec Generation
 
 ### Breaking Changes
 
@@ -98,9 +92,7 @@ Existing `prd.md` and `srs.md` files keep their paths and IDs — nothing needs 
 
 ---
 
-## v0.8.0 — Ideas Directory Convention
-
-**Release Date**: 2026-02-25
+## 2026-02-25 — Ideas Directory Convention
 
 ### Changes
 
@@ -109,9 +101,7 @@ Existing `prd.md` and `srs.md` files keep their paths and IDs — nothing needs 
 
 ---
 
-## v0.7.0 — Feature Specs & Overview
-
-**Release Date**: 2026-02-22
+## 2026-02-22 — Feature Specs & Overview
 
 ### New Features
 
@@ -121,9 +111,7 @@ Existing `prd.md` and `srs.md` files keep their paths and IDs — nothing needs 
 
 ---
 
-## v0.6.0 — Project Decomposition
-
-**Release Date**: 2026-02-18
+## 2026-02-18 — Project Decomposition
 
 ### New Features
 
@@ -135,9 +123,7 @@ Existing `prd.md` and `srs.md` files keep their paths and IDs — nothing needs 
 
 ---
 
-## v0.5.1 — Idea Validation Skill
-
-**Release Date**: 2026-02-14
+## 2026-02-14 — Idea Validation Skill
 
 ### New Features
 
@@ -149,9 +135,7 @@ Existing `prd.md` and `srs.md` files keep their paths and IDs — nothing needs 
 
 ---
 
-## v0.5.0 — Rename to spec-forge + Standalone Mode
-
-**Release Date**: 2025-02-09
+## 2025-02-09 — Rename to spec-forge + Standalone Mode
 
 ### Breaking Changes
 
@@ -171,9 +155,7 @@ Existing `prd.md` and `srs.md` files keep their paths and IDs — nothing needs 
 
 ---
 
-## v0.1.0 — Initial Release
-
-**Release Date**: 2025-01-01
+## 2025-01-01 — Initial Release
 
 ### Overview
 
